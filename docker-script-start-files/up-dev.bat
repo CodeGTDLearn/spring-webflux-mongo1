@@ -1,6 +1,6 @@
 echo on
-REM SETTING JDK13 AS DEFAULT
-set JAVA_HOME=C:\Program Files\java\AdoptOpenJDK-13.0.2+8
+REM SETTING JDK11 AS DEFAULT
+set JAVA_HOME=C:\Program Files\java\AdoptOpenJDK-11.0.8+10
 
 cd ..
 call mvn clean package -DskipTests

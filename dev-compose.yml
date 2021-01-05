@@ -6,29 +6,30 @@ x-common-variables:
     PORT_DEBUG: 5005
     MONGO_INITDB_ROOT_USERNAME: root
     MONGO_INITDB_ROOT_PASSWORD: root
-    MONGO_DB: mongo-db
+    MONGO_DB: api-db
+    MONGO_HOST: api-db
     MONGO_PORT: 27017
     MONGO_AUTH_MAN: admin
 
 volumes:
-  app_data:
+  api_vol:
 
 networks:
-  app_net:
+  api_net:
 
 services:
-  mongo-db:
-    container_name: mongo-db
+  api-db:
+    container_name: api-db
     image: mongo:4.0
-    hostname: mongo-db
+    hostname: api-db
     restart: always
     ports:
       - 27017:27017
     command: mongod --smallfiles --logpath=/dev/null # --quiet
     volumes:
-      - app_data:/data/db
+      - api_vol:/data/db
     networks:
-      - app_net
+      - api_net
     environment:
       *env-vars
 
@@ -44,11 +45,11 @@ services:
       - 8080:8080
       - 5005:5005
     volumes:
-      - app_data:/data/db
+      - api_vol:/data/db
     depends_on:
-      - mongo-db
+      - api-db
     networks:
-      - app_net
+      - api_net
     environment:
 #      PROFILE: dev
       <<: *env-vars
