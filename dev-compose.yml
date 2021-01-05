@@ -1,0 +1,58 @@
+version: "3.4"
+
+x-common-variables:
+  &env-vars
+    PORT_API: 8080
+    PORT_DEBUG: 5005
+    MONGO_INITDB_ROOT_USERNAME: root
+    MONGO_INITDB_ROOT_PASSWORD: root
+    MONGO_DB: mongo-db
+    MONGO_PORT: 27017
+    MONGO_AUTH_MAN: admin
+
+volumes:
+  app_data:
+
+networks:
+  app_net:
+
+services:
+  mongo-db:
+    container_name: mongo-db
+    image: mongo:4.0
+    hostname: mongo-db
+    restart: always
+    ports:
+      - 27017:27017
+    command: mongod --smallfiles --logpath=/dev/null # --quiet
+    volumes:
+      - app_data:/data/db
+    networks:
+      - app_net
+    environment:
+      *env-vars
+
+  web-api:
+    image: pauloportfolio/api
+    container_name: api
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      args:
+        JAR_FILE: target/*.jar
+    ports:
+      - 8080:8080
+      - 5005:5005
+    volumes:
+      - app_data:/data/db
+    depends_on:
+      - mongo-db
+    networks:
+      - app_net
+    environment:
+#      PROFILE: dev
+      <<: *env-vars
+#      JAVA_OPTIONS: -XX:+AllowRedefinitionToAddDeleteMethods
+      DEBUG_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Xmx1G -Xms128m -XX:MaxMetaspaceSize=128m
+      #   *JDK11: ADDITIONAL_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Xmx1G -Xms128m -XX:MaxMetaspaceSize=128m
+      #   *JDK08: ADDITIONAL_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005 -Xmx1G -Xms128m -XX:MaxMetaspaceSize=128m
