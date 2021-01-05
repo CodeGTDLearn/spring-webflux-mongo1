@@ -2,7 +2,6 @@ package com.mongo;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
@@ -17,25 +16,15 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class AppDriverTests extends TestsConfig {
+//@WebFluxTest
+//@RunWith(SpringRunner.class)
+@SpringBootTest
+@Slf4j
+public class TestsConfig {
 
-
-    @Test
-    public void blockHoundWorks() {
-        try {
-            FutureTask<?> task = new FutureTask<>(() -> {
-                Thread.sleep(0);
-                return "";
-            });
-
-            Schedulers.parallel()
-                      .schedule(task);
-
-            task.get(10,TimeUnit.SECONDS);
-            Assert.fail("should fail");
-        } catch (ExecutionException | InterruptedException | TimeoutException e) {
-            Assert.assertTrue("detected",e.getCause() instanceof BlockingOperationError);
-        }
+    static {
+        BlockHound.install();
     }
+
 
 }
