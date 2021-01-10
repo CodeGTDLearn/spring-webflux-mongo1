@@ -3,6 +3,7 @@ package com.mongo.api.core.exceptions.custom.handlers;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+
 @Data
 @AllArgsConstructor
 public class ExceptionDetails {
