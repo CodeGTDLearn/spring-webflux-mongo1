@@ -2,12 +2,12 @@ version: "3.4"
 
 x-common-variables:
   &env-vars-db
-  MONGO_DB: api-db
-  MONGO_HOST: api-db
-  MONGO_PORT: 27017
-  MONGO_INITDB_ROOT_USERNAME: root
-  MONGO_INITDB_ROOT_PASSWORD: root
-  MONGO_AUTH_MAN: admin
+  COMP_DB_NAME: api-db
+  COMP_DB_HOST: api-db
+  COMP_DB_PORT: 27017
+  COMP_DB_INITDB_ROOT_USERNAME: root
+  COMP_DB_INITDB_ROOT_PASSWORD: root
+  COMP_DB_AUTH_MAN: admin
 
 volumes:
   api_vol:

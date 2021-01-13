@@ -4,29 +4,29 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.testcontainers.containers.DockerComposeContainer;
 import reactor.blockhound.BlockHound;
 import reactor.blockhound.BlockingOperationError;
 import reactor.core.scheduler.Schedulers;
 
+import java.io.File;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-@DataMongoTest
-@RunWith(SpringRunner.class)
 //@SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
 //@AutoConfigureTestDatabase(replace = Replace.NONE)
 //@TestPropertySource("classpath:config-test.properties")
 //@TestPropertySource("classpath:application-test.properties")
 //@WebFluxTest
+@DataMongoTest
+@RunWith(SpringRunner.class)
 @Slf4j
 @Ignore
-public class GlobalTestsConfig {
-
-
+public class GlobalTestsConfig extends TestContainers {
+//public class GlobalTestsConfig  {
 
     static {
         BlockHound.install();
@@ -50,13 +50,13 @@ public class GlobalTestsConfig {
         }
     }
 
-    @Before
-    public void setUp() {
-        System.out.println("----- SUPER SETUP -----");
+    @BeforeClass
+    public static void beforeClass() {
+        System.out.println("----- SUPER BEFORE-CLASS -----");
     }
 
-    @After
-    public void tearDown() {
-        System.out.println("----- SUPER TEARDOWN -----");
+    @AfterClass
+    public static void afterClass() {
+        System.out.println("----- SUPER AFTER-CLASS -----");
     }
 }

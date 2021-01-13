@@ -2,12 +2,12 @@ version: "3.4"
 
 x-common-variables:
   &env-vars-db
-  MONGO_DB: api-db
-  MONGO_HOST: api-db
-  MONGO_PORT: 27017
-  MONGO_INITDB_ROOT_USERNAME: root
-  MONGO_INITDB_ROOT_PASSWORD: root
-  MONGO_AUTH_MAN: admin
+  COMP_DB_NAME: api-db
+  COMP_DB_HOST: api-db
+  COMP_DB_PORT: 27017
+  COMP_DB_INITDB_ROOT_USERNAME: root
+  COMP_DB_INITDB_ROOT_PASSWORD: root
+  COMP_DB_AUTH_MAN: admin
 
 volumes:
   api_vol:
@@ -16,20 +16,20 @@ networks:
   api_net:
 
 services:
-#  api-db:
-#    container_name: api-db
-#    image: mongo:4.0
-#    hostname: api-db
-#    restart: always
-#    ports:
-#      - 27017:27017
-#    command: mongod --smallfiles --logpath=/dev/null # --quiet
-#    volumes:
-#      - api_vol:/data/db
-#    networks:
-#      - api_net
-#    environment:
-#      *env-vars-db
+  api-db:
+    container_name: api-db
+    image: mongo:4.0
+    hostname: api-db
+    restart: always
+    ports:
+      - 27017:27017
+    command: mongod --smallfiles --logpath=/dev/null # --quiet
+    volumes:
+      - api_vol:/data/db
+    networks:
+      - api_net
+    environment:
+      *env-vars-db
 
   api-web:
     image: pauloportfolio/api
@@ -44,12 +44,12 @@ services:
       - 5005:5005
     volumes:
       - api_vol:/data/db
-#    depends_on:
-#      - api-db
+    depends_on:
+      - api-db
     networks:
       - api_net
     environment:
-      PROFILE: test
+      PROFILE: dev
       <<: *env-vars-db
       PORT_API: 8080
       PORT_DEBUG: 5005
