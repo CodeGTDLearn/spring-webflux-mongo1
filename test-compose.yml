@@ -49,7 +49,7 @@ services:
     networks:
       - api_net
     environment:
-      PROFILE: dev
+      PROFILE: test
       <<: *env-vars-db
       PORT_API: 8080
       PORT_DEBUG: 5005

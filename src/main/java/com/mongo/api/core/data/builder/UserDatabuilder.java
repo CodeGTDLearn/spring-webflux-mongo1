@@ -25,18 +25,18 @@ public class UserDatabuilder {
     @Default
     private static String email;
 
-    public static UserDatabuilder userFull() {
-        autoGenerateFullUsers();
-
-        User user = new User();
-        user.setId(id);
-        user.setName(name);
-        user.setEmail(email);
-
-        return UserDatabuilder.builder()
-                              .userDataBuilder(user)
-                              .build();
-    }
+//    public static UserDatabuilder userFull() {
+//        autoGenerateFullUsers();
+//
+//        User user = new User();
+//        user.setId(id);
+//        user.setName(name);
+//        user.setEmail(email);
+//
+//        return UserDatabuilder.builder()
+//                              .userDataBuilder(user)
+//                              .build();
+//    }
 
     public static UserDatabuilder userNullID() {
         autoGenerateUsersWithoutId();
@@ -64,18 +64,6 @@ public class UserDatabuilder {
                               .build();
     }
 
-    public static UserDatabuilder userNoIDnullParam(String id) {
-        autoGenerateUsersWithoutId();
-
-        User user = new User();
-        user.setId(id);
-        user.setName(name);
-        user.setEmail(email);
-
-        return UserDatabuilder.builder()
-                              .userDataBuilder(user)
-                              .build();
-    }
 
     private static void autoGenerateUsersWithoutId() {
         name = faker.name()

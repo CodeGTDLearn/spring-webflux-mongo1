@@ -17,10 +17,10 @@ REM DOCKER LISTING IMAGES + SYSTEM
 docker system df
 docker image ls
 
+REM RE-SETTING JDK8 AS DEFAULT
+set JAVA_HOME=C:\Program Files\Java\jdk-8.0.282.8-hotspot
+
 REM CLOSING ALL CMD-SCREENS
 TASKKILL /F /IM cmd.exe /T
-
-REM RE-SETTING JDK8 AS DEFAULT
-set JAVA_HOME=C:\Program Files\java\AdoptOpenJDK-8.0.252.09
 
 exit

@@ -1,62 +1,85 @@
 package com.mongo.api.modules.user;
 
-import com.mongo.api.core.data.builder.UserDatabuilder;
+import com.mongo.utils.GlobalTestsConfig;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
+import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static com.mongo.api.core.data.builder.UserDatabuilder.userNullID;
 
-
-//@SpringBootTest
-@Testcontainers
-@DataMongoTest(excludeAutoConfiguration = EmbeddedMongoAutoConfiguration.class)
-public class UserRepoTest {
-
-    @Container
-    static MongoDBContainer container =
-            new MongoDBContainer("mongo:4.4.2");
-
-    @DynamicPropertySource
-    static void setProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.data.mongodb.uri",container::getReplicaSetUrl);
-    }
+public class UserRepoTest extends GlobalTestsConfig {
 
     @Autowired
     private UserRepo userRepo;
 
+    User user1 = new User();
+    User user2 = new User();
+
+    @Container
+    private static final MongoDBContainer db =
+            new MongoDBContainer("mongo:4.2.8");
+
+    @DynamicPropertySource
+    static void containerProperties(DynamicPropertyRegistry registry) {
+        System.out.println(
+                "uri: " + db.getReplicaSetUrl("pauleta") + "\n" +
+                        "port: " + db.getExposedPorts()
+                                     .toString() + "\n" +
+                        "host: " + db.getHost() + "\n" +
+                        "created: " + db.isCreated() + "\n" +
+                        "getBinds: " + db.getBinds()
+                                         .toString() + "\n" +
+                        "container-name: " + db.getContainerName() + "\n" +
+                        "folder: " + db.getWorkingDirectory() + "\n" +
+                        "image: " + db.getDockerImageName());
+
+        registry.add("spring.data.mongodb.uri",db::getReplicaSetUrl);
+        //        registry.add("spring.data.mongodb.database",db::getReplicaSetUrl);
+        registry.add("spring.data.mongodb.host",db::getHost);
+        registry.add("spring.data.mongodb.port",db::getExposedPorts);
+        //        registry.add("spring.data.mongodb.username",container::getDockerImageName);
+        registry.add("spring.data.mongodb.authentication-database",() -> "admin");
+    }
+
     @BeforeEach
-    void setUp() {
-        container.start();
+    void beforeEach() {
+        System.out.println("------------- USER-REPO-TEST ----BEFORE-EACH");
+        super.blockHoundWorks();
+        user1 = userNullID().create();
+        user2 = userNullID().create();
+
+        List<User> list = Arrays.asList(user1,user2);
+
+        userRepo.deleteAll()
+                .thenMany(Flux.fromIterable(list))
+                .flatMap(userRepo::save)
+                .doOnNext((item -> System.out.println(" User item is: " + item)))
+                .subscribe();
+        //            .blockLast(); // THATS THE WHY, BLOCKHOUND IS NOT BEING USED.
     }
 
     @AfterEach
-    void cleanUp() {
-        userRepo.deleteAll();
-        container.stop();
+    void afterEach() {
+        System.out.println("------------- USER-REPO-TEST ----AFTER-EACH");
     }
 
     @Test
-    void findAllUsers() {
-        this.userRepo.save(UserDatabuilder.userNullID().create());
-        this.userRepo.save(UserDatabuilder.userNullID().create());
-
+    public void findAll() {
         StepVerifier
                 .create(userRepo.findAll())
                 .expectSubscription()
                 .expectNextCount(2)
                 .verifyComplete();
     }
+
 }

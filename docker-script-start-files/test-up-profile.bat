@@ -1,6 +1,6 @@
 echo on
 REM SETTING JDK11 AS DEFAULT
-set JAVA_HOME=C:\Program Files\java\AdoptOpenJDK-11.0.8+10
+set JAVA_HOME=C:\Program Files\Java\jdk-11.0.10+9
 
 cd ..
 call mvn clean package -DskipTests
@@ -25,5 +25,6 @@ docker image ls
 
 REM START THE COMPOSE CONTAINERS
 docker-compose -f ../test-compose.yml up --build --force-recreate
+
 
 pause
