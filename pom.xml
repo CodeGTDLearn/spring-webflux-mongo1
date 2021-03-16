@@ -110,7 +110,9 @@
 
         <!-- ===================================
                INTEGRATION-TESTS USING TESTS-CONTAINERS
-               see: https://www.codeflow.site/pt/article/docker-test-containers
+               see more:
+             https://www.codeflow.site/pt/article/docker-test-containers
+             https://www.youtube.com/watch?v=7ExYGJxGC8Q&list=WL&index=62&t=477s
              ===================================-->
         <dependency>
             <groupId>org.testcontainers</groupId>
@@ -130,6 +132,12 @@
             <groupId>org.testcontainers</groupId>
             <artifactId>mongodb</artifactId>
             <version>1.15.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>20.1.0</version>
             <scope>test</scope>
         </dependency>
 

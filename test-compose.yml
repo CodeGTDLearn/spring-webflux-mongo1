@@ -18,7 +18,7 @@ networks:
 services:
   api-db:
     container_name: api-db
-    image: mongo:4.0
+    image: mongo:4.4.3
     hostname: api-db
     restart: always
     ports:
@@ -36,7 +36,7 @@ services:
     container_name: api-web
     build:
       context: ./
-      dockerfile: dev-dockerfile
+      dockerfile: test-dockerfile
       args:
         JAR_FILE: target/*.jar
     ports:
