@@ -24,7 +24,9 @@
     </properties>
 
     <dependencies>
-        <!--        GENERAL DEPENDENCIES-->
+        <!-- =======================================================
+             GENERAL DEPENDENCIES
+             =======================================================-->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -54,39 +56,42 @@
             <optional>true</optional>
         </dependency>
 
-        <!--    NOSQL DATABASE DEPENDENCIES-->
+
+        <!-- =======================================================
+             NOSQL DATABASE DEPENDENCIES
+             =======================================================-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-mongodb-reactive</artifactId>
             <version>2.4.0</version>
         </dependency>
 
-        <!--        TEST DEPENDENCIES-->
         <!-- =======================================================
+             TEST DEPENDENCIES
+             =======================================================
                    TESTS USING MONGO-DB IN MEMORY
            Flapdoodle's is not a “full integration testing"
             'communication tests' simulating 'production',
            a better solution is 'Docker or TestContainers'
            SEE: https://www.baeldung.com/spring-boot-embedded-mongodb
-         ==========================================================
+             =======================================================-->
         <dependency>
             <groupId>de.flapdoodle.embed</groupId>
             <artifactId>de.flapdoodle.embed.mongo</artifactId>
             <version>2.2.0</version>
             <scope>test</scope>
         </dependency>
-         ==========================================================-->
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
-<!--            <exclusions>-->
-<!--                <exclusion>-->
-<!--                    <groupId>org.junit.vintage</groupId>-->
-<!--                    <artifactId>junit-vintage-engine</artifactId>-->
-<!--                </exclusion>-->
-<!--            </exclusions>-->
+            <!--            <exclusions>-->
+            <!--                <exclusion>-->
+            <!--                    <groupId>org.junit.vintage</groupId>-->
+            <!--                    <artifactId>junit-vintage-engine</artifactId>-->
+            <!--                </exclusion>-->
+            <!--            </exclusions>-->
         </dependency>
 
         <dependency>
@@ -108,12 +113,25 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- ===================================
-               INTEGRATION-TESTS USING TESTS-CONTAINERS
-               see more:
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>spring-web-test-client</artifactId>
+            <version>4.3.1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured-common</artifactId>
+            <version>4.3.1</version>
+        </dependency>
+
+        <!-- =======================================================
+             INTEGRATION-TESTS USING TESTS-CONTAINERS
+             see more:
              https://www.codeflow.site/pt/article/docker-test-containers
              https://www.youtube.com/watch?v=7ExYGJxGC8Q&list=WL&index=62&t=477s
-             ===================================-->
+             =======================================================-->
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>
@@ -134,13 +152,13 @@
             <version>1.15.1</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
             <version>20.1.0</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -148,6 +166,18 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <!--SUPRESS WARNING:
+             The encoding used to copy filtered properties files have not been
+            set...-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <propertiesEncoding>${project.build.sourceEncoding}</propertiesEncoding>
+                </configuration>
             </plugin>
         </plugins>
     </build>

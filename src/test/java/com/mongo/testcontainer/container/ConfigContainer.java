@@ -1,0 +1,43 @@
+package com.mongo.testcontainer.container;
+
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Test;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import reactor.blockhound.BlockingOperationError;
+import reactor.core.scheduler.Schedulers;
+
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD;
+
+@DirtiesContext(classMode = BEFORE_EACH_TEST_METHOD)
+@Slf4j
+@Testcontainers
+public class ConfigContainer {
+
+    @Container
+    static MongoDBContainer container = new MongoDBContainer("mongo:4.4.2");
+
+    @DynamicPropertySource
+    static void setProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.data.mongodb.uri",container::getReplicaSetUrl);
+    }
+
+    static void closingContainer(){
+        container.close();
+    }
+}
+
+
+
+

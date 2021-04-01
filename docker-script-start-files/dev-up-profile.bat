@@ -8,7 +8,7 @@ cd docker-script-start-files
 
 REM DOCKER CLEAN-ALL ORPHANS
 docker-compose -f ../dev-compose.yml down --remove-orphans
-docker-compose -f ../test-compose.yml down --remove-orphans
+REM docker-compose -f ../test-compose.yml down --remove-orphans
 
 docker container prune --force
 docker container rm $(docker container ls -q)
