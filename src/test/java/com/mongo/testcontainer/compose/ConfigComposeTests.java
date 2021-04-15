@@ -8,26 +8,22 @@ import lombok.extern.slf4j.Slf4j;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.testcontainers.containers.DockerComposeContainer;
-import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.blockhound.BlockHound;
-import reactor.blockhound.BlockingOperationError;
-import reactor.core.scheduler.Schedulers;
 
 import java.io.File;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD;
+import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD;
+
+/*
+SPEED-UP TESTCONTAINERS
+https://callistaenterprise.se/blogg/teknik/2020/10/09/speed-up-your-testcontainers-tests/
+https://medium.com/pictet-technologies-blog/speeding-up-your-integration-tests-with-testcontainers-e54ab655c03d
+ */
 
 /*------------------------------------------------------------
                          DataMongoTest
@@ -39,7 +35,7 @@ b) USO ALTERNATIVO (DataMongoTest/SpringBootTest) - CONFLITAM ENTRE-SI:
  - @SpringBootTest(webEnvironment = RANDOM_PORT)
   ------------------------------------------------------------*/
 @DataMongoTest(excludeAutoConfiguration = EmbeddedMongoAutoConfiguration.class)
-@DirtiesContext(classMode = BEFORE_EACH_TEST_METHOD)
+@DirtiesContext(classMode = AFTER_EACH_TEST_METHOD)
 @Slf4j
 @Testcontainers
 public class ConfigComposeTests {
@@ -47,22 +43,31 @@ public class ConfigComposeTests {
     final private static Long MAX_TIMEOUT = 15000L;
     final private static ContentType API_CONTENT_TYPE = ContentType.JSON;
 
+
     final private String COMPOSE_PATH = "src/test/resources/compose-testcontainers.yml";
-    final private int SERVICE_DB_PORT = 27017;
-    final private String SERVICE_DB = "db";
+    final static public int SERVICE_PORT = 27017;
+    final static public String SERVICE = "db";
 
 
-    @Container
+    //@Container //Nao anotar aqui. Annotacao deve ficar na classe receptora
     public DockerComposeContainer<?> compose =
             new DockerComposeContainer<>(new File(COMPOSE_PATH))
-                    .withExposedService(SERVICE_DB,SERVICE_DB_PORT);
+                    .withExposedService(
+                            SERVICE,
+                            SERVICE_PORT
+                                       )
+//                    .waitingFor(SERVICE_DB)
+            ;
 
 
     @BeforeAll
-    public static void beforeAll() {
+    static void beforeAll() {
+
         BlockHound.install(
-//                builder -> builder
-//                        .allowBlockingCallsInside("java.util.UUID","randomUUID")
+                builder -> builder
+                        .allowBlockingCallsInside("java.io.PrintStream",
+                                                  "write"
+                                                 )
                           );
 
         //DEFINE CONFIG-GLOBAL PARA OS REQUESTS DOS TESTES
@@ -81,31 +86,24 @@ public class ConfigComposeTests {
 
 
     @AfterAll
-    public static void afterAll() {
+    static void afterAll() {
         RestAssuredWebTestClient.reset();
     }
 
+    public void checkTestcontainerComposeService(DockerComposeContainer<?> compose,String service,Integer port) {
+        String status =
+                "\nHost: " + compose.getServiceHost(service,port) +
+                        "\nPort: " + compose.getServicePort(service,port) +
+                        "\nCreated: " + compose.getContainerByServiceName(service + "_1")
+                                               .get()
+                                               .isCreated() +
+                        "\nRunning: " + compose.getContainerByServiceName(service + "_1")
+                                               .get()
+                                               .isRunning();
 
-//    @Test
-    public static void bHWorks() {
-        System.out.println("------GLOBAL----BHOUND: START--------");
-        try {
-            FutureTask<?> task = new FutureTask<>(() -> {
-                Thread.sleep(0);
-                return "";
-            });
-
-            Schedulers.parallel()
-                      .schedule(task);
-
-            task.get(10,TimeUnit.SECONDS);
-            fail("should fail");
-        } catch (ExecutionException | InterruptedException | TimeoutException e) {
-            assertTrue(e.getCause() instanceof BlockingOperationError);
-        }
-        System.out.println("------GLOBAL----BLOCKHOUND: ENDING-------");
+        System.out.println(
+                "------------\n" + "SERVICE: " + service + status + "\n------------");
     }
-
 }
 
 

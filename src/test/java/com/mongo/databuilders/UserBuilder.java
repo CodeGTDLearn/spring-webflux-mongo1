@@ -22,11 +22,11 @@ public class UserBuilder {
     //    private static String FAKER_REGEX_TEL = "[0-9]{9}";
 
 
-    public static UserBuilder userFull(List<Post> userListPosts) {
+    public static UserBuilder userFull_withoutID(List<Post> userListPosts) {
         List<String> idPosts = new ArrayList<>();
 
         User userFull = new User();
-        userFull.setId(faker.regexify("/^[a-f\\d]{24}$/i"));
+//        userFull.setId(faker.regexify("/^[a-f\\d]{24}$/i"));
         userFull.setName(faker.name()
                               .fullName());
         userFull.setEmail(faker.internet()
@@ -44,15 +44,12 @@ public class UserBuilder {
     }
 
     public static UserBuilder userWithID_ListIdPostsEmpty() {
-//        List<String> idPosts = new ArrayList<>();
-
         User userWithID_ListIdPostsEmpty = new User();
         userWithID_ListIdPostsEmpty.setId(faker.regexify("/^[a-f\\d]{24}$/i"));
         userWithID_ListIdPostsEmpty.setName(faker.name()
                               .fullName());
         userWithID_ListIdPostsEmpty.setEmail(faker.internet()
                                .emailAddress());
-//        userWithID_ListIdPostsEmpty.setIdPosts(idPosts);
 
         return UserBuilder.builder()
                           .user(userWithID_ListIdPostsEmpty)
@@ -69,6 +66,22 @@ public class UserBuilder {
         userFull_IdNull_ListIdPostsEmpty.setEmail(faker.internet()
                                  .emailAddress());
 //        userFull_IdNull_ListIdPostsEmpty.setIdPosts(idPosts);
+        return UserBuilder.builder()
+                          .user(userFull_IdNull_ListIdPostsEmpty)
+                          .build();
+    }
+
+
+    public static UserBuilder userFull_Id_ListIdPostsEmpty() {
+        //        List<String> idPosts = new ArrayList<>();
+
+        User userFull_IdNull_ListIdPostsEmpty = new User();
+        //        userFull_IdNull_ListIdPostsEmpty.setId(null);
+        userFull_IdNull_ListIdPostsEmpty.setName(faker.name()
+                                                      .fullName());
+        userFull_IdNull_ListIdPostsEmpty.setEmail(faker.internet()
+                                                       .emailAddress());
+        //        userFull_IdNull_ListIdPostsEmpty.setIdPosts(idPosts);
         return UserBuilder.builder()
                           .user(userFull_IdNull_ListIdPostsEmpty)
                           .build();

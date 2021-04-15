@@ -8,20 +8,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.test.annotation.DirtiesContext;
-import reactor.blockhound.BlockingOperationError;
-import reactor.core.scheduler.Schedulers;
+import reactor.blockhound.BlockHound;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD;
 
 /*------------------------------------------------------------
@@ -38,14 +29,18 @@ b) USO ALTERNATIVO (DataMongoTest/SpringBootTest) - CONFLITAM ENTRE-SI:
 @Slf4j
 public class ConfigContainerTests extends ConfigContainer {
 
-    final private static Long MAX_TIMEOUT = 15000L;
+    final static Long MAX_TIMEOUT = 15000L;
     final static ContentType JSON_CONTENT_TYPE = ContentType.JSON;
 
+
     @BeforeAll
-    static void beforeAll() {
-        //        BlockHound.install(
-        //builder -> builder.allowBlockingCallsInside("java.util.UUID" ,"randomUUID")
-        //                          );
+    public static void beforeAll() {
+        BlockHound.install(
+                builder -> builder
+                        .allowBlockingCallsInside("java.io.PrintStream",
+                                                  "write"
+                                                 )
+                          );
 
         //DEFINE CONFIG-GLOBAL PARA OS REQUESTS DOS TESTES
         RestAssuredWebTestClient.requestSpecification =
@@ -64,30 +59,9 @@ public class ConfigContainerTests extends ConfigContainer {
 
 
     @AfterAll
-    static void afterAll() {
-        ConfigContainer.closingContainer();
+    public static void afterAll() {
+//        ConfigContainer.closingContainer();
         RestAssuredWebTestClient.reset();
-    }
-
-
-    @Test
-    public void bHWorks() {
-        System.out.println("------GLOBAL----BHOUND: START--------");
-        try {
-            FutureTask<?> task = new FutureTask<>(() -> {
-                Thread.sleep(0);
-                return "";
-            });
-
-            Schedulers.parallel()
-                      .schedule(task);
-
-            task.get(10,TimeUnit.SECONDS);
-            fail("should fail");
-        } catch (ExecutionException | InterruptedException | TimeoutException e) {
-            assertTrue(e.getCause() instanceof BlockingOperationError);
-        }
-        System.out.println("------GLOBAL----BLOCKHOUND: ENDING-------");
     }
 }
 

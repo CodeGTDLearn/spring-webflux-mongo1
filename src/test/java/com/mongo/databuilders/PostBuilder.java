@@ -27,8 +27,8 @@ public class PostBuilder {
 
     public static PostBuilder postFull
             (User postUserAuthor,
-             Comment comentarioUnicoNoPost,
-             List<Comment> listaDeComentariosDoPost) {
+             Comment comment,
+             List<Comment> commentList) {
 
         List<String> idCommentsList = new ArrayList<>();
 
@@ -41,10 +41,10 @@ public class PostBuilder {
         postFull.setDate(faker.date()
                               .birthday());
         postFull.setAuthor(new AuthorDto(postUserAuthor));
-        postFull.setComment(comentarioUnicoNoPost);
-        postFull.setListComments(listaDeComentariosDoPost);
+        postFull.setComment(comment);
+        postFull.setListComments(commentList);
 
-        for (Comment comment1 : listaDeComentariosDoPost) {
+        for (Comment comment1 : commentList) {
             idCommentsList.add(comment1.getId());
         }
         postFull.setIdComments(idCommentsList);
@@ -54,7 +54,7 @@ public class PostBuilder {
     }
 
 
-    public static PostBuilder post_IdNull_CommentsEmpty(User postUserAuthorDTO) {
+    public static PostBuilder post_IdNull_CommentsEmpty(User user) {
 
         //        List<String> idCommentsList = new ArrayList<>();
 
@@ -66,54 +66,8 @@ public class PostBuilder {
                                               .sentence(25));
         postFull.setDate(faker.date()
                               .birthday());
-        postFull.setAuthor(new AuthorDto(postUserAuthorDTO));
-        //        postFull.setComment(comentarioUnicoNoPost);
-        //        postFull.setListComments(listaDeComentariosDoPost);
-        //
-        //        for (Comment comment1 : listaDeComentariosDoPost) {
-        //            idCommentsList.add(comment1.getId());
-        //        }
-        //        postFull.setIdComments(idCommentsList);
-        return PostBuilder.builder()
-                          .post(postFull)
-                          .build();
-    }
+        postFull.setAuthor(new AuthorDto(user));
 
-
-    public static PostBuilder postFull_CommentsSameAuthor(User postUserAuthorDTO) {
-
-        String idPost = faker.regexify("/^[a-f\\d]{24}$/i");
-
-        Post postFull = new Post();
-        postFull.setId(idPost);
-        postFull.setTitle(faker.rockBand()
-                               .name());
-        postFull.setBody("Post-Body: " + faker.lorem()
-                                              .sentence(25));
-        postFull.setDate(faker.date()
-                              .birthday());
-        postFull.setAuthor(new AuthorDto(postUserAuthorDTO));
-
-        Comment comment1 =
-                CommentBuilder.commentFullIdPost(postUserAuthorDTO,idPost)
-                              .create();
-        Comment comment2 =
-                CommentBuilder.commentFullIdPost(postUserAuthorDTO,idPost)
-                              .create();
-        Comment comment3 =
-                CommentBuilder.commentFullIdPost(postUserAuthorDTO,idPost)
-                              .create();
-        List<Comment> commentList = Arrays.asList(comment1,comment2,comment3);
-
-        postFull.setComment(commentList.get(0));
-        postFull.setListComments(commentList);
-
-        List<String> idCommentsList = new ArrayList<>();
-
-        for (Comment commentFor : commentList) {
-            idCommentsList.add(commentFor.getId());
-        }
-        postFull.setIdComments(idCommentsList);
         return PostBuilder.builder()
                           .post(postFull)
                           .build();
