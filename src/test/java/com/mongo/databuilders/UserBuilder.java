@@ -22,6 +22,10 @@ public class UserBuilder {
     //    private static String FAKER_REGEX_TEL = "[0-9]{9}";
 
 
+    public static String createFakeUniqueRandomId(){
+        return faker.regexify("/^[a-f\\d]{24}$/i");
+    }
+
     public static UserBuilder userFull_withoutID(List<Post> userListPosts) {
         List<String> idPosts = new ArrayList<>();
 
@@ -44,10 +48,14 @@ public class UserBuilder {
     }
 
     public static UserBuilder userWithID_ListIdPostsEmpty() {
+
         User userWithID_ListIdPostsEmpty = new User();
-        userWithID_ListIdPostsEmpty.setId(faker.regexify("/^[a-f\\d]{24}$/i"));
+
+        userWithID_ListIdPostsEmpty.setId(createFakeUniqueRandomId());
+
         userWithID_ListIdPostsEmpty.setName(faker.name()
                               .fullName());
+
         userWithID_ListIdPostsEmpty.setEmail(faker.internet()
                                .emailAddress());
 

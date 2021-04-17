@@ -3,6 +3,7 @@ package com.mongo.api.modules.user;
 import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.post.PostRepo;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -10,19 +11,19 @@ import reactor.core.publisher.Mono;
 import static com.mongo.api.core.exceptions.ExceptionTriggers.genericExcErrorUserNotFound;
 import static com.mongo.api.core.exceptions.ExceptionTriggers.userNotFoundException;
 
-@Service
 @AllArgsConstructor
+@Service
 public class UserService {
 
-    private final UserRepo userRepo;
+    private UserRepo userRepo;
 
-    private final PostRepo postRepo;
+    private PostRepo postRepo;
 
     public Flux<User> findAll() {
         return userRepo.findAll();
     }
 
-    public Mono<User> findUserById(String id) {
+    public Mono<User> findById(String id) {
         return userRepo
                 .findById(id)
                 .switchIfEmpty(userNotFoundException());
@@ -38,11 +39,15 @@ public class UserService {
         return userRepo.save(user);
     }
 
-    public Mono<Void> delete(String id) {
+    public Mono<Void> deleteById(String id) {
         return userRepo
                 .findById(id)
                 .switchIfEmpty(userNotFoundException())
                 .flatMap(userRepo::delete);
+    }
+
+    public Mono<Void> deleteAll() {
+        return userRepo.deleteAll();
     }
 
     public Mono<User> update(User user) {
@@ -65,7 +70,5 @@ public class UserService {
                     var id = userFound.getId();
                     return postRepo.findPostsByAuthor_Id(id);
                 });
-        //        return postRepo
-        //                .findPostsByAuthor_Id(userId);//<<<<ver se o author existe antes
     }
 }

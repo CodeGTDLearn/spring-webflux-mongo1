@@ -19,12 +19,6 @@ import java.io.File;
 
 import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD;
 
-/*
-SPEED-UP TESTCONTAINERS
-https://callistaenterprise.se/blogg/teknik/2020/10/09/speed-up-your-testcontainers-tests/
-https://medium.com/pictet-technologies-blog/speeding-up-your-integration-tests-with-testcontainers-e54ab655c03d
- */
-
 /*------------------------------------------------------------
                          DataMongoTest
   ------------------------------------------------------------
@@ -56,12 +50,12 @@ public class ConfigComposeTests {
                             SERVICE,
                             SERVICE_PORT
                                        )
-//                    .waitingFor(SERVICE_DB)
+            //                    .waitingFor(SERVICE_DB)
             ;
 
 
     @BeforeAll
-    static void beforeAll() {
+    public static void beforeAll() {
 
         BlockHound.install(
                 builder -> builder
@@ -86,11 +80,13 @@ public class ConfigComposeTests {
 
 
     @AfterAll
-    static void afterAll() {
+    public static void afterAll() {
         RestAssuredWebTestClient.reset();
     }
 
-    public void checkTestcontainerComposeService(DockerComposeContainer<?> compose,String service,Integer port) {
+
+    public void checkTestcontainerComposeService(DockerComposeContainer<?> compose,String service
+            ,Integer port) {
         String status =
                 "\nHost: " + compose.getServiceHost(service,port) +
                         "\nPort: " + compose.getServicePort(service,port) +
@@ -102,7 +98,8 @@ public class ConfigComposeTests {
                                                .isRunning();
 
         System.out.println(
-                "------------\n" + "SERVICE: " + service + status + "\n------------");
+                "------------\n" + "COMPOSE-SERVICE: " + service + status +
+                        "\n------------");
     }
 }
 

@@ -38,7 +38,7 @@ public class UserResource {
     @ResponseStatus(OK)
     public Mono<UserDto> findById(@PathVariable String id) {
         return service
-                .findUserById(id)
+                .findById(id)
                 .map(UserDto::new);
     }
 
@@ -59,7 +59,7 @@ public class UserResource {
     @DeleteMapping
     @ResponseStatus(NO_CONTENT)
     public Mono<Void> delete(@RequestBody UserDto userDto) {
-        return service.delete(userDto.getId());
+        return service.deleteById(userDto.getId());
     }
 
     @PutMapping

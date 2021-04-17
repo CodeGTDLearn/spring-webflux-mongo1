@@ -7,4 +7,5 @@ import reactor.core.publisher.Flux;
 @Repository
 public interface PostRepo extends ReactiveMongoRepository<Post, String> {
     Flux<Post> findPostsByAuthor_Id(String userId);
+//    Flux<Post> findPostsByAuthorId(String userId);
 }

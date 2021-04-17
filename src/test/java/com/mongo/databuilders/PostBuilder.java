@@ -66,6 +66,7 @@ public class PostBuilder {
                                               .sentence(25));
         postFull.setDate(faker.date()
                               .birthday());
+
         postFull.setAuthor(new AuthorDto(user));
 
         return PostBuilder.builder()
