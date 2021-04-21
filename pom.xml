@@ -21,6 +21,7 @@
 
     <properties>
         <java.version>11</java.version>
+        <groovy.version>3.0.4</groovy.version>
     </properties>
 
     <dependencies>
@@ -39,66 +40,14 @@
         </dependency>
 
         <dependency>
-            <groupId>io.projectreactor</groupId>
-            <artifactId>reactor-tools</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.projectreactor.tools</groupId>
-            <artifactId>blockhound</artifactId>
-            <version>1.0.3.RELEASE</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <scope>runtime</scope>
-            <optional>true</optional>
-        </dependency>
-
-
-        <!-- =======================================================
-             NOSQL DATABASE DEPENDENCIES
-             =======================================================-->
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-mongodb-reactive</artifactId>
-            <version>2.4.0</version>
         </dependency>
-
-        <!-- =======================================================
-             TEST DEPENDENCIES
-             =======================================================
-                   TESTS USING MONGO-DB IN MEMORY
-           Flapdoodle's is not a “full integration testing"
-          to have a 'communication tests' simulating 'production',
-           a better solution is 'Docker or TestContainers'
-           SEE: https://www.baeldung.com/spring-boot-embedded-mongodb
-        <dependency>
-            <groupId>de.flapdoodle.embed</groupId>
-            <artifactId>de.flapdoodle.embed.mongo</artifactId>
-            <version>2.2.0</version>
-            <scope>test</scope>
-        </dependency>
-             =======================================================-->
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
-            <!--            <exclusions>-->
-            <!--                <exclusion>-->
-            <!--                    <groupId>org.junit.vintage</groupId>-->
-            <!--                    <artifactId>junit-vintage-engine</artifactId>-->
-            <!--                </exclusion>-->
-            <!--            </exclusions>-->
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.javafaker</groupId>
-            <artifactId>javafaker</artifactId>
-            <version>1.0.2</version>
-            <scope>compile</scope>
         </dependency>
 
         <dependency>
@@ -108,30 +57,17 @@
         </dependency>
 
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <scope>test</scope>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+            <version>2.3.1.RELEASE</version>
         </dependency>
 
-        <dependency>
-            <groupId>io.rest-assured</groupId>
-            <artifactId>spring-web-test-client</artifactId>
-            <version>4.3.1</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>io.rest-assured</groupId>
-            <artifactId>rest-assured-common</artifactId>
-            <version>4.3.1</version>
-        </dependency>
-
-        <!-- =======================================================
-             INTEGRATION-TESTS USING TESTS-CONTAINERS
-             see more:
+        <!-- ===================================
+               INTEGRATION-TESTS USING TESTS-CONTAINERS
+               see more:
              https://www.codeflow.site/pt/article/docker-test-containers
              https://www.youtube.com/watch?v=7ExYGJxGC8Q&list=WL&index=62&t=477s
-             =======================================================-->
+             ===================================-->
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>
@@ -154,11 +90,45 @@
         </dependency>
 
         <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations</artifactId>
-            <version>20.1.0</version>
+            <groupId>com.github.javafaker</groupId>
+            <artifactId>javafaker</artifactId>
+            <version>1.0.2</version>
+<!--            <scope>test</scope>-->
+        </dependency>
+
+        <dependency>
+            <groupId>io.projectreactor.tools</groupId>
+            <artifactId>blockhound</artifactId>
+            <version>1.0.3.RELEASE</version>
+        </dependency>
+
+        <!-- REST_ASSURE -> MODULO REATIVO-->
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>spring-web-test-client</artifactId>
+            <version>4.3.1</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured-common</artifactId>
+            <version>4.3.1</version>
+        </dependency>
+
+        <!--        <dependency>-->
+        <!--            <groupId>io.projectreactor</groupId>-->
+        <!--            <artifactId>reactor-tools</artifactId>-->
+        <!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.boot</groupId>-->
+<!--            <artifactId>spring-boot-devtools</artifactId>-->
+<!--            <scope>runtime</scope>-->
+<!--            <optional>true</optional>-->
+<!--        </dependency>-->
+
+
     </dependencies>
 
     <build>

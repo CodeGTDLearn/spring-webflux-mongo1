@@ -18,6 +18,7 @@ import reactor.blockhound.BlockHound;
 import java.io.File;
 
 import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD;
+import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD;
 
 /*------------------------------------------------------------
                          DataMongoTest
@@ -29,29 +30,12 @@ b) USO ALTERNATIVO (DataMongoTest/SpringBootTest) - CONFLITAM ENTRE-SI:
  - @SpringBootTest(webEnvironment = RANDOM_PORT)
   ------------------------------------------------------------*/
 @DataMongoTest(excludeAutoConfiguration = EmbeddedMongoAutoConfiguration.class)
-@DirtiesContext(classMode = AFTER_EACH_TEST_METHOD)
+@DirtiesContext(classMode = BEFORE_EACH_TEST_METHOD)
 @Slf4j
-@Testcontainers
-public class ConfigComposeTests {
+public class ConfigComposeTests  extends ConfigCompose {
 
     final private static Long MAX_TIMEOUT = 15000L;
     final private static ContentType API_CONTENT_TYPE = ContentType.JSON;
-
-
-    final private String COMPOSE_PATH = "src/test/resources/compose-testcontainers.yml";
-    final static public int SERVICE_PORT = 27017;
-    final static public String SERVICE = "db";
-
-
-    //@Container //Nao anotar aqui. Annotacao deve ficar na classe receptora
-    public DockerComposeContainer<?> compose =
-            new DockerComposeContainer<>(new File(COMPOSE_PATH))
-                    .withExposedService(
-                            SERVICE,
-                            SERVICE_PORT
-                                       )
-            //                    .waitingFor(SERVICE_DB)
-            ;
 
 
     @BeforeAll

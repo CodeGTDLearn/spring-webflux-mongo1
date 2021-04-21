@@ -52,16 +52,11 @@ public class PostDatabuilder {
                           .city());
         post.setAuthor(new AuthorDto(user));
 
-//        List<String> listCommentsId = new ArrayList<>();
-//        for (var comment : comments) {
-//            listCommentsId.add(comment.getId());
-//        }
-//        post.setComments(listCommentsId);
-
         return PostDatabuilder.builder()
                               .postDataBuilder(post)
                               .build();
     }
+
 
     public Post create() {
         return this.postDataBuilder;

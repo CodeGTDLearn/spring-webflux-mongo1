@@ -4,7 +4,6 @@ import com.github.javafaker.Faker;
 import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.post.PostRepo;
 import com.mongo.testcontainer.container.ConfigContainerTests;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.blockhound.BlockingOperationError;
@@ -13,6 +12,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
 
+import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -42,12 +42,10 @@ public class UserRepoTest extends ConfigContainerTests {
         ConfigContainerTests.beforeAll();
     }
 
-
     @AfterAll
     public static void afterAll() {
         ConfigContainerTests.afterAll();
     }
-
 
     @BeforeEach
     void setUp() {

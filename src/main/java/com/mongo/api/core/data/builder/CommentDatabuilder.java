@@ -34,6 +34,7 @@ public class CommentDatabuilder {
     @Default
     private static User author;
 
+
     @SneakyThrows
     public static CommentDatabuilder commentNullIdAuthorParam(User user) {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
@@ -42,13 +43,15 @@ public class CommentDatabuilder {
         Comment comment = new Comment();
         comment.setId(null);
         comment.setDate(sdf.parse("11/11/2011"));
-        comment.setText(faker.lorem().sentence());
+        comment.setText(faker.lorem()
+                             .sentence());
         comment.setAuthor(new AuthorDto(user));
 
         return CommentDatabuilder.builder()
                                  .commentDataBuilder(comment)
                                  .build();
     }
+
 
     public Comment create() {
         return this.commentDataBuilder;

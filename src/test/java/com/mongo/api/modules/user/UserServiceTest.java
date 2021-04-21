@@ -5,7 +5,6 @@ import com.mongo.api.core.exceptions.custom.exceptions.UserNotFoundException;
 import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.post.PostRepo;
 import com.mongo.testcontainer.compose.ConfigComposeTests;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testcontainers.containers.DockerComposeContainer;
@@ -16,6 +15,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
 
+import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -28,7 +28,7 @@ import static com.mongo.databuilders.UserBuilder.*;
 
 public class UserServiceTest extends ConfigComposeTests {
 
-    private User user1, user2WithId, user3;
+    private User user1, user3, user2WithId;
     private Post post1, post2;
     private List<User> userList;
 
@@ -62,7 +62,6 @@ public class UserServiceTest extends ConfigComposeTests {
 
         user1 = userFull_IdNull_ListIdPostsEmpty().create();
         user3 = userFull_IdNull_ListIdPostsEmpty().create();
-
         userList = Arrays.asList(user1,user3);
     }
 
@@ -84,11 +83,11 @@ public class UserServiceTest extends ConfigComposeTests {
         return service.deleteAll()
                       .thenMany(Flux.fromIterable(userList))
                       .flatMap(service::save)
-                      .doOnNext(item -> service.findAll())
-                      .doOnNext((item -> System.out.println(
-                              "\nService - UserID: " + item.getId() +
-                                      "|Name: " + item.getName() +
-                                      "|Email: " + item.getEmail())));
+                      .doOnNext(item -> service.findAll());
+        //                      .doOnNext((item -> System.out.println(
+        //                              "\nService - UserID: " + item.getId() +
+        //                                      "|Name: " + item.getName() +
+        //                                      "|Email: " + item.getEmail() + "\n")));
     }
 
 
@@ -97,18 +96,16 @@ public class UserServiceTest extends ConfigComposeTests {
         return postRepo.deleteAll()
                        .thenMany(Flux.fromIterable(postList))
                        .flatMap(postRepo::save)
-                       .doOnNext(item -> postRepo.findAll())
-                       .doOnNext((item -> System.out.println(
-                               "\nRepo - Post-ID: " + item.getId() +
-                                       "|Author: " + item.getAuthor()
-                                                            )));
+                       .doOnNext(item -> postRepo.findAll());
+        //                       .doOnNext((item -> System.out.println(
+        //                               "\nRepo - Post-ID: " + item.getId() +
+        //                                       "|Author: " + item.getAuthor()+ "\n")));
     }
 
 
-    @Test
-    @DisplayName("Check Container")
+    //    @Test
+    //    @DisplayName("Check TestContainerServices")
     void checkServices() {
-
         super.checkTestcontainerComposeService(
                 compose,
                 ConfigComposeTests.SERVICE,
@@ -118,7 +115,7 @@ public class UserServiceTest extends ConfigComposeTests {
 
 
     @Test
-    @DisplayName("FindAll: Objects")
+    @DisplayName("FindAll")
     void findAll() {
         final Flux<User> userFlux = cleanDb_Saving02Users_GetThemInAFlux(userList);
 
@@ -155,8 +152,8 @@ public class UserServiceTest extends ConfigComposeTests {
     }
 
 
-    @Test
-    @DisplayName("FindById: Error-ResponseStatusException")
+    //    @Test
+    //    @DisplayName("FindById: Error-ResponseStatusException")
     void findByIdErrorUserNotFound() {
         cleanDbToTest();
 
@@ -174,8 +171,8 @@ public class UserServiceTest extends ConfigComposeTests {
     }
 
 
-    @Test
-    @DisplayName("Save: Object")
+//    @Test
+//    @DisplayName("Save: Object")
     void save() {
         cleanDbToTest();
 
@@ -188,8 +185,8 @@ public class UserServiceTest extends ConfigComposeTests {
     }
 
 
-    @DisplayName("Delete: Count")
-    @Test
+    //    @DisplayName("Delete: Count")
+    //    @Test
     public void deleteAll_count() {
 
         StepVerifier
@@ -208,8 +205,8 @@ public class UserServiceTest extends ConfigComposeTests {
     }
 
 
-    @DisplayName("DeleteById")
-    @Test
+    //        @DisplayName("DeleteById")
+    //        @Test
     public void deleteById() {
         final Flux<User> userFlux = cleanDb_Saving02Users_GetThemInAFlux(userList);
 
@@ -238,9 +235,9 @@ public class UserServiceTest extends ConfigComposeTests {
     }
 
 
-    @DisplayName("update")
-    @Test
-    void update() {
+    //    @DisplayName("update")
+    //    @Test
+    public void update() {
         final Flux<User> userFlux = cleanDb_Saving02Users_GetThemInAFlux(userList);
 
         StepVerifier
@@ -330,8 +327,9 @@ public class UserServiceTest extends ConfigComposeTests {
                 .verifyComplete();
     }
 
-    @Test
-    @DisplayName("BHWorks")
+
+    //    @Test
+    //    @DisplayName("BHWorks")
     public void bHWorks() {
         try {
             FutureTask<?> task = new FutureTask<>(() -> {
