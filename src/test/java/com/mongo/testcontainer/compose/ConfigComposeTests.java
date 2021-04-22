@@ -6,11 +6,15 @@ import io.restassured.module.webtestclient.RestAssuredWebTestClient;
 import io.restassured.module.webtestclient.specification.WebTestClientRequestSpecBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.hamcrest.Matchers;
+import org.junit.Ignore;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.blockhound.BlockHound;
@@ -29,6 +33,9 @@ a) AMBOS FUNCIONAM:
 b) USO ALTERNATIVO (DataMongoTest/SpringBootTest) - CONFLITAM ENTRE-SI:
  - @SpringBootTest(webEnvironment = RANDOM_PORT)
   ------------------------------------------------------------*/
+@Disabled
+@ActiveProfiles("test")
+@TestPropertySource("classpath:application-test.properties")
 @DataMongoTest(excludeAutoConfiguration = EmbeddedMongoAutoConfiguration.class)
 @DirtiesContext(classMode = BEFORE_EACH_TEST_METHOD)
 @Slf4j

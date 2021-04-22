@@ -3,7 +3,6 @@ package com.mongo.api.modules.user;
 import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.post.PostRepo;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -15,13 +14,15 @@ import static com.mongo.api.core.exceptions.ExceptionTriggers.userNotFoundExcept
 @Service
 public class UserService {
 
-    private UserRepo userRepo;
+    private final UserRepo userRepo;
 
-    private PostRepo postRepo;
+    private final PostRepo postRepo;
+
 
     public Flux<User> findAll() {
         return userRepo.findAll();
     }
+    
 
     public Mono<User> findById(String id) {
         return userRepo
@@ -29,15 +30,18 @@ public class UserService {
                 .switchIfEmpty(userNotFoundException());
     }
 
+
     public Flux<User> findErrorUserNotFound() {
         return userRepo
                 .findAll()
                 .concatWith(genericExcErrorUserNotFound());
     }
 
+
     public Mono<User> save(User user) {
         return userRepo.save(user);
     }
+
 
     public Mono<Void> deleteById(String id) {
         return userRepo
@@ -46,9 +50,11 @@ public class UserService {
                 .flatMap(userRepo::delete);
     }
 
+
     public Mono<Void> deleteAll() {
         return userRepo.deleteAll();
     }
+
 
     public Mono<User> update(User user) {
         return userRepo
@@ -61,6 +67,7 @@ public class UserService {
                     return userRepo.save(item);
                 });
     }
+
 
     public Flux<Post> findPostsByUserId(String userId) {
         return userRepo

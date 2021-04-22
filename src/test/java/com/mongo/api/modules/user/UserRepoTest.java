@@ -181,7 +181,7 @@ public class UserRepoTest extends ConfigContainerTests {
 
 
     @Test
-    @DisplayName("Find: Objects Content")
+    @DisplayName("Find: Objects")
     public void findAll_1() {
         final Flux<User> userFlux = cleanDb_Saving02Users_GetThemInAFlux(userList);
 

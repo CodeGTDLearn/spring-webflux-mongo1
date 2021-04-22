@@ -26,9 +26,10 @@ import java.util.concurrent.TimeoutException;
 import static com.mongo.databuilders.PostBuilder.post_IdNull_CommentsEmpty;
 import static com.mongo.databuilders.UserBuilder.*;
 
+
 public class UserServiceTest extends ConfigComposeTests {
 
-    private User user1, user3, user2WithId;
+    private User user1, user3, userWithIdForPost1Post2;
     private Post post1, post2;
     private List<User> userList;
 
@@ -53,6 +54,7 @@ public class UserServiceTest extends ConfigComposeTests {
     @AfterAll
     public static void afterAll() {
         ConfigComposeTests.afterAll();
+        compose.close();
     }
 
 
@@ -83,11 +85,11 @@ public class UserServiceTest extends ConfigComposeTests {
         return service.deleteAll()
                       .thenMany(Flux.fromIterable(userList))
                       .flatMap(service::save)
-                      .doOnNext(item -> service.findAll());
-        //                      .doOnNext((item -> System.out.println(
-        //                              "\nService - UserID: " + item.getId() +
-        //                                      "|Name: " + item.getName() +
-        //                                      "|Email: " + item.getEmail() + "\n")));
+                      .doOnNext(item -> service.findAll())
+                      .doOnNext((item -> System.out.println(
+                              "\nService - UserID: " + item.getId() +
+                                      "|Name: " + item.getName() +
+                                      "|Email: " + item.getEmail() + "\n")));
     }
 
 
@@ -96,15 +98,15 @@ public class UserServiceTest extends ConfigComposeTests {
         return postRepo.deleteAll()
                        .thenMany(Flux.fromIterable(postList))
                        .flatMap(postRepo::save)
-                       .doOnNext(item -> postRepo.findAll());
-        //                       .doOnNext((item -> System.out.println(
-        //                               "\nRepo - Post-ID: " + item.getId() +
-        //                                       "|Author: " + item.getAuthor()+ "\n")));
+                       .doOnNext(item -> postRepo.findAll())
+                       .doOnNext((item -> System.out.println(
+                               "\nRepo - Post-ID: " + item.getId() +
+                                       "|Author: " + item.getAuthor() + "\n")));
     }
 
 
-    //    @Test
-    //    @DisplayName("Check TestContainerServices")
+    @Test
+    @DisplayName("Check TestContainerServices")
     void checkServices() {
         super.checkTestcontainerComposeService(
                 compose,
@@ -121,8 +123,8 @@ public class UserServiceTest extends ConfigComposeTests {
 
         StepVerifier
                 .create(userFlux)
-                .expectNext(user1)
-                .expectNext(user3)
+                .expectSubscription()
+                .expectNextCount(2)
                 .verifyComplete();
     }
 
@@ -152,8 +154,8 @@ public class UserServiceTest extends ConfigComposeTests {
     }
 
 
-    //    @Test
-    //    @DisplayName("FindById: Error-ResponseStatusException")
+    @Test
+    @DisplayName("FindById: Error-ResponseStatusException")
     void findByIdErrorUserNotFound() {
         cleanDbToTest();
 
@@ -171,8 +173,8 @@ public class UserServiceTest extends ConfigComposeTests {
     }
 
 
-//    @Test
-//    @DisplayName("Save: Object")
+    @Test
+    @DisplayName("Save: Object")
     void save() {
         cleanDbToTest();
 
@@ -185,8 +187,8 @@ public class UserServiceTest extends ConfigComposeTests {
     }
 
 
-    //    @DisplayName("Delete: Count")
-    //    @Test
+    @DisplayName("Delete: Count")
+    @Test
     public void deleteAll_count() {
 
         StepVerifier
@@ -205,8 +207,8 @@ public class UserServiceTest extends ConfigComposeTests {
     }
 
 
-    //        @DisplayName("DeleteById")
-    //        @Test
+    @DisplayName("DeleteById")
+    @Test
     public void deleteById() {
         final Flux<User> userFlux = cleanDb_Saving02Users_GetThemInAFlux(userList);
 
@@ -235,8 +237,8 @@ public class UserServiceTest extends ConfigComposeTests {
     }
 
 
-    //    @DisplayName("update")
-    //    @Test
+    @DisplayName("update")
+    @Test
     public void update() {
         final Flux<User> userFlux = cleanDb_Saving02Users_GetThemInAFlux(userList);
 
@@ -278,41 +280,40 @@ public class UserServiceTest extends ConfigComposeTests {
     @DisplayName("findPostsByUserId")
     @Test
     void findPostsByUserId() {
-        user2WithId = userWithID_ListIdPostsEmpty().create();
+        userWithIdForPost1Post2 = userWithID_ListIdPostsEmpty().create();
 
-        post1 = post_IdNull_CommentsEmpty(user2WithId).create();
-        post2 = post_IdNull_CommentsEmpty(user2WithId).create();
+        post1 = post_IdNull_CommentsEmpty(userWithIdForPost1Post2).create();
+        post2 = post_IdNull_CommentsEmpty(userWithIdForPost1Post2).create();
         List<Post> postList = Arrays.asList(post1,post2);
 
         cleanDbToTest();
 
         StepVerifier
-                .create(service.save(user2WithId))
+                .create(service.save(userWithIdForPost1Post2))
                 .expectSubscription()
-                .expectNext(user2WithId)
+                .expectNext(userWithIdForPost1Post2)
                 .verifyComplete();
 
         StepVerifier
                 .create(service.findAll())
                 .expectSubscription()
-                .expectNextMatches(user -> user2WithId.getId()
-                                                      .equals(user.getId()))
+                .expectNextMatches(user -> userWithIdForPost1Post2.getId()
+                                                                  .equals(user.getId()))
                 .verifyComplete();
 
-        Flux<Post> postFlux = cleanDb_Saving02Posts_GetThemInAFlux(postList);
+        Flux<Post> postFluxPost1Post2 = cleanDb_Saving02Posts_GetThemInAFlux(postList);
 
         StepVerifier
-                .create(postFlux)
+                .create(postFluxPost1Post2)
                 .expectSubscription()
-                .expectNext(post1)
-                .expectNext(post2)
+                .expectNextCount(2)
                 .verifyComplete();
 
-        Flux<Post> postFluxByUserID = service.findPostsByUserId(user2WithId.getId());
+        Flux<Post> postFluxPost1Post2ByUserID = service.findPostsByUserId(
+                userWithIdForPost1Post2.getId());
 
-        //<<<<<<<<<<<<< ERRO A SER INVESTIGADO
         StepVerifier
-                .create(postFluxByUserID)
+                .create(postFluxPost1Post2ByUserID)
                 .expectSubscription()
                 .expectNextCount(2)
                 .verifyComplete();
@@ -328,8 +329,8 @@ public class UserServiceTest extends ConfigComposeTests {
     }
 
 
-    //    @Test
-    //    @DisplayName("BHWorks")
+    @Test
+    @DisplayName("BHWorks")
     public void bHWorks() {
         try {
             FutureTask<?> task = new FutureTask<>(() -> {
