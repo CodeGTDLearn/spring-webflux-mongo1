@@ -3,7 +3,7 @@ package com.mongo.api.modules.user;
 import com.github.javafaker.Faker;
 import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.post.PostRepo;
-import com.mongo.testcontainer.container.ConfigContainerTests;
+import utils.testcontainer.container.ConfigContainerTests;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.blockhound.BlockingOperationError;
@@ -20,9 +20,9 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static com.mongo.databuilders.PostBuilder.post_IdNull_CommentsEmpty;
-import static com.mongo.databuilders.UserBuilder.userFull_IdNull_ListIdPostsEmpty;
-import static com.mongo.databuilders.UserBuilder.userWithID_ListIdPostsEmpty;
+import static utils.databuilders.PostBuilder.post_IdNull_CommentsEmpty;
+import static utils.databuilders.UserBuilder.userFull_IdNull_ListIdPostsEmpty;
+import static utils.databuilders.UserBuilder.userWithID_IdPostsEmpty;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class UserRepoTest extends ConfigContainerTests {
@@ -105,7 +105,7 @@ public class UserRepoTest extends ConfigContainerTests {
     @DisplayName("Find: PostsByUserId")
     public void findPostByUserId() {
 
-        user2WithId = userWithID_ListIdPostsEmpty().create();
+        user2WithId = userWithID_IdPostsEmpty().create();
 
         post1 = post_IdNull_CommentsEmpty(user2WithId).create();
         post2 = post_IdNull_CommentsEmpty(user2WithId).create();

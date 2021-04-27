@@ -1,4 +1,4 @@
-package com.mongo.databuilders;
+package utils.databuilders;
 
 import com.github.javafaker.Faker;
 import com.mongo.api.modules.post.Post;
@@ -47,7 +47,7 @@ public class UserBuilder {
                           .build();
     }
 
-    public static UserBuilder userWithID_ListIdPostsEmpty() {
+    public static UserBuilder userWithID_IdPostsEmpty() {
 
         User userWithID_ListIdPostsEmpty = new User();
 
@@ -65,15 +65,12 @@ public class UserBuilder {
     }
 
     public static UserBuilder userFull_IdNull_ListIdPostsEmpty() {
-//        List<String> idPosts = new ArrayList<>();
 
         User userFull_IdNull_ListIdPostsEmpty = new User();
-//        userFull_IdNull_ListIdPostsEmpty.setId(null);
         userFull_IdNull_ListIdPostsEmpty.setName(faker.name()
                                 .fullName());
         userFull_IdNull_ListIdPostsEmpty.setEmail(faker.internet()
                                  .emailAddress());
-//        userFull_IdNull_ListIdPostsEmpty.setIdPosts(idPosts);
         return UserBuilder.builder()
                           .user(userFull_IdNull_ListIdPostsEmpty)
                           .build();

@@ -1,10 +1,8 @@
 package com.mongo.api.modules.user;
 
 import com.github.javafaker.Faker;
-import com.mongo.api.core.exceptions.custom.exceptions.UserNotFoundException;
 import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.post.PostRepo;
-import com.mongo.testcontainer.compose.ConfigComposeTests;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testcontainers.containers.DockerComposeContainer;
@@ -14,6 +12,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
+import utils.testcontainer.compose.ConfigComposeTests;
 
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
@@ -23,8 +22,10 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static com.mongo.databuilders.PostBuilder.post_IdNull_CommentsEmpty;
-import static com.mongo.databuilders.UserBuilder.*;
+import static utils.databuilders.PostBuilder.post_IdNull_CommentsEmpty;
+import static utils.databuilders.UserBuilder.userFull_IdNull_ListIdPostsEmpty;
+import static utils.databuilders.UserBuilder.userWithID_IdPostsEmpty;
+
 
 
 public class UserServiceTest extends ConfigComposeTests {
@@ -153,26 +154,6 @@ public class UserServiceTest extends ConfigComposeTests {
                 .verifyComplete();
     }
 
-
-    @Test
-    @DisplayName("FindById: Error-ResponseStatusException")
-    void findByIdErrorUserNotFound() {
-        cleanDbToTest();
-
-        Mono<User> itemFoundById =
-                service
-                        .findById(createFakeUniqueRandomId())
-                        .map(itemFound -> itemFound);
-
-        StepVerifier
-                .create(itemFoundById)
-                .expectSubscription()
-                .expectError(UserNotFoundException.class)
-                .verify();
-
-    }
-
-
     @Test
     @DisplayName("Save: Object")
     void save() {
@@ -280,7 +261,7 @@ public class UserServiceTest extends ConfigComposeTests {
     @DisplayName("findPostsByUserId")
     @Test
     void findPostsByUserId() {
-        userWithIdForPost1Post2 = userWithID_ListIdPostsEmpty().create();
+        userWithIdForPost1Post2 = userWithID_IdPostsEmpty().create();
 
         post1 = post_IdNull_CommentsEmpty(userWithIdForPost1Post2).create();
         post2 = post_IdNull_CommentsEmpty(userWithIdForPost1Post2).create();

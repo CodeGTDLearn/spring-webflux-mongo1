@@ -1,4 +1,4 @@
-package com.mongo.databuilders;
+package utils.databuilders;
 
 import com.github.javafaker.Faker;
 import com.mongo.api.modules.comment.Comment;
@@ -9,7 +9,6 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
