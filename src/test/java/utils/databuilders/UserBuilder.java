@@ -22,15 +22,16 @@ public class UserBuilder {
     //    private static String FAKER_REGEX_TEL = "[0-9]{9}";
 
 
-    public static String createFakeUniqueRandomId(){
-        return faker.regexify("/^[a-f\\d]{24}$/i");
+    public static String createFakeUniqueRandomId() {
+        return faker.regexify("PP[a-z0-9]{24}");
     }
+
 
     public static UserBuilder userFull_withoutID(List<Post> userListPosts) {
         List<String> idPosts = new ArrayList<>();
 
         User userFull = new User();
-//        userFull.setId(faker.regexify("/^[a-f\\d]{24}$/i"));
+        //        userFull.setId(faker.regexify("/^[a-f\\d]{24}$/i"));
         userFull.setName(faker.name()
                               .fullName());
         userFull.setEmail(faker.internet()
@@ -47,6 +48,7 @@ public class UserBuilder {
                           .build();
     }
 
+
     public static UserBuilder userWithID_IdPostsEmpty() {
 
         User userWithID_ListIdPostsEmpty = new User();
@@ -54,43 +56,34 @@ public class UserBuilder {
         userWithID_ListIdPostsEmpty.setId(createFakeUniqueRandomId());
 
         userWithID_ListIdPostsEmpty.setName(faker.name()
-                              .fullName());
+                                                 .fullName());
 
         userWithID_ListIdPostsEmpty.setEmail(faker.internet()
-                               .emailAddress());
+                                                  .emailAddress());
 
         return UserBuilder.builder()
                           .user(userWithID_ListIdPostsEmpty)
                           .build();
     }
 
+
     public static UserBuilder userFull_IdNull_ListIdPostsEmpty() {
 
         User userFull_IdNull_ListIdPostsEmpty = new User();
-        userFull_IdNull_ListIdPostsEmpty.setName(faker.name()
-                                .fullName());
-        userFull_IdNull_ListIdPostsEmpty.setEmail(faker.internet()
-                                 .emailAddress());
+
+        userFull_IdNull_ListIdPostsEmpty
+                .setName(faker.name()
+                              .fullName());
+
+        userFull_IdNull_ListIdPostsEmpty
+                .setEmail(faker.internet()
+                               .emailAddress());
+
         return UserBuilder.builder()
                           .user(userFull_IdNull_ListIdPostsEmpty)
                           .build();
     }
 
-
-    public static UserBuilder userFull_Id_ListIdPostsEmpty() {
-        //        List<String> idPosts = new ArrayList<>();
-
-        User userFull_IdNull_ListIdPostsEmpty = new User();
-        //        userFull_IdNull_ListIdPostsEmpty.setId(null);
-        userFull_IdNull_ListIdPostsEmpty.setName(faker.name()
-                                                      .fullName());
-        userFull_IdNull_ListIdPostsEmpty.setEmail(faker.internet()
-                                                       .emailAddress());
-        //        userFull_IdNull_ListIdPostsEmpty.setIdPosts(idPosts);
-        return UserBuilder.builder()
-                          .user(userFull_IdNull_ListIdPostsEmpty)
-                          .build();
-    }
 
     public User create() {
         return this.user;

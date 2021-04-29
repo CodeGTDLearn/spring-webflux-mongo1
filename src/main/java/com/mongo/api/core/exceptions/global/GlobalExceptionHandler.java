@@ -1,4 +1,4 @@
-package com.mongo.api.core.exceptions.generic;
+package com.mongo.api.core.exceptions.global;
 
 import org.springframework.boot.autoconfigure.web.WebProperties;
 import org.springframework.boot.autoconfigure.web.reactive.error.AbstractErrorWebExceptionHandler;
@@ -20,12 +20,14 @@ import java.util.Optional;
 import static org.springframework.boot.web.error.ErrorAttributeOptions.*;
 
 @Component
-@Order(-2) //CustomGlobalExceptionHandler COMES BEFORE the SpringWebFluxGlobalExceptionHandlerDefault
-public class GenericExceptionHandler extends AbstractErrorWebExceptionHandler {
+@Order(-2)
+//CustomGlobalExceptionHandler COMES BEFORE the SpringWebFluxGlobalExceptionHandlerDefault
+public class GlobalExceptionHandler extends AbstractErrorWebExceptionHandler {
 
     private final String traceKeyword = "tracEE=true";
 
-    public GenericExceptionHandler(
+
+    public GlobalExceptionHandler(
             ErrorAttributes errorAttributes,
             WebProperties.Resources resources,
             ApplicationContext applicationContext,
@@ -33,6 +35,7 @@ public class GenericExceptionHandler extends AbstractErrorWebExceptionHandler {
         super(errorAttributes,resources,applicationContext);
         this.setMessageWriters(codecConfigurer.getWriters());
     }
+
 
     @Override
     protected RouterFunction<ServerResponse> getRoutingFunction(ErrorAttributes errorAttributes) {
@@ -43,6 +46,7 @@ public class GenericExceptionHandler extends AbstractErrorWebExceptionHandler {
                       );
     }
 
+
     private Mono<ServerResponse> formatErrorResponse(ServerRequest request) {
 
         String query =
@@ -50,8 +54,7 @@ public class GenericExceptionHandler extends AbstractErrorWebExceptionHandler {
                         .uri()
                         .getQuery();
 
-        ErrorAttributeOptions
-                errorAttributeOptions =
+        ErrorAttributeOptions errorAttributeOptions =
                 isTraceEnabled(query)
                         ? of(Include.STACK_TRACE)
                         : defaults();
@@ -61,17 +64,17 @@ public class GenericExceptionHandler extends AbstractErrorWebExceptionHandler {
                 getErrorAttributes(request,errorAttributeOptions);
 
 
-        int status =
-                (int) Optional.ofNullable(
-                        errorAttribsMap
-                                .get("status"))
-                              .orElse(500);
+        int status = (int) Optional
+                .ofNullable(errorAttribsMap
+                                    .get("status"))
+                .orElse(500);
 
         return ServerResponse
                 .status(status)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(errorAttribsMap));
     }
+
 
     // Hence: ?trace=true in the url show the COMPLETE STACK-TRACK IN THE BROWSER
     // instead the CustomErrorHandlingException(simplified) as Stack-Trace

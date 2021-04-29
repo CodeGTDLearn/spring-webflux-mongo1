@@ -35,8 +35,8 @@ public class PostBuilder {
         postFull.setId(faker.regexify("/^[a-f\\d]{24}$/i"));
         postFull.setTitle(faker.rockBand()
                                .name());
-        postFull.setBody("Post-Body: " + faker.lorem()
-                                              .sentence(25));
+        postFull.setBody(faker.lorem()
+                              .sentence(25));
         postFull.setDate(faker.date()
                               .birthday());
         postFull.setAuthor(new AuthorDto(postUserAuthor));
@@ -61,8 +61,8 @@ public class PostBuilder {
         //        postFull.setId(faker.regexify("/^[a-f\\d]{24}$/i"));
         postFull.setTitle(faker.rockBand()
                                .name());
-        postFull.setBody("Post-Body: " + faker.lorem()
-                                              .sentence(25));
+        postFull.setBody(faker.lorem()
+                              .sentence(25));
         postFull.setDate(faker.date()
                               .birthday());
 

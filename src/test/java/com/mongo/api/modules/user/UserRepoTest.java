@@ -48,7 +48,7 @@ public class UserRepoTest extends ConfigContainerTests {
     }
 
     @BeforeEach
-    void setUp() {
+    void beforeEach() {
 
         user1 = userFull_IdNull_ListIdPostsEmpty().create();
         user3 = userFull_IdNull_ListIdPostsEmpty().create();

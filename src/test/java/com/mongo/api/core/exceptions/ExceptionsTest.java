@@ -69,8 +69,7 @@ public class ExceptionsTest extends ConfigControllerTests {
         // realWebClient = WebTestClient.bindToServer()
         //                      .baseUrl("http://localhost:8080/customer")
         //                      .build();
-
-
+        
         user1 = userFull_IdNull_ListIdPostsEmpty().create();
         user3 = userFull_IdNull_ListIdPostsEmpty().create();
         userWithIdForPost1Post2 = userWithID_IdPostsEmpty().create();

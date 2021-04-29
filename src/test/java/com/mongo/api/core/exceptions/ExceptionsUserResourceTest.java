@@ -1,13 +1,15 @@
-package com.mongo.api.modules.user;
+package com.mongo.api.core.exceptions;
 
 import com.github.javafaker.Faker;
 import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.post.PostRepo;
+import com.mongo.api.modules.user.User;
+import com.mongo.api.modules.user.UserService;
 import io.restassured.http.ContentType;
 import io.restassured.module.webtestclient.RestAssuredWebTestClient;
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -27,19 +29,19 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static com.mongo.api.core.Routes.*;
-import static org.hamcrest.CoreMatchers.containsStringIgnoringCase;
-import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.http.HttpStatus.*;
 import static utils.databuilders.PostBuilder.post_IdNull_CommentsEmpty;
 import static utils.databuilders.UserBuilder.userFull_IdNull_ListIdPostsEmpty;
 import static utils.databuilders.UserBuilder.userWithID_IdPostsEmpty;
 
-public class UserResourceTest extends ConfigControllerTests {
+public class ExceptionsUserResourceTest extends ConfigControllerTests {
 
-    private User user1, user3, userPostsOwner;
+    private User user1, user3, userPostsOwner, userItemTest;
     private Post post1, post2;
     private List<User> userList;
+
+    private Environment env;
 
     final ContentType ANY = ContentType.ANY;
     final ContentType JSON = ContentType.JSON;
@@ -94,6 +96,7 @@ public class UserResourceTest extends ConfigControllerTests {
         user1 = userWithID_IdPostsEmpty().create();
         user3 = userFull_IdNull_ListIdPostsEmpty().create();
         userPostsOwner = userWithID_IdPostsEmpty().create();
+        userItemTest = userWithID_IdPostsEmpty().create();
         userList = Arrays.asList(user1,user3);
     }
 
@@ -150,9 +153,9 @@ public class UserResourceTest extends ConfigControllerTests {
                                        "Post-ID: " + item.getId() +
                                        "|Post-Title: " + item.getTitle() + "\n" +
                                        "Author-ID: " + item.getAuthor()
-                                                            .getId() +
+                                                           .getId() +
                                        "|Author-Name: " + item.getAuthor()
-                                                              .getName()+ "\n")));
+                                                              .getName() + "\n")));
     }
 
 
@@ -167,72 +170,8 @@ public class UserResourceTest extends ConfigControllerTests {
 
 
     @Test
-    void findAll() {
-        final Flux<User> userFlux = saveAndGetUserFlux(userList);
-
-        StepVerifierCountUserFlux(userFlux,2);
-
-        RestAssuredWebTestClient
-                .given()
-                .webTestClient(mockedWebClient)
-
-                .when()
-                .get(REQ_USER + FIND_ALL_USERS)
-
-                .then()
-                .statusCode(OK.value())
-                .log()
-                .headers()
-                .and()
-                .log()
-
-                .body()
-                .body("size()",is(2))
-                .body("id",hasItem(user1.getId()))
-                .body("id",hasItem(user3.getId()))
-        ;
-    }
-
-
-    @Test
-    void findAllDto() {
-        final Flux<User> userFlux = saveAndGetUserFlux(userList);
-
-        StepVerifierCountUserFlux(userFlux,2);
-
-        RestAssuredWebTestClient
-                .given()
-                .webTestClient(mockedWebClient)
-
-                .when()
-                .get(REQ_USER + FIND_ALL_USERS_DTO)
-
-                .then()
-                .statusCode(OK.value())
-                .log()
-                .headers()
-                .and()
-                .log()
-
-                .body()
-                .body("$",hasSize(2))
-                .body("[0]",hasKey("id"))
-                .body("[0]",hasKey("name"))
-                .body("[0]",hasKey("email"))
-                .body("[0]",CoreMatchers.not(hasKey("idPosts")))
-                .body("[1]",hasKey("id"))
-                .body("[1]",hasKey("name"))
-                .body("[1]",hasKey("email"))
-                .body("[1]",CoreMatchers.not(hasKey("idPosts")))
-        //                .body("id" ,hasItems(user1.getId(),user3.getId()))
-        //                .body("name" ,hasItems(user1.getName(),user3.getName()))
-        //                .body("email" ,hasItems(user1.getEmail(),user3.getEmail()))
-        ;
-    }
-
-
-    @Test
     void findById() {
+
         final Flux<User> userFlux = saveAndGetUserFlux(userList);
 
         StepVerifierCountUserFlux(userFlux,2);
@@ -240,49 +179,22 @@ public class UserResourceTest extends ConfigControllerTests {
         RestAssuredWebTestClient
                 .given()
                 .webTestClient(mockedWebClient)
+                .header("Accept",ANY)
+                .header("Content-type",JSON)
+                .body(userItemTest)
 
                 .when()
-                .get(REQ_USER + FIND_USER_BY_ID,user3.getId())
+                .get(REQ_USER + FIND_USER_BY_ID,Faker.instance()
+                                                     .idNumber()
+                                                     .valid())
 
                 .then()
-                .statusCode(OK.value())
+                .statusCode(NOT_FOUND.value())
+
+                .body("AtribMessage",equalTo("CustomExc: (Service) User not Found"))
+                .body("devAtribMsg",equalTo("Generic Exception"))
                 .log()
-                .headers()
-                .and()
-                .log()
-
-                .body()
-                .body("id",equalTo(user3.getId()))
         ;
-    }
-
-
-    @Test
-    void save() {
-        cleanDbToTest();
-
-        StepVerifierCountUserFlux(userService.findAll(),0);
-
-        RestAssuredWebTestClient
-                .given()
-                .webTestClient(mockedWebClient)
-
-                .header("Accept",ContentType.ANY)
-                .header("Content-type",ContentType.JSON)
-                .body(userPostsOwner)
-
-                .when()
-                .post(REQ_USER)
-
-                .then()
-                .statusCode(CREATED.value())
-                .contentType(ContentType.JSON)
-                .body("id",containsStringIgnoringCase(userPostsOwner.getId()))
-                .body("email",containsStringIgnoringCase(userPostsOwner.getEmail()))
-                .body("name",containsStringIgnoringCase(userPostsOwner.getName()))
-        ;
-
-        StepVerifierCountUserFlux(userService.findAll(),1);
     }
 
 
@@ -414,3 +326,18 @@ public class UserResourceTest extends ConfigControllerTests {
         }
     }
 }
+
+//        RestAssuredWebTestClient
+//                .given()
+//                .webTestClient(webTestClient)
+//                .header(RoleUsersHeaders.role_admin_header)
+//                .body(anime_1)
+//
+//                .when()
+//                .put("/{id}" ,"300")
+
+//                .then()
+//                .statusCode(NOT_FOUND.value())
+//
+//                .body("developerMensagem" ,equalTo("A ResponseStatusException happened!!!"))
+//                .body("name" ,nullValue())

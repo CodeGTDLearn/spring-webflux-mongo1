@@ -81,6 +81,10 @@ public class PostService {
                 .flatMap(item -> postRepo.deleteById(post.getId()));
     }
 
+    public Mono<Void> deleteAll() {
+        return postRepo.deleteAll();
+    }
+
     public Mono<Post> update(Post post) {
         return postRepo
                 .findById(post.getId())

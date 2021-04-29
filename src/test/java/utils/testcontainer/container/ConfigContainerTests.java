@@ -14,7 +14,7 @@ import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
-import reactor.blockhound.BlockHound;
+import utils.BlockHoundInstall;
 
 import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD;
 
@@ -41,12 +41,8 @@ public class ConfigContainerTests extends ConfigContainer {
 
     @BeforeAll
     public static void beforeAll() {
-        BlockHound.install(
-                builder -> builder
-                        .allowBlockingCallsInside("java.io.PrintStream",
-                                                  "write"
-                                                 )
-                          );
+
+        BlockHoundInstall.allowBlockingCalls();
 
         //DEFINE CONFIG-GLOBAL PARA OS REQUESTS DOS TESTES
         RestAssuredWebTestClient.requestSpecification =

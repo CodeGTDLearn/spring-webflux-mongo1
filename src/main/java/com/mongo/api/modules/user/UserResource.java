@@ -1,6 +1,5 @@
 package com.mongo.api.modules.user;
 
-import com.mongo.api.modules.post.PostDto;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -8,7 +7,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import static com.mongo.api.core.Routes.*;
-import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.HttpStatus.OK;
 
 @Slf4j
 @RestController
@@ -53,37 +52,37 @@ public class UserResource {
     }
 
 
-    @PostMapping
-    @ResponseStatus(CREATED)
-    public Mono<UserDto> save(@RequestBody UserDto userdto) {
-        User user = new UserDto().fromDtoToUser(userdto);
-        return service
-                .save(user)
-                .map(item -> new UserDto(item));
-    }
-
-
-    @DeleteMapping
-    @ResponseStatus(NO_CONTENT)
-    public Mono<Void> delete(@RequestBody UserDto userDto) {
-        return service.deleteById(userDto.getId());
-    }
-
-
-    @PutMapping
-    @ResponseStatus(OK)
-    public Mono<User> update(@RequestBody UserDto userDto) {
-        User user = new UserDto().fromDtoToUser(userDto);
-        return service
-                .update(user);
-    }
-
-
-    @GetMapping(FIND_POSTS_BY_USERID)
-    @ResponseStatus(OK)
-    public Flux<PostDto> findPostsByUserId(@PathVariable String id) {
-        return service
-                .findPostsByUserId(id)
-                .map(PostDto::new);
-    }
+//    @PostMapping
+//    @ResponseStatus(CREATED)
+//    public Mono<UserDto> save(@RequestBody UserDto userdto) {
+//        User user = new UserDto().fromDtoToUser(userdto);
+//        return service
+//                .save(user)
+//                .map(item -> new UserDto(item));
+//    }
+//
+//
+//    @DeleteMapping
+//    @ResponseStatus(NO_CONTENT)
+//    public Mono<Void> delete(@RequestBody UserDto userDto) {
+//        return service.deleteById(userDto.getId());
+//    }
+//
+//
+//    @PutMapping
+//    @ResponseStatus(OK)
+//    public Mono<User> update(@RequestBody UserDto userDto) {
+//        User user = new UserDto().fromDtoToUser(userDto);
+//        return service
+//                .update(user);
+//    }
+//
+//
+//    @GetMapping(FIND_POSTS_BY_USERID)
+//    @ResponseStatus(OK)
+//    public Flux<PostDto> findPostsByUserId(@PathVariable String userId) {
+//        return service
+//                .findPostsByUserId(userId)
+//                .map(PostDto::new);
+//    }
 }

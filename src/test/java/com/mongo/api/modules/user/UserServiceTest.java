@@ -27,7 +27,6 @@ import static utils.databuilders.UserBuilder.userFull_IdNull_ListIdPostsEmpty;
 import static utils.databuilders.UserBuilder.userWithID_IdPostsEmpty;
 
 
-
 public class UserServiceTest extends ConfigComposeTests {
 
     private User user1, user3, userWithIdForPost1Post2;
@@ -40,7 +39,7 @@ public class UserServiceTest extends ConfigComposeTests {
     @Autowired
     private PostRepo postRepo;
 
-    private UserService service;
+    private UserService userService;
 
     @Container
     private static final DockerComposeContainer<?> compose = new ConfigComposeTests().compose;
@@ -60,8 +59,8 @@ public class UserServiceTest extends ConfigComposeTests {
 
 
     @BeforeEach
-    void setUp() {
-        service = new UserService(userRepo,postRepo);
+    void beforeEach() {
+        userService = new UserService(userRepo,postRepo);
 
         user1 = userFull_IdNull_ListIdPostsEmpty().create();
         user3 = userFull_IdNull_ListIdPostsEmpty().create();
@@ -72,7 +71,7 @@ public class UserServiceTest extends ConfigComposeTests {
     private void cleanDbToTest() {
 
         StepVerifier
-                .create(service.deleteAll())
+                .create(userService.deleteAll())
                 .expectSubscription()
                 .verifyComplete();
 
@@ -83,14 +82,14 @@ public class UserServiceTest extends ConfigComposeTests {
 
     @NotNull
     private Flux<User> cleanDb_Saving02Users_GetThemInAFlux(List<User> userList) {
-        return service.deleteAll()
-                      .thenMany(Flux.fromIterable(userList))
-                      .flatMap(service::save)
-                      .doOnNext(item -> service.findAll())
-                      .doOnNext((item -> System.out.println(
-                              "\nService - UserID: " + item.getId() +
-                                      "|Name: " + item.getName() +
-                                      "|Email: " + item.getEmail() + "\n")));
+        return userService.deleteAll()
+                          .thenMany(Flux.fromIterable(userList))
+                          .flatMap(userService::save)
+                          .doOnNext(item -> userService.findAll())
+                          .doOnNext((item -> System.out.println(
+                                  "\nService - UserID: " + item.getId() +
+                                          "|Name: " + item.getName() +
+                                          "|Email: " + item.getEmail() + "\n")));
     }
 
 
@@ -101,7 +100,7 @@ public class UserServiceTest extends ConfigComposeTests {
                        .flatMap(postRepo::save)
                        .doOnNext(item -> postRepo.findAll())
                        .doOnNext((item -> System.out.println(
-                               "\nRepo - Post-ID: " + item.getId() +
+                               "\nUserRepo - Post-ID: " + item.getId() +
                                        "|Author: " + item.getAuthor() + "\n")));
     }
 
@@ -142,7 +141,7 @@ public class UserServiceTest extends ConfigComposeTests {
                 .verifyComplete();
 
         Mono<User> itemFoundById =
-                service
+                userService
                         .findById(user1.getId())
                         .map(itemFound -> itemFound);
 
@@ -154,13 +153,14 @@ public class UserServiceTest extends ConfigComposeTests {
                 .verifyComplete();
     }
 
+
     @Test
     @DisplayName("Save: Object")
     void save() {
         cleanDbToTest();
 
         StepVerifier
-                .create(service.save(user3))
+                .create(userService.save(user3))
                 .expectSubscription()
                 .expectNext(user3)
                 .verifyComplete();
@@ -173,11 +173,11 @@ public class UserServiceTest extends ConfigComposeTests {
     public void deleteAll_count() {
 
         StepVerifier
-                .create(service.deleteAll())
+                .create(userService.deleteAll())
                 .expectSubscription()
                 .verifyComplete();
 
-        Flux<User> fluxTest = service.findAll();
+        Flux<User> fluxTest = userService.findAll();
 
         StepVerifier
                 .create(fluxTest)
@@ -200,9 +200,9 @@ public class UserServiceTest extends ConfigComposeTests {
                 .verifyComplete();
 
         Mono<Void> deletedItem =
-                service.findById(user1.getId())
-                       .map(User::getId)
-                       .flatMap(id -> service.deleteById(id));
+                userService.findById(user1.getId())
+                           .map(User::getId)
+                           .flatMap(id -> userService.deleteById(id));
 
         StepVerifier
                 .create(deletedItem.log())
@@ -210,8 +210,8 @@ public class UserServiceTest extends ConfigComposeTests {
                 .verifyComplete();
 
         StepVerifier
-                .create(service.findAll()
-                               .log("The new item list : "))
+                .create(userService.findAll()
+                                   .log("The new item list : "))
                 .expectSubscription()
                 .expectNextCount(1)
                 .verifyComplete();
@@ -234,13 +234,13 @@ public class UserServiceTest extends ConfigComposeTests {
                            .fullName();
 
         Mono<User> updatedItem =
-                service
+                userService
                         .findById(user1.getId())
                         .map(itemFound -> {
                             itemFound.setName(newName);
                             return itemFound;
                         })
-                        .flatMap(itemToBeUpdated -> service.save(itemToBeUpdated));
+                        .flatMap(itemToBeUpdated -> userService.save(itemToBeUpdated));
 
         StepVerifier
                 .create(updatedItem)
@@ -250,8 +250,8 @@ public class UserServiceTest extends ConfigComposeTests {
                 .verifyComplete();
 
         StepVerifier
-                .create(service.findAll()
-                               .log("The new item list : "))
+                .create(userService.findAll()
+                                   .log("The new item list : "))
                 .expectSubscription()
                 .expectNextCount(2)
                 .verifyComplete();
@@ -270,13 +270,13 @@ public class UserServiceTest extends ConfigComposeTests {
         cleanDbToTest();
 
         StepVerifier
-                .create(service.save(userWithIdForPost1Post2))
+                .create(userService.save(userWithIdForPost1Post2))
                 .expectSubscription()
                 .expectNext(userWithIdForPost1Post2)
                 .verifyComplete();
 
         StepVerifier
-                .create(service.findAll())
+                .create(userService.findAll())
                 .expectSubscription()
                 .expectNextMatches(user -> userWithIdForPost1Post2.getId()
                                                                   .equals(user.getId()))
@@ -290,7 +290,7 @@ public class UserServiceTest extends ConfigComposeTests {
                 .expectNextCount(2)
                 .verifyComplete();
 
-        Flux<Post> postFluxPost1Post2ByUserID = service.findPostsByUserId(
+        Flux<Post> postFluxPost1Post2ByUserID = userService.findPostsByUserId(
                 userWithIdForPost1Post2.getId());
 
         StepVerifier

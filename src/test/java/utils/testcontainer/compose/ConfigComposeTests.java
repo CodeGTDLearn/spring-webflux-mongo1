@@ -34,7 +34,7 @@ b) USO ALTERNATIVO (DataMongoTest/SpringBootTest) - CONFLITAM ENTRE-SI:
 @DataMongoTest(excludeAutoConfiguration = EmbeddedMongoAutoConfiguration.class)
 @DirtiesContext(classMode = BEFORE_EACH_TEST_METHOD)
 @Slf4j
-public class ConfigComposeTests  extends ConfigCompose {
+public class ConfigComposeTests extends ConfigCompose {
 
     final private static Long MAX_TIMEOUT = 15000L;
     final private static ContentType API_CONTENT_TYPE = ContentType.JSON;
@@ -42,7 +42,6 @@ public class ConfigComposeTests  extends ConfigCompose {
 
     @BeforeAll
     public static void beforeAll() {
-
         BlockHound.install(
                 builder -> builder
                         .allowBlockingCallsInside("java.io.PrintStream",
