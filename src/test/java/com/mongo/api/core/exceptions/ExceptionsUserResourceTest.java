@@ -9,7 +9,6 @@ import io.restassured.http.ContentType;
 import io.restassured.module.webtestclient.RestAssuredWebTestClient;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -29,9 +28,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static com.mongo.api.core.Routes.*;
-import static org.hamcrest.Matchers.*;
-import static org.springframework.http.HttpStatus.*;
-import static utils.databuilders.PostBuilder.post_IdNull_CommentsEmpty;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.nullValue;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static utils.databuilders.UserBuilder.userFull_IdNull_ListIdPostsEmpty;
 import static utils.databuilders.UserBuilder.userWithID_IdPostsEmpty;
 
@@ -40,8 +39,6 @@ public class ExceptionsUserResourceTest extends ConfigControllerTests {
     private User user1, user3, userPostsOwner, userItemTest;
     private Post post1, post2;
     private List<User> userList;
-
-    private Environment env;
 
     final ContentType ANY = ContentType.ANY;
     final ContentType JSON = ContentType.JSON;
@@ -130,7 +127,7 @@ public class ExceptionsUserResourceTest extends ConfigControllerTests {
     }
 
 
-    private Flux<User> saveAndGetUserFlux(List<User> listUser) {
+    private Flux<User> saveAndGetFlux(List<User> listUser) {
         return userService.deleteAll()
                           .thenMany(Flux.fromIterable(listUser))
                           .flatMap(userService::save)
@@ -170,18 +167,13 @@ public class ExceptionsUserResourceTest extends ConfigControllerTests {
 
 
     @Test
+    @DisplayName("findById: UserNotFound")
     void findById() {
-
-        final Flux<User> userFlux = saveAndGetUserFlux(userList);
-
-        StepVerifierCountUserFlux(userFlux,2);
-
         RestAssuredWebTestClient
                 .given()
                 .webTestClient(mockedWebClient)
                 .header("Accept",ANY)
                 .header("Content-type",JSON)
-                .body(userItemTest)
 
                 .when()
                 .get(REQ_USER + FIND_USER_BY_ID,Faker.instance()
@@ -191,118 +183,79 @@ public class ExceptionsUserResourceTest extends ConfigControllerTests {
                 .then()
                 .statusCode(NOT_FOUND.value())
 
-                .body("AtribMessage",equalTo("CustomExc: (Service) User not Found"))
-                .body("devAtribMsg",equalTo("Generic Exception"))
+                .body("detail",equalTo("CustomExc: (Service) User not Found"))
+                .body("title",nullValue())
                 .log()
         ;
     }
 
 
     @Test
+    @DisplayName("delete: UserNotFound")
     void delete() {
-        Flux<User> userFlux = saveAndGetUserFlux(userList);
-
-        StepVerifierCountUserFlux(userFlux,2);
-
         RestAssuredWebTestClient
                 .given()
                 .webTestClient(mockedWebClient)
-
-                .header("Accept",ContentType.ANY)
-                .header("Content-type",ContentType.JSON)
-                .body(user1)
+                .header("Accept",ANY)
+                .header("Content-type",JSON)
+                .body(userItemTest)
 
                 .when()
                 .delete(REQ_USER)
 
                 .then()
-                .log()
-                .headers()
-                .statusCode(NO_CONTENT.value())
-        ;
+                .statusCode(NOT_FOUND.value())
 
-        StepVerifierCountUserFlux(userService.findAll(),1);
+                .body("detail",equalTo("CustomExc: (Service) User not Found"))
+                .body("title",nullValue())
+                .log()
+        ;
     }
 
 
     @Test
+    @DisplayName("update: UserNotFound")
     void update() {
-        final Flux<User> userFlux = saveAndGetUserFlux(userList);
-
-        StepVerifierCountUserFlux(userFlux,2);
-
-        var previousEmail = user1.getEmail();
-
-        var currentEmail = Faker.instance()
-                                .internet()
-                                .emailAddress();
-
-        user1.setEmail(currentEmail);
-
         RestAssuredWebTestClient
                 .given()
                 .webTestClient(mockedWebClient)
-
-                .header("Accept",ContentType.ANY)
-                .header("Content-type",ContentType.JSON)
-                .body(user1)
+                .header("Accept",ANY)
+                .header("Content-type",JSON)
+                .body(userItemTest)
 
                 .when()
                 .put(REQ_USER)
 
                 .then()
-                .log()
-                .headers()
-                .and()
-                .log()
-                .body()
-                .and()
-                .statusCode(OK.value())
-                .contentType(ContentType.JSON)
+                .statusCode(NOT_FOUND.value())
 
-                .body("id",equalTo(user1.getId()))
-                .body("name",equalTo(user1.getName()))
-                .body("email",equalTo(currentEmail))
-                .body("email",not(equalTo(previousEmail)))
+                .body("detail",equalTo("CustomExc: (Service) User not Found"))
+                .body("title",nullValue())
+                .log()
         ;
     }
 
 
     @Test
+    @DisplayName("findPostsByUserId: UserNotFound")
     void findPostsByUserId() {
-
-        post1 = post_IdNull_CommentsEmpty(userPostsOwner).create();
-        post2 = post_IdNull_CommentsEmpty(userPostsOwner).create();
-        List<Post> postList = Arrays.asList(post1,post2);
-
-        StepVerifier
-                .create(userService.save(userPostsOwner))
-                .expectSubscription()
-                .expectNext(userPostsOwner)
-                .verifyComplete();
-
-
-        Flux<Post> postFluxPost1Post2 = cleanDb_Saving02Posts_GetThemInAFlux(postList);
-
-        StepVerifierCountPostFlux(postFluxPost1Post2,2);
-
         RestAssuredWebTestClient
                 .given()
                 .webTestClient(mockedWebClient)
+                .header("Accept",ANY)
+                .header("Content-type",JSON)
 
                 .when()
-                .get(REQ_USER + FIND_POSTS_BY_USERID,userPostsOwner.getId())
-
+                .get(REQ_USER + FIND_POSTS_BY_USERID,Faker.instance()
+                                                          .idNumber()
+                                                          .valid())
 
                 .then()
-                .statusCode(OK.value())
-                .log()
-                .headers()
-                .and()
-                .log()
+                .statusCode(NOT_FOUND.value())
 
-                .body()
-                .body("title",hasItems(post1.getTitle(),post2.getTitle()))
+                .body("detail",equalTo("CustomExc: (Service) User not Found"))
+                .body("title",nullValue())
+                .log()
         ;
     }
 

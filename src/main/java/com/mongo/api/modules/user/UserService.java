@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import static com.mongo.api.core.exceptions.ExceptionTriggers.genericExcErrorUserNotFound;
-import static com.mongo.api.core.exceptions.ExceptionTriggers.userNotFoundException;
+import static com.mongo.api.core.exceptions.customExceptions.simple.Messages.genericExcErrorUserNotFound;
+import static com.mongo.api.core.exceptions.customExceptions.simple.Messages.userNotFoundException;
 
 @AllArgsConstructor
 @Service

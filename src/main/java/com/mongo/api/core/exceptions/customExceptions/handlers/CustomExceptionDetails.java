@@ -1,4 +1,4 @@
-package com.mongo.api.core.exceptions.custom.handlers;
+package com.mongo.api.core.exceptions.customExceptions.handlers;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class ExceptionDetails {
+public class CustomExceptionDetails {
     private String title;
     private String detail;
     private String devAeeeeloperMessage;

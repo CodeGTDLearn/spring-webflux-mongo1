@@ -9,8 +9,8 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import static com.mongo.api.core.exceptions.ExceptionTriggers.authorNotFoundException;
-import static com.mongo.api.core.exceptions.ExceptionTriggers.postNotFoundException;
+import static com.mongo.api.core.exceptions.customExceptions.simple.Messages.postAuthorNotFoundException;
+import static com.mongo.api.core.exceptions.customExceptions.simple.Messages.postNotFoundException;
 
 @Slf4j
 @AllArgsConstructor
@@ -60,7 +60,7 @@ public class PostService {
         return userRepo
                 .findById(post.getAuthor()
                               .getId())
-                .switchIfEmpty(authorNotFoundException())
+                .switchIfEmpty(postAuthorNotFoundException())
                 .then(postRepo.save(post))
                 .flatMap(postSaved -> {
                     Mono<User> userMono = findUserByPostId(postSaved.getId());

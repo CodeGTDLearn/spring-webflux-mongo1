@@ -1,4 +1,4 @@
-package com.mongo.api.core.exceptions.global;
+package com.mongo.api.core.exceptions.globalException;
 
 import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.reactive.error.DefaultErrorAttributes;
@@ -9,7 +9,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.Map;
 
 @Component
-public class CustomAttributes extends DefaultErrorAttributes {
+public class GlobalExceptionAttributes extends DefaultErrorAttributes {
 
     @Override
     public Map<String, Object> getErrorAttributes(

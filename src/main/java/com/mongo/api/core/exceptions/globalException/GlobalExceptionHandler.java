@@ -1,4 +1,4 @@
-package com.mongo.api.core.exceptions.global;
+package com.mongo.api.core.exceptions.globalException;
 
 import org.springframework.boot.autoconfigure.web.WebProperties;
 import org.springframework.boot.autoconfigure.web.reactive.error.AbstractErrorWebExceptionHandler;
@@ -79,8 +79,6 @@ public class GlobalExceptionHandler extends AbstractErrorWebExceptionHandler {
     // Hence: ?trace=true in the url show the COMPLETE STACK-TRACK IN THE BROWSER
     // instead the CustomErrorHandlingException(simplified) as Stack-Trace
     private boolean isTraceEnabled(String query) {
-        //        return !StringUtils.isEmpty(query) && query.contains("trace=true");
         return StringUtils.hasText(query) && query.contains(traceKeyword);
-        //        return StringUtils.hasText(query);
     }
 }
