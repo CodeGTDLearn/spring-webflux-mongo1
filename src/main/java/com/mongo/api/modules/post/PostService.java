@@ -1,16 +1,15 @@
 package com.mongo.api.modules.post;
 
+import com.mongo.api.core.exceptions.customExceptions.customExceptionHandler.CustomExceptions;
 import com.mongo.api.modules.comment.CommentService;
 import com.mongo.api.modules.user.User;
 import com.mongo.api.modules.user.UserRepo;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import static com.mongo.api.core.exceptions.customExceptions.simple.Messages.postAuthorNotFoundException;
-import static com.mongo.api.core.exceptions.customExceptions.simple.Messages.postNotFoundException;
 
 @Slf4j
 @AllArgsConstructor
@@ -23,15 +22,18 @@ public class PostService {
 
     private final CommentService commentService;
 
+    @Autowired
+    private CustomExceptions exceptions;
+
     public Mono<Post> findPostById(String id) {
         return postRepo.findById(id)
-                       .switchIfEmpty(postNotFoundException());
+                       .switchIfEmpty(exceptions.postNotFoundException());
     }
 
     public Mono<Post> findPostByIdShowComments(String id) {
         return postRepo
                 .findById(id)
-                .switchIfEmpty(postNotFoundException())
+                .switchIfEmpty(exceptions.postNotFoundException())
                 .flatMap(postFound -> commentService
                                  .findCommentsByPostId(postFound.getId())
                                  .collectList()
@@ -60,7 +62,7 @@ public class PostService {
         return userRepo
                 .findById(post.getAuthor()
                               .getId())
-                .switchIfEmpty(postAuthorNotFoundException())
+                .switchIfEmpty(exceptions.postNotFoundException())
                 .then(postRepo.save(post))
                 .flatMap(postSaved -> {
                     Mono<User> userMono = findUserByPostId(postSaved.getId());
@@ -77,7 +79,7 @@ public class PostService {
     public Mono<Void> delete(Post post) {
         return postRepo
                 .findById(post.getId())
-                .switchIfEmpty(postNotFoundException())
+                .switchIfEmpty(exceptions.postNotFoundException())
                 .flatMap(item -> postRepo.deleteById(post.getId()));
     }
 
@@ -88,7 +90,7 @@ public class PostService {
     public Mono<Post> update(Post post) {
         return postRepo
                 .findById(post.getId())
-                .switchIfEmpty(postNotFoundException())
+                .switchIfEmpty(exceptions.postNotFoundException())
                 .flatMap(item -> {
                     item.setId(post.getId());
                     item.setIdComments(post.getIdComments());

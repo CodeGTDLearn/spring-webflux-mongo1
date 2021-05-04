@@ -50,8 +50,8 @@ public class UserResource {
 
 
     @GetMapping(ERROR_PATH)
-    public Flux<User> findErrorUserNotFound() {
-        return service.findErrorUserNotFound();
+    public Flux<User> globalExceptionError() {
+        return service.globalExceptionError();
     }
 
 

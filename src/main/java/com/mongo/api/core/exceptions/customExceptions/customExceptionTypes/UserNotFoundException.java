@@ -1,4 +1,4 @@
-package com.mongo.api.core.exceptions.customExceptions.simple;
+package com.mongo.api.core.exceptions.customExceptions.customExceptionTypes;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

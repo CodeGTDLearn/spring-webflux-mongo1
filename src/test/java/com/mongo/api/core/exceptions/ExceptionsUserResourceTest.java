@@ -29,7 +29,6 @@ import java.util.concurrent.TimeoutException;
 
 import static com.mongo.api.core.Routes.*;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static utils.databuilders.UserBuilder.userFull_IdNull_ListIdPostsEmpty;
 import static utils.databuilders.UserBuilder.userWithID_IdPostsEmpty;
@@ -183,8 +182,7 @@ public class ExceptionsUserResourceTest extends ConfigControllerTests {
                 .then()
                 .statusCode(NOT_FOUND.value())
 
-                .body("detail",equalTo("CustomExc: (Service) User not Found"))
-                .body("title",nullValue())
+                .body("detail",equalTo("Users not Found"))
                 .log()
         ;
     }
@@ -206,8 +204,7 @@ public class ExceptionsUserResourceTest extends ConfigControllerTests {
                 .then()
                 .statusCode(NOT_FOUND.value())
 
-                .body("detail",equalTo("CustomExc: (Service) User not Found"))
-                .body("title",nullValue())
+                .body("detail",equalTo("Users not Found"))
                 .log()
         ;
     }
@@ -229,8 +226,7 @@ public class ExceptionsUserResourceTest extends ConfigControllerTests {
                 .then()
                 .statusCode(NOT_FOUND.value())
 
-                .body("detail",equalTo("CustomExc: (Service) User not Found"))
-                .body("title",nullValue())
+                .body("detail",equalTo("Users not Found"))
                 .log()
         ;
     }
@@ -253,8 +249,30 @@ public class ExceptionsUserResourceTest extends ConfigControllerTests {
                 .then()
                 .statusCode(NOT_FOUND.value())
 
-                .body("detail",equalTo("CustomExc: (Service) User not Found"))
-                .body("title",nullValue())
+                .body("detail",equalTo("Users not Found"))
+                .log()
+        ;
+    }
+
+
+    @Test
+    @DisplayName("Global-Exception Error")
+    void globalExceptionError() {
+        RestAssuredWebTestClient
+                .given()
+                .webTestClient(mockedWebClient)
+                .header("Accept",ANY)
+                .header("Content-type",JSON)
+
+                .when()
+                .get(REQ_USER + ERROR_PATH)
+
+                .then()
+                .statusCode(NOT_FOUND.value())
+
+                .body("Global-AtribMessage",
+                      equalTo("404 NOT_FOUND \"Global-Exception: Triggered-class\""))
+                .body("Global-devAtribMsg",equalTo("Generic Exception"))
                 .log()
         ;
     }
@@ -279,18 +297,3 @@ public class ExceptionsUserResourceTest extends ConfigControllerTests {
         }
     }
 }
-
-//        RestAssuredWebTestClient
-//                .given()
-//                .webTestClient(webTestClient)
-//                .header(RoleUsersHeaders.role_admin_header)
-//                .body(anime_1)
-//
-//                .when()
-//                .put("/{id}" ,"300")
-
-//                .then()
-//                .statusCode(NOT_FOUND.value())
-//
-//                .body("developerMensagem" ,equalTo("A ResponseStatusException happened!!!"))
-//                .body("name" ,nullValue())

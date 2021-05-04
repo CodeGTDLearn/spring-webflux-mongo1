@@ -16,23 +16,29 @@ public class GlobalExceptionAttributes extends DefaultErrorAttributes {
             ServerRequest request,
             ErrorAttributeOptions options) {
 
-        Map<String, Object> errorAttributesMap =
+        Map<String, Object> globalExceptionAttributes =
                 super.getErrorAttributes(request,options);
 
-        //Adiciona a excecao se for do tipo: ResponseStatusException
+        //ADICIONA A GLOBAL-EXCEPTION(ResponseStatusException)
+        //POIS NAO SE TRATA DE NENHUMA DAS 'CUSTOM-EXCEPTIONS'
         Throwable throwable = getError(request);
-
         if (throwable instanceof ResponseStatusException) {
 
             ResponseStatusException errorFound = (ResponseStatusException) throwable;
 
-            //Custom Attributes
-            errorAttributesMap.put("AtribMessage",errorFound.getMessage());
-            errorAttributesMap.put("devAtribMsg","Generic Exception");
+            //DETECTADA UMA GLOBAL-EXCEPTION(ResponseStatusException)
+            // adiciona ATTRIBUTES no globalExceptionAttributes
+            globalExceptionAttributes.put("Global-AtribMessage",errorFound.getMessage());
+            globalExceptionAttributes.put("Global-devAtribMsg","Generic Exception");
         }
-        //Se nao for do tipo ResponseStatusException,
-        // retorna o padrao encontrado no errorAttributesMap
-        return errorAttributesMap;
+
+
+        // NAO SENDO UMA GLOBAL-EXCEPTION(ResponseStatusException)
+        // PORTANTO SENDO, UMA CUSTOM-EXCEPTION
+        // retorna o valor PADRAO de ATTRIBUTES ou seja,
+        // o globalExceptionAttributes "PURO", sem insercao(.put's do IF acima) de qquer atributo personalizado
+        // OU SEJA, nao se acrescenta os atributos definidos no IF-ACIMA
+        return globalExceptionAttributes;
     }
 
 }

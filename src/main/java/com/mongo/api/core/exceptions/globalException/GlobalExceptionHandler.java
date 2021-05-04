@@ -24,7 +24,7 @@ import static org.springframework.boot.web.error.ErrorAttributeOptions.*;
 //CustomGlobalExceptionHandler COMES BEFORE the SpringWebFluxGlobalExceptionHandlerDefault
 public class GlobalExceptionHandler extends AbstractErrorWebExceptionHandler {
 
-    private final String traceKeyword = "tracEE=true";
+    private final String completeStackTrace = "completeStackTrace=true";
 
 
     public GlobalExceptionHandler(
@@ -79,6 +79,6 @@ public class GlobalExceptionHandler extends AbstractErrorWebExceptionHandler {
     // Hence: ?trace=true in the url show the COMPLETE STACK-TRACK IN THE BROWSER
     // instead the CustomErrorHandlingException(simplified) as Stack-Trace
     private boolean isTraceEnabled(String query) {
-        return StringUtils.hasText(query) && query.contains(traceKeyword);
+        return StringUtils.hasText(query) && query.contains(completeStackTrace);
     }
 }

@@ -1,22 +1,26 @@
 package com.mongo.api.modules.user;
 
+import com.mongo.api.core.exceptions.customExceptions.customExceptionHandler.CustomExceptions;
 import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.post.PostRepo;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import static com.mongo.api.core.exceptions.customExceptions.simple.Messages.genericExcErrorUserNotFound;
-import static com.mongo.api.core.exceptions.customExceptions.simple.Messages.userNotFoundException;
 
-@AllArgsConstructor
+
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepo userRepo;
 
     private final PostRepo postRepo;
+
+    @Autowired
+    private CustomExceptions exceptions;
 
 
     public Flux<User> findAll() {
@@ -27,14 +31,14 @@ public class UserService {
     public Mono<User> findById(String id) {
         return userRepo
                 .findById(id)
-                .switchIfEmpty(userNotFoundException());
+                .switchIfEmpty(exceptions.userNotFoundException());
     }
 
 
-    public Flux<User> findErrorUserNotFound() {
+    public Flux<User> globalExceptionError() {
         return userRepo
                 .findAll()
-                .concatWith(genericExcErrorUserNotFound());
+                .concatWith(exceptions.globalErrorException());
     }
 
 
@@ -46,7 +50,7 @@ public class UserService {
     public Mono<Void> deleteById(String id) {
         return userRepo
                 .findById(id)
-                .switchIfEmpty(userNotFoundException())
+                .switchIfEmpty(exceptions.userNotFoundException())
                 .flatMap(userRepo::delete);
     }
 
@@ -59,7 +63,7 @@ public class UserService {
     public Mono<User> update(User user) {
         return userRepo
                 .findById(user.getId())
-                .switchIfEmpty(userNotFoundException())
+                .switchIfEmpty(exceptions.userNotFoundException())
                 .flatMap((item) -> {
                     item.setId(user.getId());
                     item.setName(user.getName());
@@ -72,7 +76,7 @@ public class UserService {
     public Flux<Post> findPostsByUserId(String userId) {
         return userRepo
                 .findById(userId)
-                .switchIfEmpty(userNotFoundException())
+                .switchIfEmpty(exceptions.userNotFoundException())
                 .flatMapMany((userFound) -> {
                     var id = userFound.getId();
                     return postRepo.findPostsByAuthor_Id(id);

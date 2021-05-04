@@ -1,15 +1,16 @@
 package com.mongo.api.modules.comment;
 
+import com.mongo.api.core.exceptions.customExceptions.customExceptionHandler.CustomExceptions;
 import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.post.PostRepo;
 import com.mongo.api.modules.user.User;
 import com.mongo.api.modules.user.UserRepo;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import static com.mongo.api.core.exceptions.customExceptions.simple.Messages.*;
 
 @AllArgsConstructor
 @Service
@@ -21,19 +22,25 @@ public class CommentService {
 
     private final UserRepo userRepo;
 
+    @Autowired
+    private final CustomExceptions exceptions;
+
+
     public Flux<Comment> findAll() {
         return commentRepo.findAll();
     }
 
+
     public Mono<Comment> findCommentById(String id) {
         return commentRepo.findById(id)
-                          .switchIfEmpty(postNotFoundException());
+                          .switchIfEmpty(exceptions.postNotFoundException());
     }
+
 
     public Mono<User> findUserByCommentId(String id) {
         return commentRepo
                 .findById(id)
-                .switchIfEmpty(commentNotFoundException())
+                .switchIfEmpty(exceptions.commentNotFoundException())
                 .flatMap(comment -> {
                     String idUser = comment.getAuthor()
                                            .getId();
@@ -41,16 +48,17 @@ public class CommentService {
                 });
     }
 
+
     public Mono<Post> saveCommentLinkedObject(Comment comment) {
         return userRepo
                 .findById(comment.getAuthor()
                                  .getId())
-                .switchIfEmpty(userNotFoundException())
+                .switchIfEmpty(exceptions.userNotFoundException())
                 .then(commentRepo.save(comment))
                 .flatMap(commentSaved ->
                                  postRepo
                                          .findById(commentSaved.getIdPost())
-                                         .switchIfEmpty(postNotFoundException())
+                                         .switchIfEmpty(exceptions.postNotFoundException())
                                          .flatMap(postFound ->
                                                   {
                                                       postFound.getIdComments()
@@ -60,16 +68,17 @@ public class CommentService {
                                                  ));
     }
 
+
     public Mono<Post> saveCommentEmbedObject(Comment comment) {
         return userRepo
                 .findById(comment.getAuthor()
                                  .getId())
-                .switchIfEmpty(userNotFoundException())
+                .switchIfEmpty(exceptions.userNotFoundException())
                 .then(commentRepo.save(comment))
                 .flatMap(commentSaved ->
                                  postRepo
                                          .findById(commentSaved.getIdPost())
-                                         .switchIfEmpty(postNotFoundException())
+                                         .switchIfEmpty(exceptions.postNotFoundException())
                                          .flatMap(postFound ->
                                                   {
                                                       postFound.setComment(commentSaved);
@@ -78,16 +87,17 @@ public class CommentService {
                                                  ));
     }
 
+
     public Mono<Post> saveCommentEmbedObjectList(Comment comment) {
         return userRepo
                 .findById(comment.getAuthor()
                                  .getId())
-                .switchIfEmpty(userNotFoundException())
+                .switchIfEmpty(exceptions.userNotFoundException())
                 .then(commentRepo.save(comment))
                 .flatMap(commentSaved ->
                                  postRepo
                                          .findById(commentSaved.getIdPost())
-                                         .switchIfEmpty(postNotFoundException())
+                                         .switchIfEmpty(exceptions.postNotFoundException())
                                          .flatMap(postFound ->
                                                   {
                                                       postFound.getListComments()
@@ -97,17 +107,19 @@ public class CommentService {
                                                  ));
     }
 
+
     public Mono<Void> delete(Comment comment) {
         return commentRepo
                 .findById(comment.getId())
-                .switchIfEmpty(commentNotFoundException())
+                .switchIfEmpty(exceptions.commentNotFoundException())
                 .flatMap(comment1 -> commentRepo.deleteById(comment.getId()));
     }
+
 
     public Mono<Comment> update(Comment comment) {
         return commentRepo
                 .findById(comment.getId())
-                .switchIfEmpty(commentNotFoundException())
+                .switchIfEmpty(exceptions.commentNotFoundException())
                 .flatMap(comment1 -> {
                     comment1.setId(comment.getId());
                     comment1.setAuthor(comment.getAuthor());
@@ -117,10 +129,11 @@ public class CommentService {
                 });
     }
 
+
     public Flux<Comment> findCommentsByPostId(String id) {
         return postRepo
                 .findById(id)
-                .switchIfEmpty(postNotFoundException())
+                .switchIfEmpty(exceptions.postNotFoundException())
                 .thenMany(commentRepo.findAll())
                 .filter(comment1 -> comment1.getIdPost()
                                             .equals(id));
