@@ -16,22 +16,22 @@ import reactor.core.publisher.Mono;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 // getters + setter are necessary, in order to use @ConfigurationProperties
+@Component
 @Getter
 @Setter
-@Component
 @NoArgsConstructor
-@PropertySource(value = "classpath:exceptions-messages.properties", ignoreResourceNotFound = true)
-@ConfigurationProperties(prefix = "exception.message")
+@PropertySource(value = "classpath:exceptions-management.properties", ignoreResourceNotFound = true)
+@ConfigurationProperties(prefix = "custom.exception.message")
 public class CustomExceptions {
 
-    private String userNotFound;
-    private String postNotFound;
-    private String commentNotFound;
-    private String authorNotFound;
+    private String userNotFoundMessage;
+    private String postNotFoundMessage;
+    private String commentNotFoundMessage;
+    private String authorNotFoundMessage;
 
 
     public <T> Mono<T> userNotFoundException() {
-        return Mono.error(new UserNotFoundException(userNotFound));
+        return Mono.error(new UserNotFoundException(userNotFoundMessage));
     }
 
 
