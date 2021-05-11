@@ -1,4 +1,4 @@
-package com.mongo.api.core.exceptions.customExceptions.customExceptionHandler;
+package com.mongo.api.core.exceptions.customExceptions;
 
 import com.mongo.api.core.exceptions.customExceptions.customExceptionTypes.CommentNotFoundException;
 import com.mongo.api.core.exceptions.customExceptions.customExceptionTypes.PostAuthorNotFoundException;

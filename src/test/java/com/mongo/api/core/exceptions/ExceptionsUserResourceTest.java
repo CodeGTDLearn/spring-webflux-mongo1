@@ -1,6 +1,8 @@
 package com.mongo.api.core.exceptions;
 
 import com.github.javafaker.Faker;
+import com.mongo.api.core.exceptions.customExceptions.CustomExceptionsProperties;
+import com.mongo.api.core.exceptions.globalException.GlobalExceptionProperties;
 import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.post.PostRepo;
 import com.mongo.api.modules.user.User;
@@ -13,13 +15,10 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import reactor.blockhound.BlockingOperationError;
-import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
-import reactor.test.StepVerifier;
 import utils.testcontainer.compose.ConfigComposeTests;
 import utils.testcontainer.compose.ConfigControllerTests;
 
-import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -53,11 +52,11 @@ public class ExceptionsUserResourceTest extends ConfigControllerTests {
     @Autowired
     WebTestClient mockedWebClient;
 
-    //    @Autowired
-    //    private UserRepo userRepo;
-    //
-    //    @Autowired
-    //    private PostRepo postRepo;
+    @Autowired
+    private CustomExceptionsProperties customExceptions;
+
+    @Autowired
+    private GlobalExceptionProperties globalException;
 
     @Autowired
     private UserService userService;
@@ -97,64 +96,6 @@ public class ExceptionsUserResourceTest extends ConfigControllerTests {
     }
 
 
-    void cleanDbToTest() {
-        StepVerifier
-                .create(userService.deleteAll())
-                .expectSubscription()
-                .verifyComplete();
-
-        System.out.println("\n\n==================> CLEAN-DB-TO-TEST" +
-                                   " <==================\n\n");
-    }
-
-
-    private void StepVerifierCountUserFlux(Flux<User> flux,int totalElements) {
-        StepVerifier
-                .create(flux)
-                .expectSubscription()
-                .expectNextCount(totalElements)
-                .verifyComplete();
-    }
-
-
-    private void StepVerifierCountPostFlux(Flux<Post> flux,int totalElements) {
-        StepVerifier
-                .create(flux)
-                .expectSubscription()
-                .expectNextCount(totalElements)
-                .verifyComplete();
-    }
-
-
-    private Flux<User> saveAndGetFlux(List<User> listUser) {
-        return userService.deleteAll()
-                          .thenMany(Flux.fromIterable(listUser))
-                          .flatMap(userService::save)
-                          .doOnNext(item -> userService.findAll())
-                          .doOnNext((item -> System.out.println(
-                                  "\nUser-Service|User-ID: " + item.getId() +
-                                          "|User-Name: " + item.getName() +
-                                          "|User-Email: " + item.getEmail() + "\n")));
-    }
-
-
-    @NotNull
-    private Flux<Post> cleanDb_Saving02Posts_GetThemInAFlux(List<Post> postList) {
-        return postRepo.deleteAll()
-                       .thenMany(Flux.fromIterable(postList))
-                       .flatMap(postRepo::save)
-                       .doOnNext(item -> postRepo.findAll())
-                       .doOnNext((item -> System.out.println(
-                               "\nPost-Repo:" + "\n" +
-                                       "Post-ID: " + item.getId() +
-                                       "|Post-Title: " + item.getTitle() + "\n" +
-                                       "Author-ID: " + item.getAuthor()
-                                                           .getId() +
-                                       "|Author-Name: " + item.getAuthor()
-                                                              .getName() + "\n")));
-    }
-
-
     @Test
     void checkServices() {
         new ConfigComposeTests().checkTestcontainerComposeService(
@@ -182,7 +123,7 @@ public class ExceptionsUserResourceTest extends ConfigControllerTests {
                 .then()
                 .statusCode(NOT_FOUND.value())
 
-                .body("detail",equalTo("Users not Found"))
+                .body("detail",equalTo(customExceptions.getUserNotFoundMessage()))
                 .log()
         ;
     }
@@ -204,7 +145,7 @@ public class ExceptionsUserResourceTest extends ConfigControllerTests {
                 .then()
                 .statusCode(NOT_FOUND.value())
 
-                .body("detail",equalTo("Users not Found"))
+                .body("detail",equalTo(customExceptions.getUserNotFoundMessage()))
                 .log()
         ;
     }
@@ -226,7 +167,7 @@ public class ExceptionsUserResourceTest extends ConfigControllerTests {
                 .then()
                 .statusCode(NOT_FOUND.value())
 
-                .body("detail",equalTo("Users not Found"))
+                .body("detail",equalTo(customExceptions.getUserNotFoundMessage()))
                 .log()
         ;
     }
@@ -249,7 +190,7 @@ public class ExceptionsUserResourceTest extends ConfigControllerTests {
                 .then()
                 .statusCode(NOT_FOUND.value())
 
-                .body("detail",equalTo("Users not Found"))
+                .body("detail",equalTo(customExceptions.getUserNotFoundMessage()))
                 .log()
         ;
     }
@@ -270,9 +211,12 @@ public class ExceptionsUserResourceTest extends ConfigControllerTests {
                 .then()
                 .statusCode(NOT_FOUND.value())
 
-                .body("Global-AtribMessage",
-                      equalTo("404 NOT_FOUND \"Global-Exception: Triggered-class\""))
-                .body("Global-devAtribMsg",equalTo("Generic Exception"))
+                .body(globalException.getGlobalAttribute(),
+                      equalTo("404 NOT_FOUND \"" + globalException.getGlobalMessage() + "\"")
+                     )
+                .body(globalException.getDeveloperAttribute(),
+                      equalTo(globalException.getDeveloperMessage())
+                     )
                 .log()
         ;
     }

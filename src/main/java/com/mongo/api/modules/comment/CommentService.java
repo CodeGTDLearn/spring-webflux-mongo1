@@ -1,6 +1,6 @@
 package com.mongo.api.modules.comment;
 
-import com.mongo.api.core.exceptions.customExceptions.customExceptionHandler.CustomExceptions;
+import com.mongo.api.core.exceptions.customExceptions.CustomExceptions;
 import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.post.PostRepo;
 import com.mongo.api.modules.user.User;
@@ -33,7 +33,7 @@ public class CommentService {
 
     public Mono<Comment> findCommentById(String id) {
         return commentRepo.findById(id)
-                          .switchIfEmpty(exceptions.postNotFoundException());
+                          .switchIfEmpty(exceptions.commentNotFoundException());
     }
 
 

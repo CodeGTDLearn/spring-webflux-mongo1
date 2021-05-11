@@ -1,6 +1,6 @@
 package com.mongo.api.modules.post;
 
-import com.mongo.api.core.exceptions.customExceptions.customExceptionHandler.CustomExceptions;
+import com.mongo.api.core.exceptions.customExceptions.CustomExceptions;
 import com.mongo.api.modules.comment.CommentService;
 import com.mongo.api.modules.user.User;
 import com.mongo.api.modules.user.UserRepo;

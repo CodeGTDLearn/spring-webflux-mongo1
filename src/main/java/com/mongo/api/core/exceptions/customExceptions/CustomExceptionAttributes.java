@@ -1,4 +1,4 @@
-package com.mongo.api.core.exceptions.customExceptions.customExceptionHandler;
+package com.mongo.api.core.exceptions.customExceptions;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
