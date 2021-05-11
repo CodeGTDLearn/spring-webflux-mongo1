@@ -21,13 +21,13 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @Setter
 @NoArgsConstructor
 @PropertySource(value = "classpath:exceptions-management.properties", ignoreResourceNotFound = true)
-@ConfigurationProperties(prefix = "custom.exception.message")
+@ConfigurationProperties(prefix = "custom.exception")
 public class CustomExceptions {
 
     private String userNotFoundMessage;
     private String postNotFoundMessage;
-    private String commentNotFoundMessage;
     private String authorNotFoundMessage;
+    private String commentNotFoundMessage;
 
 
     public <T> Mono<T> userNotFoundException() {
@@ -35,27 +35,24 @@ public class CustomExceptions {
     }
 
 
-    public <T> Mono<T> postAuthorNotFoundException() {
-        return Mono.error(
-                new PostAuthorNotFoundException("Author not Found-class"));
+    public <T> Mono<T> postNotFoundException() {
+        return Mono.error(new PostNotFoundException(postNotFoundMessage));
     }
 
 
-    public <T> Mono<T> postNotFoundException() {
-        return Mono.error(new PostNotFoundException("Post not Found-class"));
+    public <T> Mono<T> authorNotFoundException() {
+        return Mono.error(
+                new PostAuthorNotFoundException(authorNotFoundMessage));
     }
 
 
     public <T> Mono<T> commentNotFoundException() {
-        return Mono.error(new CommentNotFoundException("Comment not Found-class"));
+        return Mono.error(new CommentNotFoundException(commentNotFoundMessage));
     }
 
 
     public <T> Mono<T> globalErrorException() {
-        return Mono.error(
-                new ResponseStatusException(NOT_FOUND,
-                                            "Global-Exception: Triggered-class"
-                ));
+        return Mono.error(new ResponseStatusException(NOT_FOUND,"XXXX"));
     }
 }
 

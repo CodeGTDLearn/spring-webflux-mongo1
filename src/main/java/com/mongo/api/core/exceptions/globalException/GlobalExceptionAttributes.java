@@ -23,41 +23,36 @@ public class GlobalExceptionAttributes extends DefaultErrorAttributes {
 
     private String developerAttribute;
     private String developerMessage;
-    private String generalAttribute;
+    private String globalAttribute;
+    private String globalMessage;
 
 
     @Override
-    public Map<String, Object> getErrorAttributes(
-            ServerRequest request,
-            ErrorAttributeOptions options) {
+    public Map<String, Object> getErrorAttributes(ServerRequest request,
+                                                  ErrorAttributeOptions options) {
 
-        Map<String, Object> globalExceptionAttributes =
-                super.getErrorAttributes(request,options);
+        Map<String, Object> globalExceptionAttribs = super.getErrorAttributes(request,options);
 
         //ADICIONA A GLOBAL-EXCEPTION(ResponseStatusException)
         //POIS NAO SE TRATA DE NENHUMA DAS 'CUSTOM-EXCEPTIONS'
         Throwable throwable = getError(request);
         if (throwable instanceof ResponseStatusException) {
 
-            ResponseStatusException errorFound = (ResponseStatusException) throwable;
+            ResponseStatusException error = (ResponseStatusException) throwable;
 
-            //DETECTADA UMA GLOBAL-EXCEPTION(ResponseStatusException)
-            // adiciona ATTRIBUTES no globalExceptionAttributes
-            //            globalExceptionAttributes.put("Global-AtribMessage",errorFound
-            //            .getMessage());
-            //            globalExceptionAttributes.put("Global-devAtribMsg","Generic Exception");
-            globalExceptionAttributes.put(generalAttribute,errorFound.getMessage());
-            globalExceptionAttributes.put(developerAttribute,developerMessage);
+            //SENDO UMA GLOBAL-EXCEPTION(ResponseStatusException)
+            // adiciona ATTRIBUTES no globalExceptionAttribs
+            globalExceptionAttribs.put(globalAttribute,error.getMessage() + "|" + globalMessage);
+            globalExceptionAttribs.put(developerAttribute,developerMessage);
         }
-
 
         // NAO SENDO UMA GLOBAL-EXCEPTION(ResponseStatusException)
         // PORTANTO SENDO, UMA CUSTOM-EXCEPTION
         // retorna o valor PADRAO de ATTRIBUTES ou seja,
-        // o globalExceptionAttributes "PURO", sem insercao(.put's do IF acima) de qquer atributo
+        // o globalExceptionAttribs "PURO", sem insercao(.put's do IF acima) de qquer atributo
         // personalizado
         // OU SEJA, nao se acrescenta os atributos definidos no IF-ACIMA
-        return globalExceptionAttributes;
+        return globalExceptionAttribs;
     }
 
 }

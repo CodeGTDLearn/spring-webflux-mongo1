@@ -15,6 +15,7 @@ docker image rm pauloportfolio/api
 
 REM DOCKER LISTING IMAGES + SYSTEM
 docker system df
+docker system prune --force
 docker image ls
 
 REM RE-SETTING JDK8 AS DEFAULT
