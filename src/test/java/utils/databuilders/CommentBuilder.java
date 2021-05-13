@@ -2,9 +2,9 @@ package utils.databuilders;
 
 import com.github.javafaker.Faker;
 import com.mongo.api.modules.comment.Comment;
-import com.mongo.api.modules.post.Post;
-import com.mongo.api.modules.user.AuthorDto;
-import com.mongo.api.modules.user.User;
+import com.mongo.api.modules.post.entity.Post;
+import com.mongo.api.modules.user.entity.AuthorDto;
+import com.mongo.api.modules.user.entity.User;
 import lombok.Builder;
 import lombok.Getter;
 

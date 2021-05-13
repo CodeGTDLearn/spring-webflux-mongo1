@@ -1,4 +1,4 @@
-package com.mongo.api.modules.user;
+package com.mongo.api.modules.user.entity;
 
 import lombok.*;
 import org.springframework.data.annotation.Id;

@@ -1,8 +1,9 @@
 package com.mongo.api.modules.user;
 
 import com.github.javafaker.Faker;
-import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.post.PostRepo;
+import com.mongo.api.modules.post.entity.Post;
+import com.mongo.api.modules.user.entity.User;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testcontainers.containers.DockerComposeContainer;
@@ -34,12 +35,10 @@ public class UserServiceTest extends ConfigComposeTests {
     private List<User> userList;
 
     @Autowired
-    private UserRepo userRepo;
+    private UserServiceInt userService;
 
     @Autowired
     private PostRepo postRepo;
-
-    private UserService userService;
 
     @Container
     private static final DockerComposeContainer<?> compose = new ConfigComposeTests().compose;
@@ -60,7 +59,7 @@ public class UserServiceTest extends ConfigComposeTests {
 
     @BeforeEach
     void beforeEach() {
-        userService = new UserService(userRepo,postRepo);
+        // service = new UserService(userRepo,postRepo);
 
         user1 = userFull_IdNull_ListIdPostsEmpty().create();
         user3 = userFull_IdNull_ListIdPostsEmpty().create();
@@ -87,9 +86,9 @@ public class UserServiceTest extends ConfigComposeTests {
                           .flatMap(userService::save)
                           .doOnNext(item -> userService.findAll())
                           .doOnNext((item -> System.out.println(
-                                  "\nService - UserID: " + item.getId() +
-                                          "|Name: " + item.getName() +
-                                          "|Email: " + item.getEmail() + "\n")));
+                              "\nService - UserID: " + item.getId() +
+                                      "|Name: " + item.getName() +
+                                      "|Email: " + item.getEmail() + "\n")));
     }
 
 

@@ -1,8 +1,8 @@
 package com.mongo.api.core.data.mass;
 
-import com.mongo.api.modules.post.Post;
+import com.mongo.api.modules.post.entity.Post;
 import com.mongo.api.modules.post.PostRepo;
-import com.mongo.api.modules.user.User;
+import com.mongo.api.modules.user.entity.User;
 import com.mongo.api.modules.user.UserRepo;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

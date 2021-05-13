@@ -1,8 +1,8 @@
 package com.mongo.api.modules.comment;
 
-import com.mongo.api.modules.post.Post;
-import com.mongo.api.modules.post.PostService;
-import com.mongo.api.modules.user.User;
+import com.mongo.api.modules.post.PostServiceInt;
+import com.mongo.api.modules.post.entity.Post;
+import com.mongo.api.modules.user.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +18,7 @@ import static org.springframework.http.HttpStatus.*;
 @RequestMapping(REQ_COMMENT)
 public class CommentResource {
 
-    private final PostService postService;
+    private final PostServiceInt postServiceInt;
 
     private final CommentService commentService;
 

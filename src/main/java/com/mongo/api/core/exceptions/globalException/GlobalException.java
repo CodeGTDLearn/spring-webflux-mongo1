@@ -17,6 +17,7 @@ public class GlobalException {
 
     private GlobalExceptionProperties properties;
 
+
     public <T> Mono<T> globalErrorException() {
         return Mono.error(new ResponseStatusException(NOT_FOUND,properties.getGlobalMessage()));
     }

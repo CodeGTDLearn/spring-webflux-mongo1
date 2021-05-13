@@ -1,6 +1,6 @@
 package com.mongo.api.modules.comment;
 
-import com.mongo.api.modules.user.AuthorDto;
+import com.mongo.api.modules.user.entity.AuthorDto;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;

@@ -1,6 +1,8 @@
 package com.mongo.api.modules.user;
 
-import com.mongo.api.modules.post.PostDto;
+import com.mongo.api.modules.post.entity.PostDto;
+import com.mongo.api.modules.user.entity.User;
+import com.mongo.api.modules.user.entity.UserDto;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +20,7 @@ import static org.springframework.http.HttpStatus.*;
 @RequestMapping(REQ_USER)
 public class UserResource {
 
-    private final UserService service;
+    private final UserServiceInt service;
 
 
     @GetMapping(FIND_ALL_USERS)

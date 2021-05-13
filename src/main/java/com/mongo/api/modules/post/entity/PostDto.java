@@ -1,4 +1,4 @@
-package com.mongo.api.modules.post;
+package com.mongo.api.modules.post.entity;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

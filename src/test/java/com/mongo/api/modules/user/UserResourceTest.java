@@ -1,8 +1,9 @@
 package com.mongo.api.modules.user;
 
 import com.github.javafaker.Faker;
-import com.mongo.api.modules.post.Post;
-import com.mongo.api.modules.post.PostRepo;
+import com.mongo.api.modules.post.PostServiceInt;
+import com.mongo.api.modules.post.entity.Post;
+import com.mongo.api.modules.user.entity.User;
 import io.restassured.http.ContentType;
 import io.restassured.module.webtestclient.RestAssuredWebTestClient;
 import org.hamcrest.CoreMatchers;
@@ -48,24 +49,20 @@ public class UserResourceTest extends ConfigControllerTests {
     @Container
     private static final DockerComposeContainer<?> compose = new ConfigComposeTests().compose;
 
-
     // MOCKED-SERVER: WEB-TEST-CLIENT(non-blocking client)'
     // SHOULD BE USED WITH 'TEST-CONTAINERS'
     // BECAUSE THERE IS NO 'REAL-SERVER' CREATED VIA DOCKER-COMPOSE
     @Autowired
     WebTestClient mockedWebClient;
 
-    //    @Autowired
-    //    private UserRepo userRepo;
-    //
-    //    @Autowired
-    //    private PostRepo postRepo;
+    @Autowired
+    private UserServiceInt userService;
+
+//    @Autowired
+//    private PostRepo postRepo;
 
     @Autowired
-    private UserService userService;
-
-    @Autowired
-    private PostRepo postRepo;
+    private PostServiceInt postService;
 
 
     @BeforeAll
@@ -133,26 +130,26 @@ public class UserResourceTest extends ConfigControllerTests {
                           .flatMap(userService::save)
                           .doOnNext(item -> userService.findAll())
                           .doOnNext((item -> System.out.println(
-                                  "\nUser-Service|User-ID: " + item.getId() +
-                                          "|User-Name: " + item.getName() +
-                                          "|User-Email: " + item.getEmail() + "\n")));
+                              "\nUser-Service|User-ID: " + item.getId() +
+                                      "|User-Name: " + item.getName() +
+                                      "|User-Email: " + item.getEmail() + "\n")));
     }
 
 
     @NotNull
     private Flux<Post> cleanDb_Saving02Posts_GetThemInAFlux(List<Post> postList) {
-        return postRepo.deleteAll()
+        return postService.deleteAll()
                        .thenMany(Flux.fromIterable(postList))
-                       .flatMap(postRepo::save)
-                       .doOnNext(item -> postRepo.findAll())
+                       .flatMap(postService::save)
+                       .doOnNext(item -> postService.findAll())
                        .doOnNext((item -> System.out.println(
-                               "\nPost-Repo:" + "\n" +
-                                       "Post-ID: " + item.getId() +
-                                       "|Post-Title: " + item.getTitle() + "\n" +
-                                       "Author-ID: " + item.getAuthor()
-                                                            .getId() +
-                                       "|Author-Name: " + item.getAuthor()
-                                                              .getName()+ "\n")));
+                           "\nPost-Repo:" + "\n" +
+                                   "Post-ID: " + item.getId() +
+                                   "|Post-Title: " + item.getTitle() + "\n" +
+                                   "Author-ID: " + item.getAuthor()
+                                                       .getId() +
+                                   "|Author-Name: " + item.getAuthor()
+                                                          .getName() + "\n")));
     }
 
 

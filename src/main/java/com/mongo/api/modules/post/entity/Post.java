@@ -1,7 +1,7 @@
-package com.mongo.api.modules.post;
+package com.mongo.api.modules.post.entity;
 
 import com.mongo.api.modules.comment.Comment;
-import com.mongo.api.modules.user.AuthorDto;
+import com.mongo.api.modules.user.entity.AuthorDto;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;

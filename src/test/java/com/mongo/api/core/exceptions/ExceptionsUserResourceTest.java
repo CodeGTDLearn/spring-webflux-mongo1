@@ -3,10 +3,10 @@ package com.mongo.api.core.exceptions;
 import com.github.javafaker.Faker;
 import com.mongo.api.core.exceptions.customExceptions.CustomExceptionsProperties;
 import com.mongo.api.core.exceptions.globalException.GlobalExceptionProperties;
-import com.mongo.api.modules.post.Post;
+import com.mongo.api.modules.post.entity.Post;
 import com.mongo.api.modules.post.PostRepo;
-import com.mongo.api.modules.user.User;
-import com.mongo.api.modules.user.UserService;
+import com.mongo.api.modules.user.UserServiceInt;
+import com.mongo.api.modules.user.entity.User;
 import io.restassured.http.ContentType;
 import io.restassured.module.webtestclient.RestAssuredWebTestClient;
 import org.junit.jupiter.api.*;
@@ -59,7 +59,7 @@ public class ExceptionsUserResourceTest extends ConfigControllerTests {
     private GlobalExceptionProperties globalException;
 
     @Autowired
-    private UserService userService;
+    private UserServiceInt UserServiceInt;
 
     @Autowired
     private PostRepo postRepo;
