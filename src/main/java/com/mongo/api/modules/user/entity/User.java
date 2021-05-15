@@ -5,7 +5,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.Email;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,9 +13,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "user")
-public class User implements Serializable {
+public class User{
 
-    private static final long serialVersionUID = 5370607688333864714L;
+
 
     @EqualsAndHashCode.Include
     @Id

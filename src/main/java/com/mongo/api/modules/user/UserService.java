@@ -53,15 +53,6 @@ public class UserService implements UserServiceInt {
 
 
     @Override
-    public Mono<Void> deleteById(String id) {
-        return userRepo
-                .findById(id)
-                .switchIfEmpty(customExceptions.userNotFoundException())
-                .flatMap(userRepo::delete);
-    }
-
-
-    @Override
     public Mono<Void> deleteAll() {
         return userRepo.deleteAll();
     }
@@ -82,6 +73,15 @@ public class UserService implements UserServiceInt {
 
 
     @Override
+    public Mono<Void> deleteById(String id) {
+        return userRepo
+                .findById(id)
+                .switchIfEmpty(customExceptions.userNotFoundException())
+                .flatMap(userRepo::delete);
+    }
+
+
+    @Override
     public Flux<Post> findPostsByUserId(String userId) {
         return userRepo
                 .findById(userId)
@@ -91,6 +91,8 @@ public class UserService implements UserServiceInt {
                     return postRepo.findPostsByAuthor_Id(id);
                 });
     }
+
+
 }
 // todo: 01 suspeita 01, se esses caras estao aki nao esta sendo injetados aqui, eles nao
 //  deveriam ser injetados/necessarios no UserServiceTest, no UserServiceTest esta sendo

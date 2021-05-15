@@ -5,6 +5,7 @@ import com.mongo.api.modules.user.entity.User;
 import com.mongo.api.modules.user.entity.UserDto;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -22,6 +23,8 @@ public class UserResource {
 
     private final UserServiceInt service;
 
+    private final ModelMapper converter;
+
 
     @GetMapping(FIND_ALL_USERS)
     @ResponseStatus(OK)
@@ -36,8 +39,8 @@ public class UserResource {
     public Flux<UserDto> findAllDto() {
         return service
                 .findAll()
-                .map(item -> {
-                    return new UserDto(item);
+                .map(userFound -> {
+                    return converter.map(userFound,UserDto.class);
                 });
     }
 
@@ -47,7 +50,7 @@ public class UserResource {
     public Mono<UserDto> findById(@PathVariable String id) {
         return service
                 .findById(id)
-                .map(UserDto::new);
+                .map(userFound -> converter.map(userFound,UserDto.class));
     }
 
 
@@ -59,11 +62,11 @@ public class UserResource {
 
     @PostMapping
     @ResponseStatus(CREATED)
-    public Mono<UserDto> save(@Valid @RequestBody UserDto userdto) {
-        User user = new UserDto().fromDtoToUser(userdto);
+    public Mono<UserDto> save(@Valid @RequestBody UserDto userDto) {
+        User user = converter.map(userDto,User.class);
         return service
                 .save(user)
-                .map(item -> new UserDto(item));
+                .map(item -> converter.map(item,UserDto.class));
     }
 
 
@@ -77,9 +80,8 @@ public class UserResource {
     @PutMapping
     @ResponseStatus(OK)
     public Mono<User> update(@Valid @RequestBody UserDto userDto) {
-        User user = new UserDto().fromDtoToUser(userDto);
-        return service
-                .update(user);
+        User user = converter.map(userDto,User.class);
+        return service.update(user);
     }
 
 
