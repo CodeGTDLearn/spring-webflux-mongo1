@@ -2,9 +2,8 @@ package com.mongo.api.modules.post;
 
 import com.mongo.api.core.exceptions.customExceptions.CustomExceptions;
 import com.mongo.api.modules.comment.CommentService;
-import com.mongo.api.modules.post.entity.Post;
 import com.mongo.api.modules.user.UserRepo;
-import com.mongo.api.modules.user.entity.User;
+import com.mongo.api.modules.user.User;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

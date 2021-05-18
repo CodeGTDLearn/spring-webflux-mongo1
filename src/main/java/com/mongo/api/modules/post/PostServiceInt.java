@@ -1,7 +1,6 @@
 package com.mongo.api.modules.post;
 
-import com.mongo.api.modules.post.entity.Post;
-import com.mongo.api.modules.user.entity.User;
+import com.mongo.api.modules.user.User;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

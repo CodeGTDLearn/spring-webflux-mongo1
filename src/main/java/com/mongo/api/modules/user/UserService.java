@@ -1,14 +1,22 @@
 package com.mongo.api.modules.user;
 
+import com.mongo.api.core.dto.UserAllDto;
+import com.mongo.api.core.dto.UserAllDtoComment;
+import com.mongo.api.core.dto.UserAllDtoPost;
 import com.mongo.api.core.exceptions.customExceptions.CustomExceptions;
 import com.mongo.api.core.exceptions.globalException.GlobalException;
+import com.mongo.api.modules.comment.CommentService;
+import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.post.PostRepo;
-import com.mongo.api.modules.post.entity.Post;
-import com.mongo.api.modules.user.entity.User;
 import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 
 @Service("userService")
@@ -18,6 +26,10 @@ public class UserService implements UserServiceInt {
     private final UserRepo userRepo;
 
     private final PostRepo postRepo;
+
+    private final CommentService commentService;
+
+    private final ModelMapper conv;
 
     private final CustomExceptions customExceptions;
 
@@ -91,6 +103,68 @@ public class UserService implements UserServiceInt {
                     return postRepo.findPostsByAuthor_Id(id);
                 });
     }
+
+
+    @Override
+    public Flux<UserAllDto> findAllUserShowAll() {
+
+        List<UserAllDtoPost> dtoPosts = new ArrayList<>();
+        List<UserAllDtoComment> dtoComments = new ArrayList<>();
+        //        List<Comment> comments = new ArrayList<>();
+
+
+        return userRepo
+                .findAll()
+                .flatMap(user -> {
+
+                    final UserAllDto userRet = conv.map(user,UserAllDto.class);
+
+                    findPostsByUserId(user.getId())
+                            .flatMap(post -> {
+
+                                commentService
+                                        .findCommentsByPostId(post.getId())
+                                        .flatMap(comment -> {
+                                            dtoComments.add(
+                                                    conv.map(comment,UserAllDtoComment.class));
+                                        });
+
+                                final UserAllDtoPost dtoPost = conv.map(post,UserAllDtoPost.class);
+                                dtoPost.setComments(dtoComments);
+                                
+                                dtoPosts.add(dtoPost);
+                                userRet.setPosts(dtoPosts);
+                                
+                                return Flux.fromIterable(Arrays.asList(post));
+                            });
+
+
+                    return Flux.fromIterable(Arrays.asList(userRet));
+                })
+                ;
+    }
+    //                    userRet = converter.map(user,UserShowAllDto.class);
+    //
+    //                    findPostsByUserId(user.getId())
+    //                            .flatMap(post -> {
+    //                                postRet = converter.map(post,UserShowAllDtoPost.class);
+    //                                commentService
+    //                                        .findCommentsByPostId(post.getId())
+    //                                        .flatMap(comment -> {
+    //                                            dtoCommentList.add(
+    //                                                    converter.map(comment,
+    //                                                                  UserShowAllDtoComment.class
+    //                                                                 ));
+    //                                            return comment;
+    //                                        });
+    //
+    //                                postRet.setComments(dtoCommentList);
+    //                                dtoPostList.add(postRet);
+    //                                return post;
+    //                            });
+    //
+    //                    userRet.setPosts(dtoPostList);
+    //                    return userRet;
 
 
 }

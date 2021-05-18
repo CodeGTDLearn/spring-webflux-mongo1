@@ -1,12 +1,13 @@
 package utils.databuilders;
 
 import com.github.javafaker.Faker;
+import com.mongo.api.core.dto.UserAuthorDto;
 import com.mongo.api.modules.comment.Comment;
-import com.mongo.api.modules.post.entity.Post;
-import com.mongo.api.modules.user.entity.AuthorDto;
-import com.mongo.api.modules.user.entity.User;
+import com.mongo.api.modules.post.Post;
+import com.mongo.api.modules.user.User;
 import lombok.Builder;
 import lombok.Getter;
+import org.modelmapper.ModelMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +18,8 @@ import java.util.Locale;
 public class PostBuilder {
 
     private final Post post;
+
+    private static final ModelMapper conv = new ModelMapper();
 
     private static final Faker faker = new Faker(new Locale("en-CA.yml"));
     //    private static String FAKER_REGEX_CPF = "[0-9]{3}\\.[0-9]{3}\\.[0-9]{3}-[0-9]{2}";
@@ -39,7 +42,7 @@ public class PostBuilder {
                               .sentence(25));
         postFull.setDate(faker.date()
                               .birthday());
-        postFull.setAuthor(new AuthorDto(postUserAuthor));
+        postFull.setAuthor(conv.map(postUserAuthor, UserAuthorDto.class));
         postFull.setComment(comment);
         postFull.setListComments(commentList);
 
@@ -66,7 +69,7 @@ public class PostBuilder {
         postFull.setDate(faker.date()
                               .birthday());
 
-        postFull.setAuthor(new AuthorDto(user));
+        postFull.setAuthor(conv.map(user, UserAuthorDto.class));
 
         return PostBuilder.builder()
                           .post(postFull)

@@ -1,7 +1,7 @@
 package com.mongo.api.modules.user;
 
-import com.mongo.api.modules.post.entity.Post;
-import com.mongo.api.modules.user.entity.User;
+import com.mongo.api.core.dto.UserAllDto;
+import com.mongo.api.modules.post.Post;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -21,4 +21,6 @@ public interface UserServiceInt {
     Mono<User> update(User user);
 
     Flux<Post> findPostsByUserId(String userId);
+
+    Flux<UserAllDto> findAllUserShowAll();
 }

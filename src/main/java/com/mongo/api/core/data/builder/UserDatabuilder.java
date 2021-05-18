@@ -1,7 +1,7 @@
 package com.mongo.api.core.data.builder;
 
 import com.github.javafaker.Faker;
-import com.mongo.api.modules.user.entity.User;
+import com.mongo.api.modules.user.User;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Getter;

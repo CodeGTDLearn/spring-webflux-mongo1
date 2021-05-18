@@ -1,9 +1,9 @@
 package com.mongo.api.modules.comment;
 
 import com.mongo.api.core.exceptions.customExceptions.CustomExceptions;
-import com.mongo.api.modules.post.entity.Post;
+import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.post.PostRepo;
-import com.mongo.api.modules.user.entity.User;
+import com.mongo.api.modules.user.User;
 import com.mongo.api.modules.user.UserRepo;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -130,13 +130,13 @@ public class CommentService {
     }
 
 
-    public Flux<Comment> findCommentsByPostId(String id) {
+    public Flux<Comment> findCommentsByPostId(String postId) {
         return postRepo
-                .findById(id)
+                .findById(postId)
                 .switchIfEmpty(exceptions.postNotFoundException())
                 .thenMany(commentRepo.findAll())
-                .filter(comment1 -> comment1.getIdPost()
-                                            .equals(id));
+                .filter(commentsOfThePost -> commentsOfThePost.getIdPost()
+                                            .equals(postId));
 
     }
 }

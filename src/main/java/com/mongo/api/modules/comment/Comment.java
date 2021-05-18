@@ -1,6 +1,6 @@
 package com.mongo.api.modules.comment;
 
-import com.mongo.api.modules.user.entity.AuthorDto;
+import com.mongo.api.core.dto.UserAuthorDto;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -23,5 +23,5 @@ public class Comment implements Serializable {
     private String idPost;
     private Date date;
     private String text;
-    private AuthorDto author;
+    private UserAuthorDto author;
 }

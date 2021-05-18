@@ -1,13 +1,14 @@
 package com.mongo.api.core.data.builder;
 
 import com.github.javafaker.Faker;
-import com.mongo.api.modules.post.entity.Post;
-import com.mongo.api.modules.user.entity.AuthorDto;
-import com.mongo.api.modules.user.entity.User;
+import com.mongo.api.core.dto.UserAuthorDto;
+import com.mongo.api.modules.post.Post;
+import com.mongo.api.modules.user.User;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.SneakyThrows;
+import org.modelmapper.ModelMapper;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -19,6 +20,8 @@ import java.util.TimeZone;
 public class PostDatabuilder {
 
     private final Post postDataBuilder;
+
+    private static final ModelMapper converter = new ModelMapper();
 
     private final static Faker faker = new Faker(new Locale("en-BR"));
 
@@ -50,7 +53,7 @@ public class PostDatabuilder {
                            .cityName());
         post.setBody(faker.address()
                           .city());
-        post.setAuthor(new AuthorDto(user));
+        post.setAuthor(converter.map(user,UserAuthorDto.class));
 
         return PostDatabuilder.builder()
                               .postDataBuilder(post)

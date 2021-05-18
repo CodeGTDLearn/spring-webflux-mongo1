@@ -1,13 +1,14 @@
 package com.mongo.api.core.data.builder;
 
 import com.github.javafaker.Faker;
+import com.mongo.api.core.dto.UserAuthorDto;
 import com.mongo.api.modules.comment.Comment;
-import com.mongo.api.modules.user.entity.AuthorDto;
-import com.mongo.api.modules.user.entity.User;
+import com.mongo.api.modules.user.User;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.SneakyThrows;
+import org.modelmapper.ModelMapper;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -19,6 +20,8 @@ import java.util.TimeZone;
 public class CommentDatabuilder {
 
     private final Comment commentDataBuilder;
+
+    private static final ModelMapper converter = new ModelMapper();
 
     private final static Faker faker = new Faker(new Locale("en-BR"));
 
@@ -45,7 +48,7 @@ public class CommentDatabuilder {
         comment.setDate(sdf.parse("11/11/2011"));
         comment.setText(faker.lorem()
                              .sentence());
-        comment.setAuthor(new AuthorDto(user));
+        comment.setAuthor(converter.map(user,UserAuthorDto.class));
 
         return CommentDatabuilder.builder()
                                  .commentDataBuilder(comment)

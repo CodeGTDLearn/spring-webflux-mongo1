@@ -1,6 +1,5 @@
 package com.mongo.api.modules.post;
 
-import com.mongo.api.modules.post.entity.Post;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;

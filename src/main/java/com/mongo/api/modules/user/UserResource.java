@@ -1,8 +1,8 @@
 package com.mongo.api.modules.user;
 
-import com.mongo.api.modules.post.entity.PostDto;
-import com.mongo.api.modules.user.entity.User;
-import com.mongo.api.modules.user.entity.UserDto;
+import com.mongo.api.core.dto.PostDto;
+import com.mongo.api.core.dto.UserAllDto;
+import com.mongo.api.core.dto.UserDto;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -34,13 +34,21 @@ public class UserResource {
     }
 
 
+    @GetMapping(FIND_ALL_SHOW_ALL_DTO)
+    @ResponseStatus(OK)
+    public Flux<UserAllDto> findAllUserShowAllDto() {
+        return service.findAllUserShowAll()
+                      .log();
+    }
+
+
     @GetMapping(FIND_ALL_USERS_DTO)
     @ResponseStatus(OK)
     public Flux<UserDto> findAllDto() {
         return service
                 .findAll()
-                .map(userFound -> {
-                    return converter.map(userFound,UserDto.class);
+                .map(user -> {
+                    return converter.map(user,UserDto.class);
                 });
     }
 
@@ -90,6 +98,8 @@ public class UserResource {
     public Flux<PostDto> findPostsByUserId(@PathVariable String userId) {
         return service
                 .findPostsByUserId(userId)
-                .map(PostDto::new);
+                .map(post -> {
+                    return converter.map(post,PostDto.class);
+                });
     }
 }

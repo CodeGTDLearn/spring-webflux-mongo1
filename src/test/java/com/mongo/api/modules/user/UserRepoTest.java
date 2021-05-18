@@ -1,9 +1,8 @@
 package com.mongo.api.modules.user;
 
 import com.github.javafaker.Faker;
-import com.mongo.api.modules.post.entity.Post;
+import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.post.PostRepo;
-import com.mongo.api.modules.user.entity.User;
 import utils.testcontainer.container.ConfigContainerTests;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;

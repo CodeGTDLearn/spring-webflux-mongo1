@@ -1,4 +1,4 @@
-package com.mongo.api.modules.user.entity;
+package com.mongo.api.modules.user;
 
 import lombok.*;
 import org.springframework.data.annotation.Id;
@@ -13,9 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "user")
-public class User{
-
-
+public class User {
 
     @EqualsAndHashCode.Include
     @Id

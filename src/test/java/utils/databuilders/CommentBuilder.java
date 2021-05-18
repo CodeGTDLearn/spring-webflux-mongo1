@@ -2,9 +2,8 @@ package utils.databuilders;
 
 import com.github.javafaker.Faker;
 import com.mongo.api.modules.comment.Comment;
-import com.mongo.api.modules.post.entity.Post;
-import com.mongo.api.modules.user.entity.AuthorDto;
-import com.mongo.api.modules.user.entity.User;
+import com.mongo.api.modules.post.Post;
+import com.mongo.api.modules.user.User;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -36,7 +35,7 @@ public class CommentBuilder {
                                  .birthday());
         commentFull.setText("Comment-Text: " + faker.lorem()
                                                     .sentence(25));
-        commentFull.setAuthor(new AuthorDto(commentUserAuthorDTO));
+//        commentFull.setAuthor(new UserAuthorDto(commentUserAuthorDTO));
         return CommentBuilder.builder()
                              .comment(commentFull)
                              .build();
@@ -71,7 +70,7 @@ public class CommentBuilder {
                                  .birthday());
         commentFull.setText("Comment-Text: " + faker.lorem()
                                                     .sentence(25));
-        commentFull.setAuthor(new AuthorDto(commentUserAuthorDTO));
+//        commentFull.setAuthor(new UserAuthorDto(commentUserAuthorDTO));
         return CommentBuilder.builder()
                              .comment(commentFull)
                              .build();

@@ -2,8 +2,7 @@ package com.mongo.api.modules.user;
 
 import com.github.javafaker.Faker;
 import com.mongo.api.modules.post.PostServiceInt;
-import com.mongo.api.modules.post.entity.Post;
-import com.mongo.api.modules.user.entity.User;
+import com.mongo.api.modules.post.Post;
 import io.restassured.http.ContentType;
 import io.restassured.module.webtestclient.RestAssuredWebTestClient;
 import org.hamcrest.CoreMatchers;
