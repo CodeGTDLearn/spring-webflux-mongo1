@@ -14,7 +14,7 @@ public interface UserServiceInt {
 
     Mono<User> save(User user);
 
-    Mono<Void> deleteById(String id);
+    Mono<Void> delete(String id);
 
     Mono<Void> deleteAll();
 

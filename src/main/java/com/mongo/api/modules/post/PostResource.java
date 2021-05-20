@@ -37,7 +37,7 @@ public class PostResource {
     @ResponseStatus(OK)
     public Mono<PostDto> findPostById(@PathVariable String id) {
         return postServiceInt
-                .findPostById(id)
+                .findById(id)
                 .map(post -> converter.map(post,PostDto.class));
     }
 

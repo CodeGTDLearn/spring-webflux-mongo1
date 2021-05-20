@@ -81,7 +81,7 @@ public class UserResource {
     @DeleteMapping
     @ResponseStatus(NO_CONTENT)
     public Mono<Void> delete(@Valid @RequestBody UserDto userDto) {
-        return service.deleteById(userDto.getId());
+        return service.delete(userDto.getId());
     }
 
 

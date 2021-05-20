@@ -1,14 +1,18 @@
 package com.mongo.api.modules.post;
 
 import com.mongo.api.core.exceptions.customExceptions.CustomExceptions;
-import com.mongo.api.modules.comment.CommentService;
-import com.mongo.api.modules.user.UserRepo;
+import com.mongo.api.modules.comment.CommentServiceInt;
 import com.mongo.api.modules.user.User;
+import com.mongo.api.modules.user.UserServiceInt;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @AllArgsConstructor
@@ -17,15 +21,16 @@ public class PostService implements PostServiceInt {
 
     private final PostRepo postRepo;
 
-    private final UserRepo userRepo;
+    @Lazy
+    private final UserServiceInt userService;
 
-    private final CommentService commentService;
+    private final CommentServiceInt commentService;
 
     private final CustomExceptions exceptions;
 
 
     @Override
-    public Mono<Post> findPostById(String id) {
+    public Mono<Post> findById(String id) {
         return postRepo.findById(id)
                        .switchIfEmpty(exceptions.postNotFoundException());
     }
@@ -55,9 +60,19 @@ public class PostService implements PostServiceInt {
                 .flatMap(item -> {
                     String idUser = item.getAuthor()
                                         .getId();
-                    return userRepo.findById(idUser)
-                                   .switchIfEmpty(exceptions.userNotFoundException());
+                    return userService.findById(idUser)
+                                      .switchIfEmpty(exceptions.userNotFoundException());
                 });
+    }
+
+
+    @Override
+    public Flux<Post> findPostsByAuthorId(String id) {
+
+        List<Post> posts = new ArrayList<>();
+        return userService.findById(id)
+                          .switchIfEmpty(exceptions.authorNotFoundException())
+                          .thenMany(postRepo.findPostsByAuthor_Id(id));
     }
 
 
@@ -69,7 +84,7 @@ public class PostService implements PostServiceInt {
 
     @Override
     public Mono<Post> save(Post post) {
-        return userRepo
+        return userService
                 .findById(post.getAuthor()
                               .getId())
 
@@ -78,18 +93,18 @@ public class PostService implements PostServiceInt {
                 .then(postRepo.save(post))
 
                 .flatMap(postSaved -> {
-                    return userRepo
+                    return userService
                             .findById(postSaved.getAuthor()
                                                .getId())
                             .flatMap(user -> {
                                 user.getIdPosts()
                                     .add(postSaved.getId());
-                                return userRepo.save(user);
+                                return userService.save(user);
                             });
                 })
                 .flatMap(user -> postRepo.findById(user.getIdPosts()
-                                           .get(user.getIdPosts()
-                                               .size() - 1)));
+                                                       .get(user.getIdPosts()
+                                                                .size() - 1)));
     }
 
 

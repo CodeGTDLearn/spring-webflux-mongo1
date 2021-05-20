@@ -2,11 +2,12 @@ package com.mongo.api.modules.comment;
 
 import com.mongo.api.core.exceptions.customExceptions.CustomExceptions;
 import com.mongo.api.modules.post.Post;
-import com.mongo.api.modules.post.PostRepo;
+import com.mongo.api.modules.post.PostServiceInt;
 import com.mongo.api.modules.user.User;
-import com.mongo.api.modules.user.UserRepo;
+import com.mongo.api.modules.user.UserServiceInt;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.modelmapper.ModelMapper;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -14,29 +15,35 @@ import reactor.core.publisher.Mono;
 
 @AllArgsConstructor
 @Service
-public class CommentService {
-
-    private final PostRepo postRepo;
+public class CommentService implements CommentServiceInt {
 
     private final CommentRepo commentRepo;
 
-    private final UserRepo userRepo;
+    @Lazy
+    private final PostServiceInt postRepo;
 
-    @Autowired
+    @Lazy
+    private final UserServiceInt userRepo;
+
+    private final ModelMapper conv;
+
     private final CustomExceptions exceptions;
 
 
+    @Override
     public Flux<Comment> findAll() {
         return commentRepo.findAll();
     }
 
 
-    public Mono<Comment> findCommentById(String id) {
+    @Override
+    public Mono<Comment> findById(String id) {
         return commentRepo.findById(id)
                           .switchIfEmpty(exceptions.commentNotFoundException());
     }
 
 
+    @Override
     public Mono<User> findUserByCommentId(String id) {
         return commentRepo
                 .findById(id)
@@ -44,16 +51,20 @@ public class CommentService {
                 .flatMap(comment -> {
                     String idUser = comment.getAuthor()
                                            .getId();
+                    //                    return userRepo.findById(idUser);
                     return userRepo.findById(idUser);
                 });
     }
 
 
-    public Mono<Post> saveCommentLinkedObject(Comment comment) {
+    @Override
+    public Mono<Post> saveLinkedObject(Comment comment) {
         return userRepo
                 .findById(comment.getAuthor()
                                  .getId())
                 .switchIfEmpty(exceptions.userNotFoundException())
+                .then(postRepo.findById(comment.getIdPost())
+                              .switchIfEmpty(exceptions.postNotFoundException()))
                 .then(commentRepo.save(comment))
                 .flatMap(commentSaved ->
                                  postRepo
@@ -69,11 +80,14 @@ public class CommentService {
     }
 
 
-    public Mono<Post> saveCommentEmbedObject(Comment comment) {
+    @Override
+    public Mono<Post> saveEmbedObjectSubst(Comment comment) {
         return userRepo
                 .findById(comment.getAuthor()
                                  .getId())
                 .switchIfEmpty(exceptions.userNotFoundException())
+                .then(postRepo.findById(comment.getIdPost()))
+                .switchIfEmpty(exceptions.postNotFoundException())
                 .then(commentRepo.save(comment))
                 .flatMap(commentSaved ->
                                  postRepo
@@ -88,11 +102,14 @@ public class CommentService {
     }
 
 
-    public Mono<Post> saveCommentEmbedObjectList(Comment comment) {
+    @Override
+    public Mono<Post> saveEmbedObjectList(Comment comment) {
         return userRepo
                 .findById(comment.getAuthor()
                                  .getId())
                 .switchIfEmpty(exceptions.userNotFoundException())
+                .then(postRepo.findById(comment.getIdPost())
+                              .switchIfEmpty(exceptions.postNotFoundException()))
                 .then(commentRepo.save(comment))
                 .flatMap(commentSaved ->
                                  postRepo
@@ -108,6 +125,7 @@ public class CommentService {
     }
 
 
+    @Override
     public Mono<Void> delete(Comment comment) {
         return commentRepo
                 .findById(comment.getId())
@@ -116,27 +134,33 @@ public class CommentService {
     }
 
 
+    @Override
     public Mono<Comment> update(Comment comment) {
         return commentRepo
                 .findById(comment.getId())
                 .switchIfEmpty(exceptions.commentNotFoundException())
+                //                .then(commentRepo.save(conv.map(comment,Comment.class)));
                 .flatMap(comment1 -> {
-                    comment1.setId(comment.getId());
-                    comment1.setAuthor(comment.getAuthor());
-                    comment1.setText(comment.getText());
-                    comment1.setDate(comment.getDate());
-                    return commentRepo.save(comment1);
+//                    comment1.setId(comment.getId());
+//                    comment1.setAuthor(comment.getAuthor());
+//                    comment1.setText(comment.getText());
+//                    comment1.setDate(comment.getDate());
+//                    return commentRepo.save(comment1);
+
+                    Comment userRet = conv.map(comment,Comment.class);
+                    return commentRepo.save(userRet);
                 });
     }
 
 
+    @Override
     public Flux<Comment> findCommentsByPostId(String postId) {
         return postRepo
                 .findById(postId)
                 .switchIfEmpty(exceptions.postNotFoundException())
                 .thenMany(commentRepo.findAll())
                 .filter(commentsOfThePost -> commentsOfThePost.getIdPost()
-                                            .equals(postId));
+                                                              .equals(postId));
 
     }
 }

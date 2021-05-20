@@ -20,8 +20,8 @@ docker image prune --force
 docker image rm pauloportfolio/api-web
 
 REM DOCKER LISTING IMAGES + SYSTEM
-docker system df
 docker system prune --force
+docker system df
 docker image ls
 
 REM START THE COMPOSE CONTAINERS

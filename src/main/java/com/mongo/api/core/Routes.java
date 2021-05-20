@@ -27,7 +27,7 @@ public final class Routes {
     public static final String FIND_COMMENTS_BY_POSTID = "/{id}/comments";
     public static final String FIND_USER_BY_COMMENTID = "/{id}/user";
     public static final String SAVE_COMMENT_LINKED_OBJECT = "/saveCommentLinkedObject";
-    public static final String SAVE_COMMENT_EMBED_OBJECT = "/saveCommentEmbedObject";
+    public static final String SAVE_COMMENT_EMBED_OBJECT_SUBST = "/saveCommentEmbedObjectSubst";
     public static final String SAVE_COMMENT_EMBED_OBJECT_LIST = "/saveCommentEmbedObjectList";
 
     public static final String ERROR_PATH = "/error";

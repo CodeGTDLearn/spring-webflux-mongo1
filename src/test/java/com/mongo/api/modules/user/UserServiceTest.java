@@ -200,7 +200,7 @@ public class UserServiceTest extends ConfigComposeTests {
         Mono<Void> deletedItem =
                 userService.findById(user1.getId())
                            .map(User::getId)
-                           .flatMap(id -> userService.deleteById(id));
+                           .flatMap(id -> userService.delete(id));
 
         StepVerifier
                 .create(deletedItem.log())

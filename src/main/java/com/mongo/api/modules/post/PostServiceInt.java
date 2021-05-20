@@ -5,11 +5,13 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface PostServiceInt {
-    Mono<Post> findPostById(String id);
+    Mono<Post> findById(String id);
 
     Mono<Post> findPostByIdShowComments(String id);
 
     Mono<User> findUserByPostId(String id);
+
+    Flux<Post> findPostsByAuthorId(String id);
 
     Flux<Post> findAll();
 

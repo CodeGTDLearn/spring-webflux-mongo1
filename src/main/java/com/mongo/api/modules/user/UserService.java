@@ -5,9 +5,8 @@ import com.mongo.api.core.dto.UserAllDtoComment;
 import com.mongo.api.core.dto.UserAllDtoPost;
 import com.mongo.api.core.exceptions.customExceptions.CustomExceptions;
 import com.mongo.api.core.exceptions.globalException.GlobalException;
-import com.mongo.api.modules.comment.CommentService;
 import com.mongo.api.modules.post.Post;
-import com.mongo.api.modules.post.PostRepo;
+import com.mongo.api.modules.post.PostServiceInt;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -25,9 +24,7 @@ public class UserService implements UserServiceInt {
 
     private final UserRepo userRepo;
 
-    private final PostRepo postRepo;
-
-    private final CommentService commentService;
+    private final PostServiceInt postService;
 
     private final ModelMapper conv;
 
@@ -85,7 +82,7 @@ public class UserService implements UserServiceInt {
 
 
     @Override
-    public Mono<Void> deleteById(String id) {
+    public Mono<Void> delete(String id) {
         return userRepo
                 .findById(id)
                 .switchIfEmpty(customExceptions.userNotFoundException())
@@ -100,7 +97,7 @@ public class UserService implements UserServiceInt {
                 .switchIfEmpty(customExceptions.userNotFoundException())
                 .flatMapMany((userFound) -> {
                     var id = userFound.getId();
-                    return postRepo.findPostsByAuthor_Id(id);
+                    return postService.findPostsByAuthorId(id);
                 });
     }
 
@@ -122,19 +119,19 @@ public class UserService implements UserServiceInt {
                     findPostsByUserId(user.getId())
                             .flatMap(post -> {
 
-                                commentService
-                                        .findCommentsByPostId(post.getId())
-                                        .flatMap(comment -> {
-                                            dtoComments.add(
-                                                    conv.map(comment,UserAllDtoComment.class));
-                                        });
+//                                commentService
+//                                        .findCommentsByPostId(post.getId())
+//                                        .flatMap(comment -> {
+//                                            dtoComments.add(
+//                                                    conv.map(comment,UserAllDtoComment.class));
+//                                        });
 
                                 final UserAllDtoPost dtoPost = conv.map(post,UserAllDtoPost.class);
                                 dtoPost.setComments(dtoComments);
-                                
+
                                 dtoPosts.add(dtoPost);
                                 userRet.setPosts(dtoPosts);
-                                
+
                                 return Flux.fromIterable(Arrays.asList(post));
                             });
 

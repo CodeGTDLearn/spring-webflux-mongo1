@@ -1,6 +1,5 @@
 package com.mongo.api.modules.comment;
 
-import com.mongo.api.modules.post.PostServiceInt;
 import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.user.User;
 import lombok.AllArgsConstructor;
@@ -18,62 +17,69 @@ import static org.springframework.http.HttpStatus.*;
 @RequestMapping(REQ_COMMENT)
 public class CommentResource {
 
-    private final PostServiceInt postServiceInt;
+    private final CommentServiceInt service;
 
-    private final CommentService commentService;
 
     @GetMapping(FIND_ALL_COMMENTS)
     @ResponseStatus(OK)
     public Flux<Comment> findAll() {
-        return commentService.findAll();
+        return service.findAll();
     }
+
 
     @GetMapping(FIND_COMMENT_BY_ID)
     @ResponseStatus(OK)
     public Mono<Comment> findCommentById(@PathVariable String id) {
-        return commentService.findCommentById(id);
+        return service.findById(id);
     }
+
 
     @GetMapping(FIND_COMMENTS_BY_POSTID)
     @ResponseStatus(OK)
     public Flux<Comment> findCommentsByPostId(@PathVariable String id) {
-        return commentService.findCommentsByPostId(id);
+        return service.findCommentsByPostId(id);
     }
+
 
     @GetMapping(FIND_USER_BY_COMMENTID)
     @ResponseStatus(OK)
     public Mono<User> findUserByCommentId(@PathVariable String id) {
-        return commentService.findUserByCommentId(id);
+        return service.findUserByCommentId(id);
     }
+
 
     @PostMapping(SAVE_COMMENT_LINKED_OBJECT)
     @ResponseStatus(CREATED)
     public Mono<Post> saveCommentLinkedObject(@RequestBody Comment comment) {
-        return commentService.saveCommentLinkedObject(comment);
+        return service.saveLinkedObject(comment);
     }
 
-    @PostMapping(SAVE_COMMENT_EMBED_OBJECT)
+
+    @PostMapping(SAVE_COMMENT_EMBED_OBJECT_SUBST)
     @ResponseStatus(CREATED)
-    public Mono<Post> saveCommentEmbedObject(@RequestBody Comment comment) {
-        return commentService.saveCommentEmbedObject(comment);
+    public Mono<Post> saveCommentEmbedObjectSubst(@RequestBody Comment comment) {
+        return service.saveEmbedObjectSubst(comment);
     }
+
 
     @PostMapping(SAVE_COMMENT_EMBED_OBJECT_LIST)
     @ResponseStatus(CREATED)
     public Mono<Post> saveCommentEmbedObjectList(@RequestBody Comment comment) {
-        return commentService.saveCommentEmbedObjectList(comment);
+        return service.saveEmbedObjectList(comment);
     }
+
 
     @DeleteMapping
     @ResponseStatus(NO_CONTENT)
     public Mono<Void> delete(@RequestBody Comment comment) {
-        return commentService.delete(comment);
+        return service.delete(comment);
     }
+
 
     @PutMapping
     @ResponseStatus(OK)
     public Mono<Comment> update(@RequestBody Comment comment) {
-        return commentService.update(comment);
+        return service.update(comment);
     }
 
 }
