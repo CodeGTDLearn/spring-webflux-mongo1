@@ -1,9 +1,6 @@
 package com.mongo.api.core.exceptions.customExceptions;
 
-import com.mongo.api.core.exceptions.customExceptions.customExceptionTypes.CommentNotFoundException;
-import com.mongo.api.core.exceptions.customExceptions.customExceptionTypes.PostAuthorNotFoundException;
-import com.mongo.api.core.exceptions.customExceptions.customExceptionTypes.PostNotFoundException;
-import com.mongo.api.core.exceptions.customExceptions.customExceptionTypes.UserNotFoundException;
+import com.mongo.api.core.exceptions.customExceptions.customExceptionTypes.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,6 +19,10 @@ public class CustomExceptions {
 
     public <T> Mono<T> userNotFoundException() {
         return Mono.error(new UserNotFoundException(properties.getUserNotFoundMessage()));
+    }
+
+    public <T> Mono<T> usersNotFoundException() {
+        return Mono.error(new UsersNotFoundException(properties.getUsersNotFoundMessage()));
     }
 
 

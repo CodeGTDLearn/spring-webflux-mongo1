@@ -6,6 +6,8 @@ cd ..
 call mvn clean package -DskipTests
 cd docker-script-start-files
 
+docker system df
+
 REM DOCKER CLEAN-ALL ORPHANS
 docker-compose -f ../dev-compose.yml down --remove-orphans
 REM docker-compose -f ../test-compose.yml down --remove-orphans
@@ -21,8 +23,8 @@ docker image rm pauloportfolio/api-web
 
 REM DOCKER LISTING IMAGES + SYSTEM
 docker system prune --force
-docker system df
 docker image ls
+docker system df
 
 REM START THE COMPOSE CONTAINERS
 docker-compose -f ../dev-compose.yml up --build --force-recreate

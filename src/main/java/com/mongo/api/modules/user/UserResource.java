@@ -1,6 +1,5 @@
 package com.mongo.api.modules.user;
 
-import com.mongo.api.core.dto.PostDto;
 import com.mongo.api.core.dto.UserAllDto;
 import com.mongo.api.core.dto.UserDto;
 import lombok.AllArgsConstructor;
@@ -29,16 +28,14 @@ public class UserResource {
     @GetMapping(FIND_ALL_USERS)
     @ResponseStatus(OK)
     public Flux<User> findAll() {
-        return service.findAll()
-                      .log();
+        return service.findAll();
     }
 
 
     @GetMapping(FIND_ALL_SHOW_ALL_DTO)
     @ResponseStatus(OK)
-    public Flux<UserAllDto> findAllUserShowAllDto() {
-        return service.findAllUserShowAll()
-                      .log();
+    public Flux<UserAllDto> findAllShowAllDto() {
+        return service.findAllShowAllDto();
     }
 
 
@@ -90,16 +87,5 @@ public class UserResource {
     public Mono<User> update(@Valid @RequestBody UserDto userDto) {
         User user = converter.map(userDto,User.class);
         return service.update(user);
-    }
-
-
-    @GetMapping(FIND_POSTS_BY_USERID)
-    @ResponseStatus(OK)
-    public Flux<PostDto> findPostsByUserId(@PathVariable String userId) {
-        return service
-                .findPostsByUserId(userId)
-                .map(post -> {
-                    return converter.map(post,PostDto.class);
-                });
     }
 }

@@ -1,11 +1,11 @@
 package com.mongo.api.modules.user;
 
+import com.mongo.api.core.dto.CommentAllDto;
+import com.mongo.api.core.dto.PostAllDto;
 import com.mongo.api.core.dto.UserAllDto;
-import com.mongo.api.core.dto.UserAllDtoComment;
-import com.mongo.api.core.dto.UserAllDtoPost;
 import com.mongo.api.core.exceptions.customExceptions.CustomExceptions;
 import com.mongo.api.core.exceptions.globalException.GlobalException;
-import com.mongo.api.modules.post.Post;
+import com.mongo.api.modules.comment.CommentServiceInt;
 import com.mongo.api.modules.post.PostServiceInt;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -13,18 +13,18 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Collections;
 
 
-@Service("userService")
+@Service
 @AllArgsConstructor
 public class UserService implements UserServiceInt {
 
     private final UserRepo userRepo;
 
     private final PostServiceInt postService;
+
+    private final CommentServiceInt commentService;
 
     private final ModelMapper conv;
 
@@ -91,79 +91,34 @@ public class UserService implements UserServiceInt {
 
 
     @Override
-    public Flux<Post> findPostsByUserId(String userId) {
-        return userRepo
-                .findById(userId)
-                .switchIfEmpty(customExceptions.userNotFoundException())
-                .flatMapMany((userFound) -> {
-                    var id = userFound.getId();
-                    return postService.findPostsByAuthorId(id);
-                });
-    }
-
-
-    @Override
-    public Flux<UserAllDto> findAllUserShowAll() {
-
-        List<UserAllDtoPost> dtoPosts = new ArrayList<>();
-        List<UserAllDtoComment> dtoComments = new ArrayList<>();
-        //        List<Comment> comments = new ArrayList<>();
-
+    public Flux<UserAllDto> findAllShowAllDto() {
 
         return userRepo
                 .findAll()
                 .flatMap(user -> {
+                    UserAllDto userDto = conv.map(user,UserAllDto.class);
 
-                    final UserAllDto userRet = conv.map(user,UserAllDto.class);
-
-                    findPostsByUserId(user.getId())
+                    return postService
+                            .findPostsByAuthorId(userDto.getId())
                             .flatMap(post -> {
+                                PostAllDto postDto = conv.map(post,PostAllDto.class);
 
-//                                commentService
-//                                        .findCommentsByPostId(post.getId())
-//                                        .flatMap(comment -> {
-//                                            dtoComments.add(
-//                                                    conv.map(comment,UserAllDtoComment.class));
-//                                        });
+                                return commentService
+                                        .findCommentsByPostId(postDto.getId())
+                                        .flatMap(comment -> {
+                                            postDto.getListComments()
+                                                   .add(conv.map(comment,CommentAllDto.class));
 
-                                final UserAllDtoPost dtoPost = conv.map(post,UserAllDtoPost.class);
-                                dtoPost.setComments(dtoComments);
+                                            userDto.getPosts()
+                                                   .add(postDto);
 
-                                dtoPosts.add(dtoPost);
-                                userRet.setPosts(dtoPosts);
-
-                                return Flux.fromIterable(Arrays.asList(post));
+                                            return Flux
+                                                    .fromIterable(
+                                                            Collections.singletonList(userDto));
+                                        });
                             });
-
-
-                    return Flux.fromIterable(Arrays.asList(userRet));
-                })
-                ;
+                });
     }
-    //                    userRet = converter.map(user,UserShowAllDto.class);
-    //
-    //                    findPostsByUserId(user.getId())
-    //                            .flatMap(post -> {
-    //                                postRet = converter.map(post,UserShowAllDtoPost.class);
-    //                                commentService
-    //                                        .findCommentsByPostId(post.getId())
-    //                                        .flatMap(comment -> {
-    //                                            dtoCommentList.add(
-    //                                                    converter.map(comment,
-    //                                                                  UserShowAllDtoComment.class
-    //                                                                 ));
-    //                                            return comment;
-    //                                        });
-    //
-    //                                postRet.setComments(dtoCommentList);
-    //                                dtoPostList.add(postRet);
-    //                                return post;
-    //                            });
-    //
-    //                    userRet.setPosts(dtoPostList);
-    //                    return userRet;
-
-
 }
 // todo: 01 suspeita 01, se esses caras estao aki nao esta sendo injetados aqui, eles nao
 //  deveriam ser injetados/necessarios no UserServiceTest, no UserServiceTest esta sendo

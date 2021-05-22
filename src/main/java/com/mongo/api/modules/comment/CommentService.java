@@ -2,7 +2,7 @@ package com.mongo.api.modules.comment;
 
 import com.mongo.api.core.exceptions.customExceptions.CustomExceptions;
 import com.mongo.api.modules.post.Post;
-import com.mongo.api.modules.post.PostServiceInt;
+import com.mongo.api.modules.post.PostRepo;
 import com.mongo.api.modules.user.User;
 import com.mongo.api.modules.user.UserServiceInt;
 import lombok.AllArgsConstructor;
@@ -13,17 +13,17 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 
-@AllArgsConstructor
 @Service
+@AllArgsConstructor
 public class CommentService implements CommentServiceInt {
 
     private final CommentRepo commentRepo;
 
     @Lazy
-    private final PostServiceInt postRepo;
+    private final PostRepo postRepo;
 
     @Lazy
-    private final UserServiceInt userRepo;
+    private final UserServiceInt userService;
 
     private final ModelMapper conv;
 
@@ -52,20 +52,23 @@ public class CommentService implements CommentServiceInt {
                     String idUser = comment.getAuthor()
                                            .getId();
                     //                    return userRepo.findById(idUser);
-                    return userRepo.findById(idUser);
+                    return userService.findById(idUser);
                 });
     }
 
 
     @Override
     public Mono<Post> saveLinkedObject(Comment comment) {
-        return userRepo
+        return userService
                 .findById(comment.getAuthor()
                                  .getId())
                 .switchIfEmpty(exceptions.userNotFoundException())
+
                 .then(postRepo.findById(comment.getIdPost())
                               .switchIfEmpty(exceptions.postNotFoundException()))
+
                 .then(commentRepo.save(comment))
+
                 .flatMap(commentSaved ->
                                  postRepo
                                          .findById(commentSaved.getIdPost())
@@ -75,6 +78,7 @@ public class CommentService implements CommentServiceInt {
                                                       postFound.getIdComments()
                                                                .add(commentSaved.getId());
                                                       return postRepo.save(postFound);
+//                                                      return Mono.just(postFound);
                                                   }
                                                  ));
     }
@@ -82,13 +86,16 @@ public class CommentService implements CommentServiceInt {
 
     @Override
     public Mono<Post> saveEmbedObjectSubst(Comment comment) {
-        return userRepo
+        return userService
                 .findById(comment.getAuthor()
                                  .getId())
                 .switchIfEmpty(exceptions.userNotFoundException())
+
                 .then(postRepo.findById(comment.getIdPost()))
                 .switchIfEmpty(exceptions.postNotFoundException())
+
                 .then(commentRepo.save(comment))
+
                 .flatMap(commentSaved ->
                                  postRepo
                                          .findById(commentSaved.getIdPost())
@@ -104,7 +111,7 @@ public class CommentService implements CommentServiceInt {
 
     @Override
     public Mono<Post> saveEmbedObjectList(Comment comment) {
-        return userRepo
+        return userService
                 .findById(comment.getAuthor()
                                  .getId())
                 .switchIfEmpty(exceptions.userNotFoundException())

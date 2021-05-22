@@ -11,12 +11,9 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Slf4j
-@AllArgsConstructor
 @Service
+@AllArgsConstructor
 public class PostService implements PostServiceInt {
 
     private final PostRepo postRepo;
@@ -65,14 +62,15 @@ public class PostService implements PostServiceInt {
                 });
     }
 
-
     @Override
-    public Flux<Post> findPostsByAuthorId(String id) {
-
-        List<Post> posts = new ArrayList<>();
-        return userService.findById(id)
-                          .switchIfEmpty(exceptions.authorNotFoundException())
-                          .thenMany(postRepo.findPostsByAuthor_Id(id));
+    public Flux<Post> findPostsByAuthorId(String userId) {
+        return userService
+                .findById(userId)
+                .switchIfEmpty(exceptions.authorNotFoundException())
+                .flatMapMany((userFound) -> {
+                    var id = userFound.getId();
+                    return postRepo.findPostsByAuthor_Id(id);
+                });
     }
 
 

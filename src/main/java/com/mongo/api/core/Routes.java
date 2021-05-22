@@ -9,7 +9,7 @@ public final class Routes {
     public static final String REQ_USER = "/user";
     public static final String FIND_ALL_USERS = "/findAllUsers";
     public static final String FIND_ALL_USERS_DTO = "/findAllUsersDto";
-    public static final String FIND_ALL_SHOW_ALL_DTO = "/findAllUserShowAllDto";
+    public static final String FIND_ALL_SHOW_ALL_DTO = "/findAllShowAllDto";
     public static final String FIND_USER_BY_ID = "/{id}";
     public static final String FIND_USER_BY_POSTID = "/{id}/user";
     public static final String SAVE_LINKED_POST_IN_THE_USER = "/saveLinkedObject";
@@ -18,7 +18,7 @@ public final class Routes {
     public static final String FIND_ALL_POSTS = "/findAllPosts";
     public static final String FIND_POST_BY_ID = "/{id}";
     public static final String FIND_POST_BY_ID_SHOW_COMMENTS = "showcomments/{id}";
-    public static final String FIND_POSTS_BY_USERID = "/{userId}/posts";
+    public static final String FIND_POSTS_BY_USERID = "/{id}/posts";
     public static final String SAVE_EMBED_USER_IN_THE_POST = "/saveEmbedObject";
 
     public static final String REQ_COMMENT = "comment";

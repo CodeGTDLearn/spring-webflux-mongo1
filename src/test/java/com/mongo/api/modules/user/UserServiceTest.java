@@ -288,7 +288,7 @@ public class UserServiceTest extends ConfigComposeTests {
                 .expectNextCount(2)
                 .verifyComplete();
 
-        Flux<Post> postFluxPost1Post2ByUserID = userService.findPostsByUserId(
+        Flux<Post> postFluxPost1Post2ByUserID = postRepo.findPostsByAuthor_Id(
                 userWithIdForPost1Post2.getId());
 
         StepVerifier

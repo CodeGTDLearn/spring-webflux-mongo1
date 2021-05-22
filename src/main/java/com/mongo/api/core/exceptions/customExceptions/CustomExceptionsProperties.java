@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 public class CustomExceptionsProperties {
 
     private String userNotFoundMessage;
+    private String usersNotFoundMessage;
     private String postNotFoundMessage;
     private String authorNotFoundMessage;
     private String commentNotFoundMessage;

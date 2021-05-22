@@ -8,10 +8,10 @@ import java.util.List;
 
 @Getter
 @Setter
-public class UserAllDtoPost{
+public class PostAllDto {
 
     private String id;
     private String title;
-    private List<UserAllDtoComment> comments = new ArrayList<>();
+    private List<CommentAllDto> listComments = new ArrayList<>();
 
 }

@@ -1,5 +1,7 @@
 echo on
 
+docker system df
+
 REM DOCKER CLEAN-ALL ORPHANS
 docker-compose -f ../dev-compose.yml down --remove-orphans
 REM docker-compose -f ../test-compose.yml down --remove-orphans
@@ -15,8 +17,8 @@ docker image rm pauloportfolio/api
 
 REM DOCKER LISTING IMAGES + SYSTEM
 docker system prune --force
-docker system df
 docker image ls
+docker system df
 
 REM RE-SETTING JDK8 AS DEFAULT
 set JAVA_HOME=C:\Program Files\Java\jdk-8.0.282.8-hotspot
