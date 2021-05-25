@@ -16,5 +16,5 @@ public class PostDto{
     private String title;
     private String body;
     private String authorName;
-    private List<String> comments = new ArrayList<>();
+    private List<String> idComments = new ArrayList<>();
 }
