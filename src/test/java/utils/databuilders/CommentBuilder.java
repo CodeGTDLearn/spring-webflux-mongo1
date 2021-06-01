@@ -29,8 +29,8 @@ public class CommentBuilder {
         List<String> idCommentsList = new ArrayList<>();
 
         Comment commentFull = new Comment();
-        commentFull.setId(faker.regexify("/^[a-f\\d]{24}$/i"));
-        commentFull.setIdPost(commentedPost.getId());
+        commentFull.setCommentId(faker.regexify("/^[a-f\\d]{24}$/i"));
+        commentFull.setPostId(commentedPost.getPostId());
         commentFull.setDate(faker.date()
                                  .birthday());
         commentFull.setText("Comment-Text: " + faker.lorem()
@@ -47,7 +47,7 @@ public class CommentBuilder {
 
         Comment commentFull = new Comment();
 //        commentFull.setId(faker.regexify("/^[a-f\\d]{24}$/i"));
-        commentFull.setIdPost(commentedPostWithUserAuthorDTO.getId());
+        commentFull.setPostId(commentedPostWithUserAuthorDTO.getPostId());
         commentFull.setDate(faker.date()
                                  .birthday());
         commentFull.setText("Comment-Text: " + faker.lorem()
@@ -64,8 +64,8 @@ public class CommentBuilder {
         List<String> idCommentsList = new ArrayList<>();
 
         Comment commentFull = new Comment();
-        commentFull.setId(faker.regexify("/^[a-f\\d]{24}$/i"));
-        commentFull.setIdPost(idPost);
+        commentFull.setCommentId(faker.regexify("/^[a-f\\d]{24}$/i"));
+        commentFull.setPostId(idPost);
         commentFull.setDate(faker.date()
                                  .birthday());
         commentFull.setText("Comment-Text: " + faker.lorem()

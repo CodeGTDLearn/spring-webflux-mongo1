@@ -19,8 +19,8 @@ public class Comment implements Serializable {
 
     @EqualsAndHashCode.Include
     @Id
-    private String id;
-    private String idPost;
+    private String commentId;
+    private String postId;
     private Date date;
     private String text;
     private UserAuthorDto author;

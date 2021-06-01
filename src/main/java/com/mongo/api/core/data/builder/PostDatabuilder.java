@@ -47,7 +47,7 @@ public class PostDatabuilder {
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
 
         Post post = new Post();
-        post.setId(null);
+        post.setPostId(null);
         post.setDate(sdf.parse("11/11/2011"));
         post.setTitle(faker.address()
                            .cityName());

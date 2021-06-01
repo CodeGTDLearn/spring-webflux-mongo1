@@ -38,7 +38,7 @@ public class UserBuilder {
                                .emailAddress());
 
         for (Post post : userListPosts) {
-            idPosts.add(post.getId());
+            idPosts.add(post.getPostId());
         }
 
         userFull.setIdPosts(idPosts);

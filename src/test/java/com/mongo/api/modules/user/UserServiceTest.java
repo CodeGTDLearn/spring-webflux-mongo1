@@ -98,7 +98,7 @@ public class UserServiceTest extends ConfigComposeTests {
                        .flatMap(postRepo::save)
                        .doOnNext(item -> postRepo.findAll())
                        .doOnNext((item -> System.out.println(
-                               "\nUserRepo - Post-ID: " + item.getId() +
+                               "\nUserRepo - Post-ID: " + item.getPostId() +
                                        "|Author: " + item.getAuthor() + "\n")));
     }
 
@@ -300,10 +300,10 @@ public class UserServiceTest extends ConfigComposeTests {
         StepVerifier
                 .create(postRepo.findAll())
                 .expectSubscription()
-                .expectNextMatches(post -> post1.getId()
-                                                .equals(post.getId()))
-                .expectNextMatches(post -> post2.getId()
-                                                .equals(post.getId()))
+                .expectNextMatches(post -> post1.getPostId()
+                                                .equals(post.getPostId()))
+                .expectNextMatches(post -> post2.getPostId()
+                                                .equals(post.getPostId()))
                 .verifyComplete();
     }
 

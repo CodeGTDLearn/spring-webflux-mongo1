@@ -39,7 +39,7 @@ public class PostService implements PostServiceInt {
                 .findById(id)
                 .switchIfEmpty(exceptions.postNotFoundException())
                 .flatMap(postFound -> commentService
-                                 .findCommentsByPostId(postFound.getId())
+                                 .findCommentsByPostId(postFound.getPostId())
                                  .collectList()
                                  .flatMap(comments -> {
                                      postFound.setListComments(comments);
@@ -96,7 +96,7 @@ public class PostService implements PostServiceInt {
                                                .getId())
                             .flatMap(user -> {
                                 user.getIdPosts()
-                                    .add(postSaved.getId());
+                                    .add(postSaved.getPostId());
                                 return userService.save(user);
                             });
                 })
@@ -109,9 +109,9 @@ public class PostService implements PostServiceInt {
     @Override
     public Mono<Void> delete(Post post) {
         return postRepo
-                .findById(post.getId())
+                .findById(post.getPostId())
                 .switchIfEmpty(exceptions.postNotFoundException())
-                .flatMap(item -> postRepo.deleteById(post.getId()));
+                .flatMap(item -> postRepo.deleteById(post.getPostId()));
     }
 
 
@@ -124,10 +124,10 @@ public class PostService implements PostServiceInt {
     @Override
     public Mono<Post> update(Post post) {
         return postRepo
-                .findById(post.getId())
+                .findById(post.getPostId())
                 .switchIfEmpty(exceptions.postNotFoundException())
                 .flatMap(item -> {
-                    item.setId(post.getId());
+                    item.setPostId(post.getPostId());
                     item.setIdComments(post.getIdComments());
                     item.setAuthor(post.getAuthor());
                     item.setBody(post.getBody());

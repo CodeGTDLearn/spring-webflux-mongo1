@@ -143,7 +143,7 @@ public class UserResourceTest extends ConfigControllerTests {
                        .doOnNext(item -> postService.findAll())
                        .doOnNext((item -> System.out.println(
                            "\nPost-Repo:" + "\n" +
-                                   "Post-ID: " + item.getId() +
+                                   "Post-ID: " + item.getPostId() +
                                    "|Post-Title: " + item.getTitle() + "\n" +
                                    "Author-ID: " + item.getAuthor()
                                                        .getId() +

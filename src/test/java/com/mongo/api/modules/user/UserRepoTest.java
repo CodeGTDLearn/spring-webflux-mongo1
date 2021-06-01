@@ -88,7 +88,7 @@ public class UserRepoTest extends ConfigContainerTests {
                        .flatMap(postRepo::save)
                        .doOnNext(item -> postRepo.findAll())
                        .doOnNext((item -> System.out.println(
-                               "\nRepo - Post-ID: " + item.getId() +
+                               "\nRepo - Post-ID: " + item.getPostId() +
                                        "|Author: " + item.getAuthor()
                                                             )));
     }
@@ -146,10 +146,10 @@ public class UserRepoTest extends ConfigContainerTests {
         StepVerifier
                 .create(postRepo.findAll())
                 .expectSubscription()
-                .expectNextMatches(post -> post1.getId()
-                                                      .equals(post.getId()))
-                .expectNextMatches(post -> post2.getId()
-                                                .equals(post.getId()))
+                .expectNextMatches(post -> post1.getPostId()
+                                                      .equals(post.getPostId()))
+                .expectNextMatches(post -> post2.getPostId()
+                                                .equals(post.getPostId()))
                 .verifyComplete();
     }
 

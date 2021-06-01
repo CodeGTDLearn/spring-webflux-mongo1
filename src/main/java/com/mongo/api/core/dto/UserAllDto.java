@@ -8,10 +8,8 @@ import java.util.List;
 
 @Getter
 @Setter
-public class UserAllDto  {
-
+public class UserAllDto {
     private String id;
     private String name;
     private List<PostAllDto> Posts = new ArrayList<>();
-
 }

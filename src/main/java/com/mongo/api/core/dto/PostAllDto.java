@@ -9,9 +9,9 @@ import java.util.List;
 @Getter
 @Setter
 public class PostAllDto {
-
-    private String id;
+    private String postId;
     private String title;
+    private String idAuthor;
     private List<CommentAllDto> listComments = new ArrayList<>();
 
 }

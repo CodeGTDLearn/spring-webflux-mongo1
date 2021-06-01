@@ -17,12 +17,11 @@ import java.util.List;
 @AllArgsConstructor
 @Document(collection = "post")
 public class Post implements Serializable {
-
     private static final long serialVersionUID = -6281811500337260230L;
 
     @EqualsAndHashCode.Include
     @Id
-    private String id;
+    private String postId;
     private Date date;
     private String title;
     private String body;

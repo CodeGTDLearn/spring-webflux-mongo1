@@ -6,6 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CommentAllDto {
-    private String id;
+    private String commentId;
+    private String postId;
     private String text;
 }

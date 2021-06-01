@@ -35,7 +35,7 @@ public class PostBuilder {
         List<String> idCommentsList = new ArrayList<>();
 
         Post postFull = new Post();
-        postFull.setId(faker.regexify("/^[a-f\\d]{24}$/i"));
+        postFull.setPostId(faker.regexify("/^[a-f\\d]{24}$/i"));
         postFull.setTitle(faker.rockBand()
                                .name());
         postFull.setBody(faker.lorem()
@@ -47,7 +47,7 @@ public class PostBuilder {
         postFull.setListComments(commentList);
 
         for (Comment comment1 : commentList) {
-            idCommentsList.add(comment1.getId());
+            idCommentsList.add(comment1.getCommentId());
         }
         postFull.setIdComments(idCommentsList);
         return PostBuilder.builder()

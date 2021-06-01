@@ -14,12 +14,12 @@ import java.util.List;
 @AllArgsConstructor
 @Document(collection = "user")
 public class User {
-
     @EqualsAndHashCode.Include
     @Id
     private String id;
     private String name;
+    private List<String> idPosts = new ArrayList<>();
+
     @Email
     private String email;
-    private List<String> idPosts = new ArrayList<>();
 }

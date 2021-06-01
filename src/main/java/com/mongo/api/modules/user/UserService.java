@@ -1,6 +1,5 @@
 package com.mongo.api.modules.user;
 
-import com.mongo.api.core.dto.CommentAllDto;
 import com.mongo.api.core.dto.PostAllDto;
 import com.mongo.api.core.dto.UserAllDto;
 import com.mongo.api.core.exceptions.customExceptions.CustomExceptions;
@@ -26,9 +25,9 @@ public class UserService implements UserServiceInt {
 
     private final PostServiceInt postService;
 
-    private final CommentServiceInt commentService;
-
     private final ModelMapper conv;
+
+    private final CommentServiceInt commentService;
 
     private final CustomExceptions customExceptions;
 
@@ -97,35 +96,60 @@ public class UserService implements UserServiceInt {
 
         return userRepo
                 .findAll()
-                .flatMap(user -> Flux.fromIterable(List.of(conv.map(user,UserAllDto.class))))
-                .flatMap(userAllDto -> postService
-                                 .findPostsByAuthorId(userAllDto.getId())
-                                 .flatMap(
-                                         post -> Flux.fromIterable(List.of(conv.map(post,
-                                                                                    PostAllDto.class
-                                                                                   ))))
-                        )
-                .flatMap(postAllDto -> commentService
-                                 .findCommentsByPostId(postAllDto.getId())
-                                 .map(comment -> conv.map(comment,CommentAllDto.class))
-                                 .collectList()
-                                 .flatMap(list -> {
-                                     postAllDto.setListComments(list);
-                                     return Mono.just(List.of(postAllDto));
-                                 })
-                        )
-                .flatMap(ListPostAllDto ->
-                                 userRepo.findAll()
-                                         .flatMap(user -> Flux.fromIterable(
-                                                 List.of(conv.map(user,UserAllDto.class))))
-                                         .flatMap(userAllDto -> {
-                                             if (!userAllDto.getPosts()
-                                                            .isEmpty()) {
-                                                 userAllDto.setPosts(ListPostAllDto);
-                                                 //como saber se essa lista de post e realmente deste cara
-                                             }
-                                             return Flux.fromIterable(List.of(userAllDto));
-                                         }));
+                .flatMap(user -> {
 
+                    UserAllDto userDto = conv.map(user,UserAllDto.class);
+
+                    final Mono<UserAllDto> userAllDtoMono =
+                            postService
+                                    .findPostsByAuthorId(userDto.getId())
+                                    .flatMap(post -> Flux.fromIterable(
+                                            List.of(conv.map(post,PostAllDto.class))))
+                                    .collectList()
+                                    .flatMap(list -> {
+                                        userDto.setPosts(list);
+                                        return Mono.just(userDto);
+                                    });
+
+                    return userAllDtoMono.flux();
+                })
+                ;
+
+        //        return userRepo
+        //                .findAll()
+        //                .flatMap(user -> postService.findPostsByAuthorId(user.getId()))
+        //                .flatMap(post -> Flux.fromIterable(List.of(conv.map(post,PostAllDto
+        //                .class))))
+        //                .flatMap(postAllDto -> {
+        //                    List<PostAllDto> listPostDto = new ArrayList<>();
+        //                    listPostDto.add(postAllDto);
+        //                    return Mono.just(listPostDto);
+        //                })
+        //                .flatMap(listPostDto -> {
+        //
+        //                    var authorId =
+        //                            listPostDto.get(0)
+        //                                       .getIdAuthor();
+        //
+        //                    Flux<UserAllDto> usersDto =
+        //                            userRepo
+        //                                    .findAll()
+        //                                    .flatMap(
+        //                                            user -> Flux.fromIterable(
+        //                                                    List.of(conv.map(user,UserAllDto
+        //                                                    .class))))
+        //                                    .flatMap(userDto -> {
+        //                                        if (userDto.getId()
+        //                                                   .equals(authorId)) {
+        //                                            userDto.setPosts(listPostDto);
+        //                                        } else {
+        //                                            userDto.setPosts(Collections.emptyList());
+        //                                        }
+        //                                        return Flux.fromIterable(List.of(userDto));
+        //                                    });
+        //
+        //                    return usersDto;
+        //                })
+        //                ;
     }
 }

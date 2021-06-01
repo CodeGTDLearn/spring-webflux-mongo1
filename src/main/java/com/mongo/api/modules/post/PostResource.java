@@ -45,7 +45,7 @@ public class PostResource {
     @ResponseStatus(OK)
     public Flux<PostDto> findPostsByAuthorId(@PathVariable String id) {
         return service
-                .findPostsByAuthorId(id)
+            .findPostsByAuthorId(id)
                 .map(post -> converter.map(post,PostDto.class));
     }
 

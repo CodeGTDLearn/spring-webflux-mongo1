@@ -44,7 +44,7 @@ public class CommentDatabuilder {
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
 
         Comment comment = new Comment();
-        comment.setId(null);
+        comment.setCommentId(null);
         comment.setDate(sdf.parse("11/11/2011"));
         comment.setText(faker.lorem()
                              .sentence());
