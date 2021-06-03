@@ -60,8 +60,7 @@ public class CommentService implements CommentServiceInt {
     @Override
     public Mono<Post> saveLinkedObject(Comment comment) {
         return userService
-                .findById(comment.getAuthor()
-                                 .getId())
+                .findById(comment.getAuthor().getId())
                 .switchIfEmpty(exceptions.userNotFoundException())
 
                 .then(postRepo.findById(comment.getPostId())

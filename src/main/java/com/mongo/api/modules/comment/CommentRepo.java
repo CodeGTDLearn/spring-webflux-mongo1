@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 @Qualifier("CommentRepo")
 @Repository
 public interface CommentRepo extends ReactiveMongoRepository<Comment, String> {
+
 }

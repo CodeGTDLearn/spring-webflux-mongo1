@@ -1,22 +1,16 @@
 echo on
 
+REM DOCKER CLEAN-UP SYSTEM
+cd docker-script-start-files
 docker system df
-
-REM DOCKER CLEAN-ALL ORPHANS
 docker-compose -f ../dev-compose.yml down --remove-orphans
-REM docker-compose -f ../test-compose.yml down --remove-orphans
-
 docker container prune --force
-docker container rm $(docker container ls -q)
-
 docker system prune --volumes --force
-docker volume rm $(docker volume ls -q)
-
-docker image prune --force
+docker network prune --force
+docker builder prune --all --force
+docker image rm pauloportfolio/api-web
+docker image rm pauloportfolio/api-db
 docker image rm pauloportfolio/api
-
-REM DOCKER LISTING IMAGES + SYSTEM
-docker system prune --force
 docker image ls
 docker system df
 
@@ -25,5 +19,4 @@ set JAVA_HOME=C:\Program Files\Java\jdk-8.0.282.8-hotspot
 
 REM CLOSING ALL CMD-SCREENS
 TASKKILL /F /IM cmd.exe /T
-
 exit
