@@ -19,4 +19,5 @@ set JAVA_HOME=C:\Program Files\Java\jdk-8.0.282.8-hotspot
 
 REM CLOSING ALL CMD-SCREENS
 TASKKILL /F /IM cmd.exe /T
+
 exit

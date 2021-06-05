@@ -14,8 +14,6 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-
 
 @Slf4j
 @Service
@@ -88,21 +86,19 @@ public class UserService implements UserServiceInt {
     return userRepo
            .findById(id)
            .switchIfEmpty(customExceptions.userNotFoundException())
+           .flatMapMany(user -> {
+             userRepo.delete(user);
+             return postService.findPostsByAuthorId(user.getId());
+           })
+           .flatMap(post -> {
+             postService.delete(post);
+             return commentService.findCommentsByPostId(post.getPostId());
+           })
+           .flatMap(comment -> commentService.delete(comment)
+                   )
 
-           .flatMap(user -> {
-
-             postService
-                    .findPostsByAuthorId(user.getId())
-                    .flatMap(post -> {
-                      commentService
-                             .findCommentsByPostId(post.getPostId())
-                             .flatMap(commentService::delete);
-                      return Flux.fromIterable(List.of(post)).log();
-                    })
-                    .flatMap(postService::delete);
-
-             return userRepo.delete(user);
-           });
+           .then()
+           ;
   }
 
 
