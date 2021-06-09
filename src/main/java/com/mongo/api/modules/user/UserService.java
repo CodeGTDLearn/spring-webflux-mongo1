@@ -22,11 +22,11 @@ public class UserService implements UserServiceInt {
 
   private final UserRepo userRepo;
 
-  private final PostServiceInt postService;
+  private final PostServiceInt postServ;
 
   private final ModelMapper mapper;
 
-  private final CommentServiceInt commentService;
+  private final CommentServiceInt comServ;
 
   private final CustomExceptions customExceptions;
 
@@ -86,19 +86,21 @@ public class UserService implements UserServiceInt {
     return userRepo
            .findById(id)
            .switchIfEmpty(customExceptions.userNotFoundException())
-           .flatMapMany(user -> {
+           .map(user -> {
              userRepo.delete(user);
-             return postService.findPostsByAuthorId(user.getId());
+             return user;
            })
-           .flatMap(post -> {
-             postService.delete(post);
-             return commentService.findCommentsByPostId(post.getPostId());
+           .flatMapMany(user -> postServ.findPostsByAuthorId(user.getId()))
+           .map(post -> {
+             postServ.delete(post);
+             return post;
            })
-           .flatMap(comment -> commentService.delete(comment)
-                   )
-
+           .flatMap(post -> comServ.findCommentsByPostId(post.getPostId()))
+           .map(comServ::delete)
            .then()
            ;
+
+
   }
 
 
@@ -111,22 +113,22 @@ public class UserService implements UserServiceInt {
              UserAllDto userDto = mapper.map(user,UserAllDto.class);
 
              final Mono<UserAllDto> userAllDtoMono =
-                    postService
+                    postServ
                            .findPostsByAuthorId(userDto.getId())
                            .flatMap(post -> {
                              PostAllDto postDto = mapper.map(post,PostAllDto.class);
 
                              final Mono<PostAllDto> postAllDtoMono =
-                                    commentService.findCommentsByPostId(
+                                    comServ.findCommentsByPostId(
                                            postDto.getPostId())
-                                                  .map(c -> mapper.map(c,
-                                                                       CommentAllDto.class
-                                                                      ))
-                                                  .collectList()
-                                                  .flatMap(list -> {
-                                                    postDto.setListComments(list);
-                                                    return Mono.just(postDto);
-                                                  });
+                                           .map(c -> mapper.map(c,
+                                                                CommentAllDto.class
+                                                               ))
+                                           .collectList()
+                                           .flatMap(list -> {
+                                             postDto.setListComments(list);
+                                             return Mono.just(postDto);
+                                           });
                              return postAllDtoMono.flux();
                            })
                            .collectList()
