@@ -22,11 +22,11 @@ public class UserService implements UserServiceInt {
 
   private final UserRepo userRepo;
 
-  private final PostServiceInt postServ;
+  private final PostServiceInt postService;
 
   private final ModelMapper mapper;
 
-  private final CommentServiceInt comServ;
+  private final CommentServiceInt commentService;
 
   private final CustomExceptions customExceptions;
 
@@ -42,16 +42,16 @@ public class UserService implements UserServiceInt {
   @Override
   public Mono<User> findById(String id) {
     return userRepo
-           .findById(id)
-           .switchIfEmpty(customExceptions.userNotFoundException());
+         .findById(id)
+         .switchIfEmpty(customExceptions.userNotFoundException());
   }
 
 
   @Override
   public Flux<User> globalExceptionError() {
     return userRepo
-           .findAll()
-           .concatWith(globalException.globalErrorException());
+         .findAll()
+         .concatWith(globalException.globalErrorException());
   }
 
 
@@ -70,37 +70,37 @@ public class UserService implements UserServiceInt {
   @Override
   public Mono<User> update(User user) {
     return userRepo
-           .findById(user.getId())
-           .switchIfEmpty(customExceptions.userNotFoundException())
-           .flatMap((item) -> {
-             item.setId(user.getId());
-             item.setName(user.getName());
-             item.setEmail(user.getEmail());
-             return userRepo.save(item);
-           });
-  }
+         .findById(user.getId())
+         .switchIfEmpty(customExceptions.userNotFoundException())
+         .flatMap(user1 -> {
+           user1 = mapper.map(user,User.class);
+           return Mono.just(user1);
+         })
+         .flatMap(userRepo::save);
+
+    }
 
 
   @Override
   public Mono<Void> delete(String id) {
     return userRepo
-           .findById(id)
-           .switchIfEmpty(customExceptions.userNotFoundException())
-           .map(user -> {
-             userRepo.delete(user);
-             return user;
-           })
-           .flatMapMany(user -> postServ.findPostsByAuthorId(user.getId()))
-           .map(post -> {
-             postServ.delete(post);
-             return post;
-           })
-           .flatMap(post -> comServ.findCommentsByPostId(post.getPostId()))
-           .map(comServ::delete)
-           .then()
-           ;
-
-
+         .findById(id)
+         .switchIfEmpty(customExceptions.userNotFoundException())
+         .flatMap(
+              user -> postService
+                   .findPostsByAuthorId(user.getId())
+                   .flatMap(
+                        post -> commentService.findCommentsByPostId(
+                             post.getPostId())
+                                              .flatMap(commentService::delete)
+                                              .thenMany(
+                                                   postService.findPostsByAuthorId(
+                                                        post.getAuthor()
+                                                            .getId()))
+                                              .flatMap(postService::delete)
+                           )
+                   .then(userRepo.delete(user))
+                 );
   }
 
 
@@ -108,35 +108,35 @@ public class UserService implements UserServiceInt {
   public Flux<UserAllDto> findAllShowAllDto() {
 
     return userRepo
-           .findAll()
-           .flatMap(user -> {
-             UserAllDto userDto = mapper.map(user,UserAllDto.class);
+         .findAll()
+         .flatMap(user -> {
+           UserAllDto userDto = mapper.map(user,UserAllDto.class);
 
-             final Mono<UserAllDto> userAllDtoMono =
-                    postServ
-                           .findPostsByAuthorId(userDto.getId())
-                           .flatMap(post -> {
-                             PostAllDto postDto = mapper.map(post,PostAllDto.class);
+           final Mono<UserAllDto> userAllDtoMono =
+                postService
+                     .findPostsByAuthorId(userDto.getId())
+                     .flatMap(post -> {
+                       PostAllDto postDto = mapper.map(post,PostAllDto.class);
 
-                             final Mono<PostAllDto> postAllDtoMono =
-                                    comServ.findCommentsByPostId(
-                                           postDto.getPostId())
-                                           .map(c -> mapper.map(c,
-                                                                CommentAllDto.class
-                                                               ))
-                                           .collectList()
-                                           .flatMap(list -> {
-                                             postDto.setListComments(list);
-                                             return Mono.just(postDto);
-                                           });
-                             return postAllDtoMono.flux();
-                           })
-                           .collectList()
-                           .flatMap(list -> {
-                             userDto.setPosts(list);
-                             return Mono.just(userDto);
-                           });
-             return userAllDtoMono.flux();
-           });
+                       final Mono<PostAllDto> postAllDtoMono =
+                            commentService.findCommentsByPostId(
+                                 postDto.getPostId())
+                                          .map(c -> mapper.map(c,
+                                                               CommentAllDto.class
+                                                              ))
+                                          .collectList()
+                                          .flatMap(list -> {
+                                            postDto.setListComments(list);
+                                            return Mono.just(postDto);
+                                          });
+                       return postAllDtoMono.flux();
+                     })
+                     .collectList()
+                     .flatMap(list -> {
+                       userDto.setPosts(list);
+                       return Mono.just(userDto);
+                     });
+           return userAllDtoMono.flux();
+         });
   }
 }

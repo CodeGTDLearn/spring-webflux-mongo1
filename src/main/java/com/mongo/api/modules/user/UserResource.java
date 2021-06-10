@@ -20,72 +20,72 @@ import static org.springframework.http.HttpStatus.*;
 @RequestMapping(REQ_USER)
 public class UserResource {
 
-    private final UserServiceInt service;
+  private final UserServiceInt service;
 
-    private final ModelMapper converter;
-
-
-    @GetMapping(FIND_ALL_USERS)
-    @ResponseStatus(OK)
-    public Flux<User> findAll() {
-        return service.findAll();
-    }
+  private final ModelMapper converter;
 
 
-    @GetMapping(FIND_ALL_SHOW_ALL_DTO)
-    @ResponseStatus(OK)
-    public Flux<UserAllDto> findAllShowAllDto() {
-        return service.findAllShowAllDto();
-    }
+  @GetMapping(FIND_ALL_USERS)
+  @ResponseStatus(OK)
+  public Flux<User> findAll() {
+    return service.findAll();
+  }
 
 
-    @GetMapping(FIND_ALL_USERS_DTO)
-    @ResponseStatus(OK)
-    public Flux<UserDto> findAllDto() {
-        return service
-                .findAll()
-                .map(user -> {
-                    return converter.map(user,UserDto.class);
-                });
-    }
+  @GetMapping(FIND_ALL_SHOW_ALL_DTO)
+  @ResponseStatus(OK)
+  public Flux<UserAllDto> findAllShowAllDto() {
+    return service.findAllShowAllDto();
+  }
 
 
-    @GetMapping(FIND_USER_BY_ID)
-    @ResponseStatus(OK)
-    public Mono<UserDto> findById(@PathVariable String id) {
-        return service
-                .findById(id)
-                .map(userFound -> converter.map(userFound,UserDto.class));
-    }
+  @GetMapping(FIND_ALL_USERS_DTO)
+  @ResponseStatus(OK)
+  public Flux<UserDto> findAllDto() {
+    return service
+         .findAll()
+         .map(user -> {
+           return converter.map(user,UserDto.class);
+         });
+  }
 
 
-    @GetMapping(ERROR_PATH)
-    public Flux<User> globalExceptionError() {
-        return service.globalExceptionError();
-    }
+  @GetMapping(FIND_USER_BY_ID)
+  @ResponseStatus(OK)
+  public Mono<UserDto> findById(@PathVariable String id) {
+    return service
+         .findById(id)
+         .map(userFound -> converter.map(userFound,UserDto.class));
+  }
 
 
-    @PostMapping
-    @ResponseStatus(CREATED)
-    public Mono<UserDto> save(@Valid @RequestBody UserDto userDto) {
-        User user = converter.map(userDto,User.class);
-        return service
-                .save(user)
-                .map(item -> converter.map(item,UserDto.class));
-    }
+  @GetMapping(ERROR_PATH)
+  public Flux<User> globalExceptionError() {
+    return service.globalExceptionError();
+  }
 
 
-    @DeleteMapping
-    @ResponseStatus(NO_CONTENT)
-    public Mono<Void> delete(@Valid @RequestBody UserDto userDto) {
-        return service.delete(userDto.getId());
-    }
+  @PostMapping
+  @ResponseStatus(CREATED)
+  public Mono<UserDto> save(@Valid @RequestBody UserDto userDto) {
+    User user = converter.map(userDto,User.class);
+    return service
+         .save(user)
+         .map(item -> converter.map(item,UserDto.class));
+  }
 
 
-    @PutMapping
-    @ResponseStatus(OK)
-    public Mono<User> update(@Valid @RequestBody UserDto userDto) {
-        User user = converter.map(userDto,User.class);
-        return service.update(user);
-    }
+  @DeleteMapping
+  @ResponseStatus(NO_CONTENT)
+  public Mono<Void> delete(@Valid @RequestBody UserDto userDto) {
+    return service.delete(userDto.getId());
+  }
+
+
+  @PutMapping
+  @ResponseStatus(OK)
+  public Mono<User> update(@Valid @RequestBody UserDto userDto) {
+    User user = converter.map(userDto,User.class);
+    return service.update(user);
+  }
 }
