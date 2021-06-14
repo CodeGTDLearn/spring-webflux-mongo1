@@ -3,6 +3,7 @@ package com.mongo.api.modules.user;
 import com.mongo.api.core.dto.CommentAllDto;
 import com.mongo.api.core.dto.PostAllDto;
 import com.mongo.api.core.dto.UserAllDto;
+import com.mongo.api.core.dto.UserAuthorDto;
 import com.mongo.api.core.exceptions.customExceptions.CustomExceptions;
 import com.mongo.api.core.exceptions.globalException.GlobalException;
 import com.mongo.api.modules.comment.CommentServiceInt;
@@ -69,16 +70,27 @@ public class UserService implements UserServiceInt {
 
   @Override
   public Mono<User> update(User user) {
+
     return userRepo
          .findById(user.getId())
          .switchIfEmpty(customExceptions.userNotFoundException())
-         .flatMap(user1 -> {
-           user1 = mapper.map(user,User.class);
-           return Mono.just(user1);
+         .thenMany(postService.findPostsByAuthorId(user.getId()))
+         .flatMap(post -> {
+           user.getIdPosts()
+               .add(post.getPostId());
+           userRepo.save(user); // todo 01: qdo salva o user, esta salvando na colecao UserRepo, com o IdPost duplicado. Isso ocorre, no 'primeiro update', nos seguintes nao mais.. investigar
+           return Mono.just(user);
          })
-         .flatMap(userRepo::save);
+         .thenMany(postService.findPostsByAuthorId(user.getId()))
+         .flatMap(post -> {
+           UserAuthorDto authorDto = mapper.map(user,UserAuthorDto.class);
+           post.setAuthor(authorDto);
+           return postService.save(post);
+         })
+         .then(Mono.just(user))
+         ;
 
-    }
+  }
 
 
   @Override
