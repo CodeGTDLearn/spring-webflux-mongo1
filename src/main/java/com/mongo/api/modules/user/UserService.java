@@ -74,24 +74,42 @@ public class UserService implements UserServiceInt {
     return userRepo
          .findById(user.getId())
          .switchIfEmpty(customExceptions.userNotFoundException())
-         .flatMap(user1 -> userRepo.save(user))
+         .then(userRepo.save(user))
+
          .thenMany(postService.findPostsByAuthorId(user.getId()))
          .flatMap(post -> {
            UserAuthorDto authorDto = mapper.map(user,UserAuthorDto.class);
            post.setAuthor(authorDto);
            return postService.save(post);
          })
+
+         .thenMany(postService.findPostsByAuthorId(user.getId()))
          .flatMap(post -> Mono.just(post.getPostId()))
          .collectList()
-         .flatMap(list -> userRepo
-              .findById(user.getId())
-              .flatMap(user1 -> {
-                user1.setIdPosts(list);
-                return Mono.just(user1);
-              })
-              .flatMap(userRepo::save))
+         .flatMap(list -> {
+           user.setIdPosts(list);
+           return userRepo.save(user);
+         })
+         .thenMany(postService.findPostsByAuthorId(user.getId()))
+         .flatMap(post ->
+                       commentService
+                            .findCommentsByPostId(post.getPostId())
+                            .flatMap(comment -> {
+                              UserAuthorDto authorDto = mapper.map(user,UserAuthorDto.class);
+                              comment.setAuthor(authorDto);
+                              return commentService.saveLinkedObject(comment);
+                            })
+                            .thenMany(commentService
+                                           .findCommentsByPostId(post.getPostId()))
+                            .flatMap(comment -> Mono.just(comment.getCommentId()))
+                            .collectList()
+                            .flatMap(list -> {
+                              post.setIdComments(list);
+                              return Mono.just(post);
+                            })
+                 )
+         .then(userRepo.findById(user.getId()))
          ;
-
   }
 
 

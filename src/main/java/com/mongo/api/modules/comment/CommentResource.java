@@ -50,7 +50,7 @@ public class CommentResource {
 
     @PostMapping(SAVE_COMMENT_LINKED_OBJECT)
     @ResponseStatus(CREATED)
-    public Mono<Post> saveCommentLinkedObject(@RequestBody Comment comment) {
+    public Mono<Comment> saveCommentLinkedObject(@RequestBody Comment comment) {
         return service.saveLinkedObject(comment);
     }
 

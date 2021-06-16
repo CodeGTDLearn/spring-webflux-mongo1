@@ -58,7 +58,7 @@ public class CommentService implements CommentServiceInt {
 
 
   @Override
-  public Mono<Post> saveLinkedObject(Comment comment) {
+  public Mono<Comment> saveLinkedObject(Comment comment) {
     return userService
          .findById(comment.getAuthor()
                           .getId())
@@ -79,7 +79,9 @@ public class CommentService implements CommentServiceInt {
                                                 .add(comment1.getCommentId());
                                        return postRepo.save(postFound);
                                      }
-                                    ));
+                                    )
+                            .then(Mono.just(comment1))
+                 );
   }
 
 
@@ -145,14 +147,7 @@ public class CommentService implements CommentServiceInt {
     return commentRepo
          .findById(comment.getCommentId())
          .switchIfEmpty(exceptions.commentNotFoundException())
-         //                .then(commentRepo.save(conv.map(comment,Comment.class)));
          .flatMap(comment1 -> {
-           //                    comment1.setId(comment.getId());
-           //                    comment1.setAuthor(comment.getAuthor());
-           //                    comment1.setText(comment.getText());
-           //                    comment1.setDate(comment.getDate());
-           //                    return commentRepo.save(comment1);
-
            Comment userRet = conv.map(comment,Comment.class);
            return commentRepo.save(userRet);
          });

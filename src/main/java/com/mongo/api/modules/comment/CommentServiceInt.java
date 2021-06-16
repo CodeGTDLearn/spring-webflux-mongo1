@@ -12,7 +12,7 @@ public interface CommentServiceInt {
 
     Mono<User> findUserByCommentId(String id);
 
-    Mono<Post> saveLinkedObject(Comment comment);
+    Mono<Comment> saveLinkedObject(Comment comment);
 
     Mono<Post> saveEmbedObjectSubst(Comment comment);
 
