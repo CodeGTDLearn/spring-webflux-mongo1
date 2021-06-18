@@ -51,7 +51,6 @@ public class CommentService implements CommentServiceInt {
          .flatMap(comment -> {
            String idUser = comment.getAuthor()
                                   .getId();
-           //                    return userRepo.findById(idUser);
            return userService.findById(idUser);
          });
   }
@@ -72,7 +71,6 @@ public class CommentService implements CommentServiceInt {
          .flatMap(comment1 ->
                        postRepo
                             .findById(comment1.getPostId())
-                            .switchIfEmpty(exceptions.postNotFoundException())
                             .flatMap(postFound ->
                                      {
                                        postFound.getIdComments()
@@ -143,13 +141,13 @@ public class CommentService implements CommentServiceInt {
 
 
   @Override
-  public Mono<Comment> update(Comment comment) {
+  public Mono<Comment> update(Comment newComment) {
     return commentRepo
-         .findById(comment.getCommentId())
+         .findById(newComment.getCommentId())
          .switchIfEmpty(exceptions.commentNotFoundException())
-         .flatMap(comment1 -> {
-           Comment userRet = conv.map(comment,Comment.class);
-           return commentRepo.save(userRet);
+         .flatMap(comment -> {
+           Comment updatedComment = conv.map(newComment,Comment.class);
+           return commentRepo.save(updatedComment);
          });
   }
 
@@ -163,5 +161,22 @@ public class CommentService implements CommentServiceInt {
          .filter(commentsOfThePost -> commentsOfThePost.getPostId()
                                                        .equals(postId));
 
+  }
+
+
+  @Override
+  public Flux<Comment> findCommentsByAuthorId(String authorId) {
+    return userService
+         .findById(authorId)
+         .switchIfEmpty(exceptions.userNotFoundException())
+         .thenMany(commentRepo.findAll())
+         .filter(comment -> comment.getAuthor()
+                                   .getId()
+                                   .equals(authorId));
+
+//    return userService
+//         .findById(authorId)
+//         .switchIfEmpty(exceptions.userNotFoundException())
+//         .thenMany(commentRepo.findCommentsByAuthor_Id(authorId));
   }
 }

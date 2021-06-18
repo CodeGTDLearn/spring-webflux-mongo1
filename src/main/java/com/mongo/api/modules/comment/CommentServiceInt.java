@@ -6,21 +6,23 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface CommentServiceInt {
-    Flux<Comment> findAll();
+  Flux<Comment> findAll();
 
-    Mono<Comment> findById(String id);
+  Mono<Comment> findById(String id);
 
-    Mono<User> findUserByCommentId(String id);
+  Mono<User> findUserByCommentId(String id);
 
-    Mono<Comment> saveLinkedObject(Comment comment);
+  Mono<Comment> saveLinkedObject(Comment comment);
 
-    Mono<Post> saveEmbedObjectSubst(Comment comment);
+  Mono<Post> saveEmbedObjectSubst(Comment comment);
 
-    Mono<Post> saveEmbedObjectList(Comment comment);
+  Mono<Post> saveEmbedObjectList(Comment comment);
 
-    Mono<Void> delete(Comment comment);
+  Mono<Void> delete(Comment comment);
 
-    Mono<Comment> update(Comment comment);
+  Mono<Comment> update(Comment comment);
 
-    Flux<Comment> findCommentsByPostId(String postId);
+  Flux<Comment> findCommentsByPostId(String postId);
+
+  Flux<Comment> findCommentsByAuthorId(String authorId);
 }

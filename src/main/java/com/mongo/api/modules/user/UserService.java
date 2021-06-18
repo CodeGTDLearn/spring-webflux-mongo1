@@ -69,46 +69,34 @@ public class UserService implements UserServiceInt {
 
 
   @Override
-  public Mono<User> update(User user) {
-
+  public Mono<User> update(User userToUpdate) {
     return userRepo
-         .findById(user.getId())
+         .findById(userToUpdate.getId())
          .switchIfEmpty(customExceptions.userNotFoundException())
-         .then(userRepo.save(user))
 
-         .thenMany(postService.findPostsByAuthorId(user.getId()))
-         .flatMap(post -> {
-           UserAuthorDto authorDto = mapper.map(user,UserAuthorDto.class);
-           post.setAuthor(authorDto);
-           return postService.save(post);
-         })
-
-         .thenMany(postService.findPostsByAuthorId(user.getId()))
+         .thenMany(postService.findPostsByAuthorId(userToUpdate.getId()))
          .flatMap(post -> Mono.just(post.getPostId()))
          .collectList()
-         .flatMap(list -> {
-           user.setIdPosts(list);
-           return userRepo.save(user);
+         .flatMap(listPosts -> {
+           userToUpdate.setIdPosts(listPosts);
+           return userRepo.save(userToUpdate);
          })
-         .thenMany(postService.findPostsByAuthorId(user.getId()))
-         .flatMap(post ->
-                       commentService
-                            .findCommentsByPostId(post.getPostId())
-                            .flatMap(comment -> {
-                              UserAuthorDto authorDto = mapper.map(user,UserAuthorDto.class);
-                              comment.setAuthor(authorDto);
-                              return commentService.saveLinkedObject(comment);
-                            })
-                            .thenMany(commentService
-                                           .findCommentsByPostId(post.getPostId()))
-                            .flatMap(comment -> Mono.just(comment.getCommentId()))
-                            .collectList()
-                            .flatMap(list -> {
-                              post.setIdComments(list);
-                              return Mono.just(post);
-                            })
-                 )
-         .then(userRepo.findById(user.getId()))
+
+         .thenMany(postService.findPostsByAuthorId(userToUpdate.getId()))
+         .flatMap(post -> {
+           UserAuthorDto authorDto = mapper.map(userToUpdate,UserAuthorDto.class);
+           post.setAuthor(authorDto);
+           return postService.update(post);
+         })
+
+         .thenMany(commentService.findCommentsByAuthorId(userToUpdate.getId()))
+         .flatMap(comment -> {
+           UserAuthorDto authorDto = mapper.map(userToUpdate,UserAuthorDto.class);
+           comment.setAuthor(authorDto);
+           return commentService.update(comment);
+         })
+
+         .then(userRepo.findById(userToUpdate.getId()))
          ;
   }
 
