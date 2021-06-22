@@ -80,7 +80,18 @@ public class PostService implements PostServiceInt {
 
   @Override
   public Flux<Post> findAll() {
-    return postRepo.findAll();
+
+    return postRepo
+         .findAll()
+         .flatMap(post -> commentService
+                       .findCommentsByPostId(post.getPostId())
+                       .collectList()
+                       .flatMap(commentList -> {
+                         post.setListComments(commentList);
+                         return Mono.just(post);
+                       })
+                 )
+         ;
   }
 
 
@@ -100,7 +111,7 @@ public class PostService implements PostServiceInt {
               .flatMap(user -> {
                 user.getIdPosts()
                     .add(postSaved.getPostId());
-                return userService.save(user);
+                return userService.update(user);
               }))
          .flatMap(user -> postRepo.findById(user.getIdPosts()
                                                 .get(user.getIdPosts()
@@ -113,7 +124,17 @@ public class PostService implements PostServiceInt {
     return postRepo
          .findById(post.getPostId())
          .switchIfEmpty(exceptions.postNotFoundException())
-         .flatMap(item -> postRepo.deleteById(post.getPostId()));
+         .flatMap(post1 -> commentService
+                       .findCommentsByPostId(post1.getPostId())
+                       .flatMap(commentService::delete)
+                       .then(findUserByPostId(post1.getPostId()))
+                       .flatMap(user -> {
+                          user.getIdPosts().remove(post1.getPostId());
+                         return userService.save(user);
+                       })
+                       .then(findById(post1.getPostId()))
+                       .flatMap(postRepo::delete)
+                 );
   }
 
 
