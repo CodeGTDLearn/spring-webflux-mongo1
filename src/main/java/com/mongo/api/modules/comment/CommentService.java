@@ -1,8 +1,11 @@
 package com.mongo.api.modules.comment;
 
+import com.mongo.api.core.dto.CommentAllDtoFull;
+import com.mongo.api.core.dto.PostDtoSlim;
 import com.mongo.api.core.exceptions.customExceptions.CustomExceptions;
 import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.post.PostRepo;
+import com.mongo.api.modules.post.PostServiceInt;
 import com.mongo.api.modules.user.User;
 import com.mongo.api.modules.user.UserServiceInt;
 import lombok.AllArgsConstructor;
@@ -23,9 +26,12 @@ public class CommentService implements CommentServiceInt {
   private final PostRepo postRepo;
 
   @Lazy
+  private final PostServiceInt postService;
+
+  @Lazy
   private final UserServiceInt userService;
 
-  private final ModelMapper conv;
+  private final ModelMapper mapper;
 
   private final CustomExceptions exceptions;
 
@@ -33,6 +39,25 @@ public class CommentService implements CommentServiceInt {
   @Override
   public Flux<Comment> findAll() {
     return commentRepo.findAll();
+  }
+
+
+  @Override
+  public Flux<CommentAllDtoFull> findAllCommentsDto() {
+    return commentRepo
+         .findAll()
+         .flatMap(comment -> {
+           CommentAllDtoFull dto = mapper.map(comment,CommentAllDtoFull.class);
+           return Mono.just(dto);
+         })
+         .flatMap(commentAllDtoFull -> postRepo
+                       .findById(commentAllDtoFull.getPostId())
+                       .flatMap(post -> {
+                         PostDtoSlim postSlim = mapper.map(post,PostDtoSlim.class);
+                         commentAllDtoFull.setPost(postSlim);
+                         return Mono.just(commentAllDtoFull);
+                       })
+                 );
   }
 
 
@@ -136,7 +161,14 @@ public class CommentService implements CommentServiceInt {
     return commentRepo
          .findById(comment.getCommentId())
          .switchIfEmpty(exceptions.commentNotFoundException())
-         .flatMap(comment1 -> commentRepo.deleteById(comment.getCommentId()));
+         .flatMap(comment1 -> postRepo
+              .findById(comment1.getPostId())
+              .flatMap(post -> {
+                post.getIdComments().remove(comment1.getCommentId());
+                return Mono.just(post);
+              })
+              .flatMap(postService::update)
+              .then(commentRepo.delete(comment)));
   }
 
 
@@ -146,7 +178,7 @@ public class CommentService implements CommentServiceInt {
          .findById(newComment.getCommentId())
          .switchIfEmpty(exceptions.commentNotFoundException())
          .flatMap(comment -> {
-           Comment updatedComment = conv.map(newComment,Comment.class);
+           Comment updatedComment = mapper.map(newComment,Comment.class);
            return commentRepo.save(updatedComment);
          });
   }
@@ -173,10 +205,5 @@ public class CommentService implements CommentServiceInt {
          .filter(comment -> comment.getAuthor()
                                    .getId()
                                    .equals(authorId));
-
-//    return userService
-//         .findById(authorId)
-//         .switchIfEmpty(exceptions.userNotFoundException())
-//         .thenMany(commentRepo.findCommentsByAuthor_Id(authorId));
   }
 }

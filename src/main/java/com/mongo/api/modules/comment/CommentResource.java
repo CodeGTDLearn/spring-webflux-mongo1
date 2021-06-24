@@ -1,5 +1,6 @@
 package com.mongo.api.modules.comment;
 
+import com.mongo.api.core.dto.CommentAllDtoFull;
 import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.user.User;
 import lombok.AllArgsConstructor;
@@ -24,6 +25,13 @@ public class CommentResource {
     @ResponseStatus(OK)
     public Flux<Comment> findAll() {
         return service.findAll();
+    }
+
+
+    @GetMapping(FIND_ALL_COMMENTS_DTO)
+    @ResponseStatus(OK)
+    public Flux<CommentAllDtoFull> findAllCommentsDto() {
+        return service.findAllCommentsDto();
     }
 
 

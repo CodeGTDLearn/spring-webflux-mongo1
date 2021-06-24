@@ -1,5 +1,6 @@
 package com.mongo.api.modules.comment;
 
+import com.mongo.api.core.dto.CommentAllDtoFull;
 import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.user.User;
 import reactor.core.publisher.Flux;
@@ -25,4 +26,6 @@ public interface CommentServiceInt {
   Flux<Comment> findCommentsByPostId(String postId);
 
   Flux<Comment> findCommentsByAuthorId(String authorId);
+
+  Flux<CommentAllDtoFull> findAllCommentsDto();
 }

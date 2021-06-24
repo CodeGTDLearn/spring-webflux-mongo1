@@ -5,9 +5,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CommentAllDto {
+public class CommentAllDtoFull {
     private String commentId;
-    private String authorId;
     private String postId;
+//    private String authorId;
     private String text;
+    private PostDtoSlim post;
 }

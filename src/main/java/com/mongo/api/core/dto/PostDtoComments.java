@@ -18,14 +18,4 @@ public class PostDtoComments {
     private String body;
     private String authorName;
     private List<Comment> listComments = new ArrayList<>();
-//
-//    public PostDtoComments(Post post) {
-//        this.id = post.getId();
-//        this.date = post.getDate();
-//        this.title = post.getTitle();
-//        this.body = post.getBody();
-//        this.authorName = post.getAuthor()
-//                              .getName();
-//        this.listComments = post.getListComments();
-//    }
 }

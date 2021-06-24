@@ -23,6 +23,7 @@ public final class Routes {
 
     public static final String REQ_COMMENT = "comment";
     public static final String FIND_ALL_COMMENTS = "/findAllComments";
+    public static final String FIND_ALL_COMMENTS_DTO = "/findAllCommentsDto";
     public static final String FIND_COMMENT_BY_ID = "/{id}";
     public static final String FIND_COMMENTS_BY_POSTID = "/{id}/comments";
     public static final String FIND_USER_BY_COMMENTID = "/{id}/user";

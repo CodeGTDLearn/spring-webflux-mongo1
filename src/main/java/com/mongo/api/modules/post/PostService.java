@@ -129,7 +129,8 @@ public class PostService implements PostServiceInt {
                        .flatMap(commentService::delete)
                        .then(findUserByPostId(post1.getPostId()))
                        .flatMap(user -> {
-                          user.getIdPosts().remove(post1.getPostId());
+                         user.getIdPosts()
+                             .remove(post1.getPostId());
                          return userService.save(user);
                        })
                        .then(findById(post1.getPostId()))
