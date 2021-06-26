@@ -88,10 +88,10 @@ public class ExceptionsUserResourceTest extends ConfigControllerTests {
         //                      .baseUrl("http://localhost:8080/customer")
         //                      .build();
 
-        user1 = userWithID_IdPostsEmpty().create();
-        user3 = userFull_IdNull_ListIdPostsEmpty().create();
-        userPostsOwner = userWithID_IdPostsEmpty().create();
-        userItemTest = userWithID_IdPostsEmpty().create();
+        user1 = userWithID_IdPostsEmpty().createTestUser();
+        user3 = userFull_IdNull_ListIdPostsEmpty().createTestUser();
+        userPostsOwner = userWithID_IdPostsEmpty().createTestUser();
+        userItemTest = userWithID_IdPostsEmpty().createTestUser();
         userList = Arrays.asList(user1,user3);
     }
 

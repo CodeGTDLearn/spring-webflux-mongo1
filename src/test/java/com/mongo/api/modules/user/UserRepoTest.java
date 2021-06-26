@@ -50,8 +50,8 @@ public class UserRepoTest extends ConfigContainerTests {
     @BeforeEach
     void beforeEach() {
 
-        user1 = userFull_IdNull_ListIdPostsEmpty().create();
-        user3 = userFull_IdNull_ListIdPostsEmpty().create();
+        user1 = userFull_IdNull_ListIdPostsEmpty().createTestUser();
+        user3 = userFull_IdNull_ListIdPostsEmpty().createTestUser();
 
         userList = Arrays.asList(user1,user3);
     }
@@ -105,7 +105,7 @@ public class UserRepoTest extends ConfigContainerTests {
     @DisplayName("Find: PostsByUserId")
     public void findPostByUserId() {
 
-        user2WithId = userWithID_IdPostsEmpty().create();
+        user2WithId = userWithID_IdPostsEmpty().createTestUser();
 
         post1 = post_IdNull_CommentsEmpty(user2WithId).create();
         post2 = post_IdNull_CommentsEmpty(user2WithId).create();

@@ -11,8 +11,6 @@ SPEED-UP TESTCONTAINERS
 https://callistaenterprise.se/blogg/teknik/2020/10/09/speed-up-your-testcontainers-tests/
 https://medium.com/pictet-technologies-blog/speeding-up-your-integration-tests-with-testcontainers-e54ab655c03d
  */
-//@DirtiesContext(classMode = AFTER_EACH_TEST_METHOD)
-//@Slf4j
 @Testcontainers
 public class ConfigContainer {
 

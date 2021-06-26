@@ -58,6 +58,21 @@ public class CommentBuilder {
                              .build();
     }
 
+    public static CommentBuilder comment_simple(Post post) {
+
+        Comment commentFull = new Comment();
+
+        commentFull.setPostId(post.getPostId());
+        commentFull.setDate(faker.date()
+                                 .birthday());
+        commentFull.setText("Comment-Text: " + faker.lorem()
+                                                    .sentence(25));
+        commentFull.setAuthor(post.getAuthor());
+        return CommentBuilder.builder()
+                             .comment(commentFull)
+                             .build();
+    }
+
     public static CommentBuilder commentFullIdPost(User commentUserAuthorDTO,
                                              String idPost) {
 
@@ -75,7 +90,6 @@ public class CommentBuilder {
                              .comment(commentFull)
                              .build();
     }
-
 
     public Comment create() {
         return this.comment;

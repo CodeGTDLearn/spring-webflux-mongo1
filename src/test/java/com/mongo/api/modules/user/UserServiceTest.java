@@ -60,8 +60,8 @@ public class UserServiceTest extends ConfigComposeTests {
     void beforeEach() {
         // service = new UserService(userRepo,postRepo);
 
-        user1 = userFull_IdNull_ListIdPostsEmpty().create();
-        user3 = userFull_IdNull_ListIdPostsEmpty().create();
+        user1 = userFull_IdNull_ListIdPostsEmpty().createTestUser();
+        user3 = userFull_IdNull_ListIdPostsEmpty().createTestUser();
         userList = Arrays.asList(user1,user3);
     }
 
@@ -259,7 +259,7 @@ public class UserServiceTest extends ConfigComposeTests {
     @DisplayName("findPostsByUserId")
     @Test
     void findPostsByUserId() {
-        userWithIdForPost1Post2 = userWithID_IdPostsEmpty().create();
+        userWithIdForPost1Post2 = userWithID_IdPostsEmpty().createTestUser();
 
         post1 = post_IdNull_CommentsEmpty(userWithIdForPost1Post2).create();
         post2 = post_IdNull_CommentsEmpty(userWithIdForPost1Post2).create();
