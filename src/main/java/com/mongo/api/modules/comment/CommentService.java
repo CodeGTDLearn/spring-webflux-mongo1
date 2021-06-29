@@ -171,6 +171,10 @@ public class CommentService implements CommentServiceInt {
               .then(commentRepo.delete(comment)));
   }
 
+  @Override
+  public Mono<Void> deleteAll() {
+    return commentRepo.deleteAll();
+  }
 
   @Override
   public Mono<Comment> update(Comment newComment) {

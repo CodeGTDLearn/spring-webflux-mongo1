@@ -2,25 +2,28 @@ package com.mongo.api.modules.user;
 
 import com.github.javafaker.Faker;
 import com.mongo.api.core.dto.UserAllDto;
+import com.mongo.api.core.dto.UserAuthorDto;
 import com.mongo.api.modules.comment.Comment;
+import com.mongo.api.modules.comment.CommentServiceInt;
 import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.post.PostServiceInt;
 import io.restassured.http.ContentType;
 import io.restassured.module.webtestclient.RestAssuredWebTestClient;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.*;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import reactor.blockhound.BlockingOperationError;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
 import utils.testcontainer.compose.ConfigComposeTests;
 import utils.testcontainer.compose.ConfigControllerTests;
 
-import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -34,20 +37,18 @@ import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.http.HttpStatus.*;
 import static utils.databuilders.CommentBuilder.comment_simple;
-import static utils.databuilders.PostBuilder.postFull;
+import static utils.databuilders.PostBuilder.postFull_CommentsEmpty;
 import static utils.databuilders.UserBuilder.*;
 
 public class UserResourceTest extends ConfigControllerTests {
 
   private User user1, user3, userPostsOwner;
-  private UserAllDto userShowAll;
-  private Post postShowAll;
-  private Comment commentShowAll;
   private List<User> twoUserList;
 
-  final ContentType ANY = ContentType.ANY;
-  final ContentType JSON = ContentType.JSON;
+  final ContentType CONT_ANY = ContentType.ANY;
+  final ContentType CONT_JSON = ContentType.JSON;
 
+  private final ModelMapper mapper = new ModelMapper();
 
   @Container
   private static final DockerComposeContainer<?> compose = new ConfigComposeTests().compose;
@@ -61,11 +62,11 @@ public class UserResourceTest extends ConfigControllerTests {
   @Autowired
   private UserServiceInt userService;
 
-  //    @Autowired
-  //    private PostRepo postRepo;
-
   @Autowired
   private PostServiceInt postService;
+
+  @Autowired
+  private CommentServiceInt commentService;
 
 
   @BeforeAll
@@ -95,13 +96,6 @@ public class UserResourceTest extends ConfigControllerTests {
     user3 = userFull_IdNull_ListIdPostsEmpty().createTestUser();
     userPostsOwner = userWithID_IdPostsEmpty().createTestUser();
     twoUserList = Arrays.asList(user1,user3);
-
-    postShowAll = postFull().create();
-    commentShowAll = comment_simple(postShowAll).create();
-    userShowAll = userShowAll_Test(user1,
-                              postShowAll,
-                              commentShowAll
-                             ).createTestUserShowAll();
   }
 
 
@@ -111,8 +105,19 @@ public class UserResourceTest extends ConfigControllerTests {
          .expectSubscription()
          .verifyComplete();
 
-    System.out.println("\n\n==================> CLEAN-DB-TO-TEST" +
-                            " <==================\n\n");
+    StepVerifier
+         .create(postService.deleteAll())
+         .expectSubscription()
+         .verifyComplete();
+
+    StepVerifier
+         .create(commentService.deleteAll())
+         .expectSubscription()
+         .verifyComplete();
+
+    System.out.println("\n>==================================================>" +
+                            "\n>===============> CLEAN-DB-TO-TEST >===============>" +
+                            "\n>==================================================>\n");
   }
 
 
@@ -125,41 +130,67 @@ public class UserResourceTest extends ConfigControllerTests {
   }
 
 
-  private void StepVerifierCountPostFlux(Flux<Post> flux,int totalElements) {
-    StepVerifier
-         .create(flux)
-         .expectSubscription()
-         .expectNextCount(totalElements)
-         .verifyComplete();
-  }
-
-
-  private Flux<User> saveAndGetUserFlux(List<User> listUser) {
+  private Flux<User> saveUserListAndGetItsFlux(List<User> listUser) {
     return userService.deleteAll()
                       .thenMany(Flux.fromIterable(listUser))
                       .flatMap(userService::save)
                       .doOnNext(item -> userService.findAll())
                       .doOnNext((item -> System.out.println(
-                           "\nUser-Service|User-ID: " + item.getId() +
-                                "|User-Name: " + item.getName() +
-                                "|User-Email: " + item.getEmail() + "\n")));
+                           "\nSaving 'User' in DB:" +
+                                "\n -> ID: " + item.getId() +
+                                "\n -> Name: " + item.getName() +
+                                "\n -> Email: " + item.getEmail() + "\n")));
   }
 
 
-  @NotNull
-  private Flux<Post> cleanDb_Saving02Posts_GetThemInAFlux(List<Post> postList) {
-    return postService.deleteAll()
-                      .thenMany(Flux.fromIterable(postList))
-                      .flatMap(postService::save)
-                      .doOnNext(item -> postService.findAll())
-                      .doOnNext((item -> System.out.println(
-                           "\nPost-Repo:" + "\n" +
-                                "Post-ID: " + item.getPostId() +
-                                "|Post-Title: " + item.getTitle() + "\n" +
-                                "Author-ID: " + item.getAuthor()
-                                                    .getId() +
-                                "|Author-Name: " + item.getAuthor()
-                                                       .getName() + "\n")));
+  private Mono<Void> saveUserShowAllFinalInDb(User user,Post post,Comment comment) {
+    return userService.deleteAll()
+                      .then(Mono.just(user))
+                      .flatMap(userService::save)
+                      .flatMap((user2 -> {
+                        System.out.println(
+                             "\nSaving 'User' in DB:" +
+                                  "\n -> ID: " + user2.getId() +
+                                  "\n -> Name: " + user2.getName() +
+                                  "\n -> Email: " + user2.getEmail() + "\n");
+                        return Mono.just(user2);
+                      }))
+                      .then(postService.deleteAll())
+                      .thenMany(userService.findAll())
+                      .flatMap(user2 -> {
+                        UserAuthorDto authorDto = mapper.map(user2,UserAuthorDto.class);
+                        post.setAuthor(authorDto);
+                        return postService.save(post);
+                      })
+                      .flatMap((post2 -> {
+                        System.out.println(
+                             "\nSaving 'Post' in DB:" +
+                                  "\n -> Post-ID: " + post2.getPostId() +
+                                  "\n -> Post-Title: " + post2.getTitle() + "\n" +
+                                  "\n -> Author-ID: " + post2.getAuthor()
+                                                             .getId() +
+                                  "\n -> Author-Name: " + post2.getAuthor()
+                                                               .getName() + "\n");
+                        return Mono.just(post2);
+                      }))
+                      .then(commentService.deleteAll())
+                      .thenMany(postService.findAll())
+                      .flatMap(post2 -> {
+                        comment.setPostId(post2.getPostId());
+                        comment.setAuthor(post2.getAuthor());
+                        return commentService.saveLinkedObject(comment);
+                      })
+                      .flatMap((comment2 -> {
+                        System.out.println(
+                             "\nSaving 'Comment' in DB:" +
+                                  "\n -> ID: " + comment2.getCommentId() +
+                                  "\n -> PostId: " + comment2.getPostId() +
+                                  "\n -> Author: " + comment2.getAuthor() + "\n");
+                        return Mono.just(comment2);
+                      }))
+                      .then()
+
+         ;
   }
 
 
@@ -175,13 +206,15 @@ public class UserResourceTest extends ConfigControllerTests {
 
   @Test
   void findAll() {
-    final Flux<User> userFlux = saveAndGetUserFlux(twoUserList);
+    final Flux<User> userFlux = saveUserListAndGetItsFlux(twoUserList);
 
     StepVerifierCountUserFlux(userFlux,2);
 
     RestAssuredWebTestClient
          .given()
          .webTestClient(mockedWebClient)
+         .header("Accept",CONT_ANY)
+         .header("Content-type",CONT_JSON)
 
          .when()
          .get(REQ_USER + FIND_ALL_USERS)
@@ -203,13 +236,15 @@ public class UserResourceTest extends ConfigControllerTests {
 
   @Test
   void findAllDto() {
-    final Flux<User> userFlux = saveAndGetUserFlux(twoUserList);
+    final Flux<User> userFlux = saveUserListAndGetItsFlux(twoUserList);
 
     StepVerifierCountUserFlux(userFlux,2);
 
     RestAssuredWebTestClient
          .given()
          .webTestClient(mockedWebClient)
+         .header("Accept",CONT_ANY)
+         .header("Content-type",CONT_JSON)
 
          .when()
          .get(REQ_USER + FIND_ALL_USERS_DTO)
@@ -240,13 +275,26 @@ public class UserResourceTest extends ConfigControllerTests {
 
   @Test
   void findAllShowAllDto() {
-    final Flux<User> twoUserFlux = saveAndGetUserFlux(twoUserList);
+    
+    User user = userWithID_IdPostsEmpty().createTestUser();
+    Post post = postFull_CommentsEmpty(user).create();
+    Comment comment = comment_simple(post).create();
+    UserAllDto userShowAll = userShowAll_Test(user,
+                                              post,
+                                              comment
+                                             ).createTestUserShowAll();
+    cleanDbToTest();
 
-    StepVerifierCountUserFlux(twoUserFlux,2);
+    StepVerifier
+         .create(saveUserShowAllFinalInDb(user,post,comment))
+         .expectSubscription()
+         .verifyComplete();
 
     RestAssuredWebTestClient
          .given()
          .webTestClient(mockedWebClient)
+         .header("Accept",CONT_JSON)
+         .header("Content-type",CONT_JSON)
 
          .when()
          .get(REQ_USER + FIND_ALL_SHOW_ALL_DTO)
@@ -259,21 +307,24 @@ public class UserResourceTest extends ConfigControllerTests {
          .log()
 
          .body()
-         .body("id",hasItems(user1.getId(),user3.getId()))
-         .body("name",hasItems(user1.getName(),user3.getName()))
+         .body("id",hasItem(userShowAll.getId()))
+         .body("posts[0].postId",hasItem(post.getPostId()))
+         .body("posts[0].listComments[0].commentId",hasItem(comment.getCommentId()))
     ;
   }
 
 
   @Test
   void findById() {
-    final Flux<User> userFlux = saveAndGetUserFlux(twoUserList);
+    final Flux<User> userFlux = saveUserListAndGetItsFlux(twoUserList);
 
     StepVerifierCountUserFlux(userFlux,2);
 
     RestAssuredWebTestClient
          .given()
          .webTestClient(mockedWebClient)
+         .header("Accept",CONT_ANY)
+         .header("Content-type",CONT_JSON)
 
          .when()
          .get(REQ_USER + FIND_USER_BY_ID,user3.getId())
@@ -300,9 +351,9 @@ public class UserResourceTest extends ConfigControllerTests {
     RestAssuredWebTestClient
          .given()
          .webTestClient(mockedWebClient)
+         .header("Accept",CONT_ANY)
+         .header("Content-type",CONT_JSON)
 
-         .header("Accept",ContentType.ANY)
-         .header("Content-type",ContentType.JSON)
          .body(userPostsOwner)
 
          .when()
@@ -310,7 +361,7 @@ public class UserResourceTest extends ConfigControllerTests {
 
          .then()
          .statusCode(CREATED.value())
-         .contentType(ContentType.JSON)
+         .contentType(CONT_JSON)
          .body("id",containsStringIgnoringCase(userPostsOwner.getId()))
          .body("email",containsStringIgnoringCase(userPostsOwner.getEmail()))
          .body("name",containsStringIgnoringCase(userPostsOwner.getName()))
@@ -322,16 +373,16 @@ public class UserResourceTest extends ConfigControllerTests {
 
   @Test
   void delete() {
-    Flux<User> userFlux = saveAndGetUserFlux(twoUserList);
+    Flux<User> userFlux = saveUserListAndGetItsFlux(twoUserList);
 
     StepVerifierCountUserFlux(userFlux,2);
 
     RestAssuredWebTestClient
          .given()
          .webTestClient(mockedWebClient)
+         .header("Accept",CONT_ANY)
+         .header("Content-type",CONT_JSON)
 
-         .header("Accept",ContentType.ANY)
-         .header("Content-type",ContentType.JSON)
          .body(user1)
 
          .when()
@@ -349,7 +400,7 @@ public class UserResourceTest extends ConfigControllerTests {
 
   @Test
   void update() {
-    final Flux<User> userFlux = saveAndGetUserFlux(twoUserList);
+    final Flux<User> userFlux = saveUserListAndGetItsFlux(twoUserList);
 
     StepVerifierCountUserFlux(userFlux,2);
 
@@ -364,9 +415,9 @@ public class UserResourceTest extends ConfigControllerTests {
     RestAssuredWebTestClient
          .given()
          .webTestClient(mockedWebClient)
+         .header("Accept",CONT_ANY)
+         .header("Content-type",CONT_JSON)
 
-         .header("Accept",ContentType.ANY)
-         .header("Content-type",ContentType.JSON)
          .body(user1)
 
          .when()
@@ -380,7 +431,7 @@ public class UserResourceTest extends ConfigControllerTests {
          .body()
          .and()
          .statusCode(OK.value())
-         .contentType(ContentType.JSON)
+         .contentType(CONT_JSON)
 
          .body("id",equalTo(user1.getId()))
          .body("name",equalTo(user1.getName()))
@@ -409,40 +460,3 @@ public class UserResourceTest extends ConfigControllerTests {
     }
   }
 }
-//    @Test
-//    void findPostsByUserId() {
-//
-//        post1 = post_IdNull_CommentsEmpty(userPostsOwner).create();
-//        post2 = post_IdNull_CommentsEmpty(userPostsOwner).create();
-//        List<Post> userOwnerPostList = Arrays.asList(post1,post2);
-//
-//        StepVerifier
-//                .create(userService.save(userPostsOwner))
-//                .expectSubscription()
-//                .expectNext(userPostsOwner)
-//                .verifyComplete();
-//
-//
-//        Flux<Post> postFluxPost1Post2 = cleanDb_Saving02Posts_GetThemInAFlux(userOwnerPostList);
-//
-//        StepVerifierCountPostFlux(postFluxPost1Post2,2);
-//
-//        RestAssuredWebTestClient
-//                .given()
-//                .webTestClient(mockedWebClient)
-//
-//                .when()
-//                .get(REQ_USER + FIND_POSTS_BY_USERID,userPostsOwner.getId())
-//
-//
-//                .then()
-//                .statusCode(OK.value())
-//                .log()
-//                .headers()
-//                .and()
-//                .log()
-//
-//                .body()
-//                .body("title",hasItems(post1.getTitle(),post2.getTitle()))
-//        ;
-//    }

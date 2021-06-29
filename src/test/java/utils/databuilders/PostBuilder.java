@@ -17,67 +17,89 @@ import java.util.Locale;
 @Getter
 public class PostBuilder {
 
-    private final Post post;
+  private final Post post;
 
-    private static final ModelMapper conv = new ModelMapper();
+  private static final ModelMapper conv = new ModelMapper();
 
-    private static final Faker faker = new Faker(new Locale("en-CA.yml"));
-    //    private static String FAKER_REGEX_CPF = "[0-9]{3}\\.[0-9]{3}\\.[0-9]{3}-[0-9]{2}";
-    //    private static String FAKER_REGEX_DDD = "[0-9]{2}";
-    //    private static String FAKER_REGEX_TEL = "[0-9]{9}";
+  private static final Faker faker = new Faker(new Locale("en-CA.yml"));
+  //    private static String FAKER_REGEX_CPF = "[0-9]{3}\\.[0-9]{3}\\.[0-9]{3}-[0-9]{2}";
+  //    private static String FAKER_REGEX_DDD = "[0-9]{2}";
+  //    private static String FAKER_REGEX_TEL = "[0-9]{9}";
 
 
-    public static PostBuilder postFull
-            (User postUserAuthor,
-             Comment comment,
-             List<Comment> commentList) {
+  public static PostBuilder postFull
+       (User postUserAuthor,
+        Comment comment,
+        List<Comment> commentList) {
 
-        List<String> idCommentsList = new ArrayList<>();
+    List<String> idCommentsList = new ArrayList<>();
 
-        Post postFull = new Post();
-        postFull.setPostId(faker.regexify("/^[a-f\\d]{24}$/i"));
-        postFull.setTitle(faker.rockBand()
-                               .name());
-        postFull.setBody(faker.lorem()
-                              .sentence(25));
-        postFull.setDate(faker.date()
-                              .birthday());
-        postFull.setAuthor(conv.map(postUserAuthor, UserAuthorDto.class));
-        postFull.setComment(comment);
-        postFull.setListComments(commentList);
+    Post postFull = new Post();
+    postFull.setPostId(faker.regexify("/^[a-f\\d]{24}$/i"));
+    postFull.setTitle(faker.rockBand()
+                           .name());
+    postFull.setBody(faker.lorem()
+                          .sentence(25));
+    postFull.setDate(faker.date()
+                          .birthday());
+    postFull.setAuthor(conv.map(postUserAuthor,UserAuthorDto.class));
+    postFull.setComment(comment);
+    postFull.setListComments(commentList);
 
-        for (Comment comment1 : commentList) {
-            idCommentsList.add(comment1.getCommentId());
-        }
-        postFull.setIdComments(idCommentsList);
-        return PostBuilder.builder()
-                          .post(postFull)
-                          .build();
+    for (Comment comment1 : commentList) {
+      idCommentsList.add(comment1.getCommentId());
     }
+    postFull.setIdComments(idCommentsList);
+    return PostBuilder.builder()
+                      .post(postFull)
+                      .build();
+  }
 
 
-    public static PostBuilder post_IdNull_CommentsEmpty(User user) {
+  public static PostBuilder post_IdNull_CommentsEmpty(User user) {
 
-        //        List<String> idCommentsList = new ArrayList<>();
+    Post postFull = new Post();
 
-        Post postFull = new Post();
-        //        postFull.setId(faker.regexify("/^[a-f\\d]{24}$/i"));
-        postFull.setTitle(faker.rockBand()
-                               .name());
-        postFull.setBody(faker.lorem()
-                              .sentence(25));
-        postFull.setDate(faker.date()
-                              .birthday());
+    postFull.setTitle(faker.rockBand()
+                           .name());
 
-        postFull.setAuthor(conv.map(user, UserAuthorDto.class));
+    postFull.setBody(faker.lorem()
+                          .sentence(25));
 
-        return PostBuilder.builder()
-                          .post(postFull)
-                          .build();
-    }
+    postFull.setDate(faker.date()
+                          .birthday());
+
+    postFull.setAuthor(conv.map(user,UserAuthorDto.class));
+
+    return PostBuilder.builder()
+                      .post(postFull)
+                      .build();
+  }
+
+  public static PostBuilder postFull_CommentsEmpty(User user) {
+
+    Post postFull = new Post();
+
+    postFull.setPostId(faker.regexify("[a-f]{24}"));
+
+    postFull.setTitle(faker.rockBand()
+                           .name());
+
+    postFull.setBody(faker.lorem()
+                          .sentence(25));
+
+    postFull.setDate(faker.date()
+                          .birthday());
+
+    postFull.setAuthor(conv.map(user,UserAuthorDto.class));
+
+    return PostBuilder.builder()
+                      .post(postFull)
+                      .build();
+  }
 
 
-    public Post create() {
-        return this.post;
-    }
+  public Post create() {
+    return this.post;
+  }
 }

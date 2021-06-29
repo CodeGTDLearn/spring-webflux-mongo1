@@ -49,10 +49,8 @@ public class UserRepoTest extends ConfigContainerTests {
 
     @BeforeEach
     void beforeEach() {
-
         user1 = userFull_IdNull_ListIdPostsEmpty().createTestUser();
         user3 = userFull_IdNull_ListIdPostsEmpty().createTestUser();
-
         userList = Arrays.asList(user1,user3);
     }
 

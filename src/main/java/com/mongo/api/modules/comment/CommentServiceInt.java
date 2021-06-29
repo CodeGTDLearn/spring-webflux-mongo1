@@ -21,6 +21,8 @@ public interface CommentServiceInt {
 
   Mono<Void> delete(Comment comment);
 
+  Mono<Void> deleteAll();
+
   Mono<Comment> update(Comment comment);
 
   Flux<Comment> findCommentsByPostId(String postId);
