@@ -13,6 +13,7 @@ import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.junit.jupiter.EnabledIf;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -42,13 +43,12 @@ import static utils.databuilders.UserBuilder.*;
 
 public class UserResourceTest extends ConfigControllerTests {
 
+  final String enabledTest = "true";
   private User user1, user3, userPostsOwner;
   private List<User> twoUserList;
 
   final ContentType CONT_ANY = ContentType.ANY;
   final ContentType CONT_JSON = ContentType.JSON;
-
-  private final ModelMapper mapper = new ModelMapper();
 
   @Container
   private static final DockerComposeContainer<?> compose = new ConfigComposeTests().compose;
@@ -67,6 +67,9 @@ public class UserResourceTest extends ConfigControllerTests {
 
   @Autowired
   private CommentServiceInt commentService;
+
+  @Autowired
+  private ModelMapper mapper;
 
 
   @BeforeAll
@@ -195,6 +198,7 @@ public class UserResourceTest extends ConfigControllerTests {
 
 
   @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
   void checkServices() {
     new ConfigComposeTests().checkTestcontainerComposeService(
          compose,
@@ -205,6 +209,7 @@ public class UserResourceTest extends ConfigControllerTests {
 
 
   @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
   void findAll() {
     final Flux<User> userFlux = saveUserListAndGetItsFlux(twoUserList);
 
@@ -235,6 +240,7 @@ public class UserResourceTest extends ConfigControllerTests {
 
 
   @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
   void findAllDto() {
     final Flux<User> userFlux = saveUserListAndGetItsFlux(twoUserList);
 
@@ -274,8 +280,9 @@ public class UserResourceTest extends ConfigControllerTests {
 
 
   @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
   void findAllShowAllDto() {
-    
+
     User user = userWithID_IdPostsEmpty().createTestUser();
     Post post = postFull_CommentsEmpty(user).create();
     Comment comment = comment_simple(post).create();
@@ -315,6 +322,7 @@ public class UserResourceTest extends ConfigControllerTests {
 
 
   @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
   void findById() {
     final Flux<User> userFlux = saveUserListAndGetItsFlux(twoUserList);
 
@@ -343,6 +351,7 @@ public class UserResourceTest extends ConfigControllerTests {
 
 
   @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
   void save() {
     cleanDbToTest();
 
@@ -372,6 +381,7 @@ public class UserResourceTest extends ConfigControllerTests {
 
 
   @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
   void delete() {
     Flux<User> userFlux = saveUserListAndGetItsFlux(twoUserList);
 
@@ -399,6 +409,7 @@ public class UserResourceTest extends ConfigControllerTests {
 
 
   @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
   void update() {
     final Flux<User> userFlux = saveUserListAndGetItsFlux(twoUserList);
 
@@ -442,6 +453,7 @@ public class UserResourceTest extends ConfigControllerTests {
 
 
   @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("BHWorks")
   public void bHWorks() {
     try {

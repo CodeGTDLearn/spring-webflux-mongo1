@@ -22,7 +22,7 @@ public class UserResource {
 
   private final UserServiceInt service;
 
-  private final ModelMapper converter;
+  private final ModelMapper mapper;
 
 
   @GetMapping(FIND_ALL_USERS)
@@ -45,7 +45,7 @@ public class UserResource {
     return service
          .findAll()
          .map(user -> {
-           return converter.map(user,UserDto.class);
+           return mapper.map(user,UserDto.class);
          });
   }
 
@@ -55,7 +55,7 @@ public class UserResource {
   public Mono<UserDto> findById(@PathVariable String id) {
     return service
          .findById(id)
-         .map(userFound -> converter.map(userFound,UserDto.class));
+         .map(userFound -> mapper.map(userFound,UserDto.class));
   }
 
 
@@ -68,10 +68,10 @@ public class UserResource {
   @PostMapping
   @ResponseStatus(CREATED)
   public Mono<UserDto> save(@Valid @RequestBody UserDto userDto) {
-    User user = converter.map(userDto,User.class);
+    User user = mapper.map(userDto,User.class);
     return service
          .save(user)
-         .map(item -> converter.map(item,UserDto.class));
+         .map(item -> mapper.map(item,UserDto.class));
   }
 
 
@@ -85,7 +85,7 @@ public class UserResource {
   @PutMapping
   @ResponseStatus(OK)
   public Mono<User> update(@Valid @RequestBody UserDto userDto) {
-    User user = converter.map(userDto,User.class);
+    User user = mapper.map(userDto,User.class);
     return service.update(user);
   }
 }

@@ -3,6 +3,8 @@ package com.mongo.api.modules.user;
 import com.github.javafaker.Faker;
 import com.mongo.api.core.dto.UserAllDto;
 import com.mongo.api.core.dto.UserAuthorDto;
+import com.mongo.api.core.exceptions.customExceptions.CustomExceptions;
+import com.mongo.api.core.exceptions.globalException.GlobalException;
 import com.mongo.api.modules.comment.Comment;
 import com.mongo.api.modules.comment.CommentServiceInt;
 import com.mongo.api.modules.post.Post;
@@ -11,6 +13,7 @@ import org.junit.jupiter.api.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.test.context.junit.jupiter.EnabledIf;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import reactor.blockhound.BlockingOperationError;
@@ -33,16 +36,31 @@ import static utils.databuilders.PostBuilder.postFull_CommentsEmpty;
 import static utils.databuilders.PostBuilder.post_IdNull_CommentsEmpty;
 import static utils.databuilders.UserBuilder.*;
 
-
+//@ComponentScan("com.mongo.api.modules.user")
+//@ComponentScan("com.mongo.api.core.exceptions")
 public class UserServiceTest extends ConfigComposeTests {
 
+  final String enabledTest = "true";
   private User user1, user3, userWithIdForPost1Post2;
   private Post post1, post2;
   private List<User> userList;
 
+  @Container
+  private static final DockerComposeContainer<?> compose = new ConfigComposeTests().compose;
+
+//  @Lazy // sem lazy nao funciona
+        // sem instancia no BeforeAll tb nao funciona
+        // nao enxerfa UserService bean
+//  @Autowired
+  private UserServiceInt userService;
+
   @Lazy
   @Autowired
-  private UserServiceInt userService;
+  private UserRepo userRepo;
+
+  @Lazy
+  @Autowired
+  private PostServiceInt postService;
 
   @Lazy
   @Autowired
@@ -50,14 +68,15 @@ public class UserServiceTest extends ConfigComposeTests {
 
   @Lazy
   @Autowired
-  private PostServiceInt postService;
+  private ModelMapper mapper;
 
-//  @Lazy
-//  @Autowired
-  private final ModelMapper mapper = new ModelMapper();
+  @Lazy
+  @Autowired
+  private CustomExceptions customExceptions;
 
-  @Container
-  private static final DockerComposeContainer<?> compose = new ConfigComposeTests().compose;
+  @Lazy
+  @Autowired
+  private GlobalException globalException;
 
 
   @BeforeAll
@@ -75,7 +94,13 @@ public class UserServiceTest extends ConfigComposeTests {
 
   @BeforeEach
   void beforeEach() {
-    //    userService = new UserService(userRepo,postService,mapper,commentService);
+    userService = new UserService(userRepo,
+                                  postService,
+                                  commentService,
+                                  mapper,
+                                  customExceptions,
+                                  globalException
+    );
 
     user1 = userFull_IdNull_ListIdPostsEmpty().createTestUser();
     user3 = userFull_IdNull_ListIdPostsEmpty().createTestUser();
@@ -125,12 +150,12 @@ public class UserServiceTest extends ConfigComposeTests {
   @NotNull
   private Flux<Post> cleanDb_Saving02Posts_GetThemInAFlux(List<Post> postList) {
     return postService.deleteAll()
-                   .thenMany(Flux.fromIterable(postList))
-                   .flatMap(postService::save)
-                   .doOnNext(item -> postService.findAll())
-                   .doOnNext((item -> System.out.println(
-                        "\nUserRepo - Post-ID: " + item.getPostId() +
-                             "|Author: " + item.getAuthor() + "\n")));
+                      .thenMany(Flux.fromIterable(postList))
+                      .flatMap(postService::save)
+                      .doOnNext(item -> postService.findAll())
+                      .doOnNext((item -> System.out.println(
+                           "\nUserRepo - Post-ID: " + item.getPostId() +
+                                "|Author: " + item.getAuthor() + "\n")));
   }
 
 
@@ -186,6 +211,7 @@ public class UserServiceTest extends ConfigComposeTests {
 
 
   @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("Check TestContainerServices")
   void checkServices() {
     super.checkTestcontainerComposeService(
@@ -197,6 +223,7 @@ public class UserServiceTest extends ConfigComposeTests {
 
 
   @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("FindAll")
   void findAll() {
     final Flux<User> userFlux = cleanDb_Saving02Users_GetThemInAFlux(userList);
@@ -210,6 +237,7 @@ public class UserServiceTest extends ConfigComposeTests {
 
 
   @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("FindById")
   void findById() {
     final Flux<User> userFlux = cleanDb_Saving02Users_GetThemInAFlux(userList);
@@ -235,6 +263,7 @@ public class UserServiceTest extends ConfigComposeTests {
 
 
   @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("Save: Object")
   void save() {
     cleanDbToTest();
@@ -250,6 +279,7 @@ public class UserServiceTest extends ConfigComposeTests {
 
   @DisplayName("Delete: Count")
   @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
   public void deleteAll_count() {
 
     StepVerifier
@@ -270,6 +300,7 @@ public class UserServiceTest extends ConfigComposeTests {
 
   @DisplayName("DeleteById")
   @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
   public void deleteById() {
     final Flux<User> userFlux = cleanDb_Saving02Users_GetThemInAFlux(userList);
 
@@ -300,6 +331,7 @@ public class UserServiceTest extends ConfigComposeTests {
 
   @DisplayName("update")
   @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
   public void update() {
     final Flux<User> userFlux = cleanDb_Saving02Users_GetThemInAFlux(userList);
 
@@ -340,6 +372,7 @@ public class UserServiceTest extends ConfigComposeTests {
 
   @DisplayName("findPostsByUserId")
   @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
   void findPostsByUserId() {
     userWithIdForPost1Post2 = userWithID_IdPostsEmpty().createTestUser();
 
@@ -391,6 +424,7 @@ public class UserServiceTest extends ConfigComposeTests {
 
 
   @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
   void findAllShowAllDto() {
 
     User user = userWithID_IdPostsEmpty().createTestUser();
@@ -435,6 +469,7 @@ public class UserServiceTest extends ConfigComposeTests {
 
 
   @Test
+  @EnabledIf(expression = "true", loadContext = true)
   @DisplayName("BHWorks")
   public void bHWorks() {
     try {

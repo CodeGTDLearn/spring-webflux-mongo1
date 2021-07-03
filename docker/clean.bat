@@ -1,9 +1,10 @@
 echo on
 
 REM DOCKER CLEAN-UP SYSTEM
-cd docker-script-start-files
+cd docker
+cd
 docker system df
-docker-compose -f ../dev-compose.yml down --remove-orphans
+docker-compose -f dev-compose.yml down --remove-orphans
 docker container prune --force
 docker system prune --volumes --force
 docker network prune --force

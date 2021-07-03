@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-
 @Slf4j
 @Service
 @AllArgsConstructor
@@ -25,9 +24,9 @@ public class UserService implements UserServiceInt {
 
   private final PostServiceInt postService;
 
-  private final ModelMapper mapper;
-
   private final CommentServiceInt commentService;
+
+  private final ModelMapper mapper;
 
   private final CustomExceptions customExceptions;
 
