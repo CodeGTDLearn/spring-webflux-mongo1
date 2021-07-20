@@ -38,7 +38,7 @@ import static utils.databuilders.UserBuilder.*;
 
 //@ComponentScan("com.mongo.api.modules.user")
 //@ComponentScan("com.mongo.api.core.exceptions")
-public class UserServiceTest extends ConfigComposeTests {
+public class ServiceTests extends ConfigComposeTests {
 
   final String enabledTest = "true";
   private User user1, user3, userWithIdForPost1Post2;
@@ -216,7 +216,7 @@ public class UserServiceTest extends ConfigComposeTests {
   void checkServices() {
     super.checkTestcontainerComposeService(
          compose,
-         ConfigComposeTests.SERVICE,
+         ConfigComposeTests.SERVICE_COMPOSE_FILE,
          ConfigComposeTests.SERVICE_PORT
                                           );
   }

@@ -18,7 +18,7 @@ import static org.springframework.http.HttpStatus.*;
 @RestController
 @AllArgsConstructor
 @RequestMapping(REQ_USER)
-public class UserResource {
+public class UserResourceUsingDTO {
 
   private final UserServiceInt service;
 
@@ -68,6 +68,7 @@ public class UserResource {
   @PostMapping
   @ResponseStatus(CREATED)
   public Mono<UserDto> save(@Valid @RequestBody UserDto userDto) {
+    // Criar dtoSanitizado (procedimento OWASP de sanitizacao/filter/clean) com excecao
     User user = mapper.map(userDto,User.class);
     return service
          .save(user)

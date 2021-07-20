@@ -68,34 +68,34 @@ public class UserService implements UserServiceInt {
 
 
   @Override
-  public Mono<User> update(User userToUpdate) {
+  public Mono<User> update(User user) {
     return userRepo
-         .findById(userToUpdate.getId())
+         .findById(user.getId())
          .switchIfEmpty(customExceptions.userNotFoundException())
 
-         .thenMany(postService.findPostsByAuthorId(userToUpdate.getId()))
+         .thenMany(postService.findPostsByAuthorId(user.getId()))
          .flatMap(post -> Mono.just(post.getPostId()))
          .collectList()
          .flatMap(listPosts -> {
-           userToUpdate.setIdPosts(listPosts);
-           return userRepo.save(userToUpdate);
+           user.setIdPosts(listPosts);
+           return userRepo.save(user);
          })
 
-         .thenMany(postService.findPostsByAuthorId(userToUpdate.getId()))
+         .thenMany(postService.findPostsByAuthorId(user.getId()))
          .flatMap(post -> {
-           UserAuthorDto authorDto = mapper.map(userToUpdate,UserAuthorDto.class);
+           UserAuthorDto authorDto = mapper.map(user,UserAuthorDto.class);
            post.setAuthor(authorDto);
            return postService.update(post);
          })
 
-         .thenMany(commentService.findCommentsByAuthorId(userToUpdate.getId()))
+         .thenMany(commentService.findCommentsByAuthorId(user.getId()))
          .flatMap(comment -> {
-           UserAuthorDto authorDto = mapper.map(userToUpdate,UserAuthorDto.class);
+           UserAuthorDto authorDto = mapper.map(user,UserAuthorDto.class);
            comment.setAuthor(authorDto);
            return commentService.update(comment);
          })
 
-         .then(userRepo.findById(userToUpdate.getId()))
+         .then(userRepo.findById(user.getId()))
          ;
   }
 

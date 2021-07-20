@@ -36,23 +36,10 @@ services:
     container_name: api-web
     image: pauloportfolio/api
     build:
-      context: ./
-      dockerfile: dev-dockerfile
+      context: ../
+      dockerfile: docker/dev-dockerfile
       args:
-#        api-web: -- how it was..............
-#          container_name: api-web
-#          image: pauloportfolio/api
-#          build:
-#            context: ./
-#            dockerfile: dev-dockerfile
-#            args:
-#              JAR_FILE: target/*.jar
-#7 [3/3] COPY ./target/*.jar /opt/api/api.jar
-#7 sha256:38c0ae3395dffb9dcf52387e06ee1bd0b1268b9f1867189d04fc964ab6a40db1
-#7 ERROR: lstat /var/lib/docker/tmp/buildkit-mount414775987/target: no such file or directory
-#  ------
-#  > [3/3] COPY ./target/*.jar /opt/api/api.jar:
-        JAR_FILE: ./target/*.jar
+        JAR_FILE: target/*.jar
     ports:
       - 8080:8080
       - 5005:5005
@@ -71,3 +58,11 @@ services:
       #      JAVA_OPTIONS: -XX:+AllowRedefinitionToAddDeleteMethods
       #   *JDK11: ADDITIONAL_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Xmx1G -Xms128m -XX:MaxMetaspaceSize=128m
       #   *JDK08: ADDITIONAL_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005 -Xmx1G -Xms128m -XX:MaxMetaspaceSize=128m
+#        api-web: -- how it was..............
+#          container_name: api-web
+#          image: pauloportfolio/api
+#          build:
+#            context: ./
+#            dockerfile: dev-dockerfile
+#            args:
+#              JAR_FILE: target/*.jar

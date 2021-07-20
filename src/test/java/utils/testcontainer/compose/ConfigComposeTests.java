@@ -36,56 +36,59 @@ b) USO ALTERNATIVO (DataMongoTest/SpringBootTest) - CONFLITAM ENTRE-SI:
 @Slf4j
 public class ConfigComposeTests extends ConfigCompose {
 
-    final private static Long MAX_TIMEOUT = 15000L;
-    final private static ContentType API_CONTENT_TYPE = ContentType.JSON;
+  final private static Long MAX_TIMEOUT = 15000L;
+  final private static ContentType API_CONTENT_TYPE = ContentType.JSON;
 
 
-    @BeforeAll
-    public static void beforeAll() {
-        BlockHound.install(
-                builder -> builder
-                        .allowBlockingCallsInside("java.io.PrintStream",
-                                                  "write"
-                                                 )
-                          );
+  @BeforeAll
+  public static void beforeAll() {
+    BlockHound.install(
+         builder -> builder
+              .allowBlockingCallsInside("java.io.PrintStream",
+                                        "write"
+                                       )
+                      );
 
-        //DEFINE CONFIG-GLOBAL PARA OS REQUESTS DOS TESTES
-        RestAssuredWebTestClient.requestSpecification =
-                new WebTestClientRequestSpecBuilder()
-                        .setContentType(API_CONTENT_TYPE)
-                        .build();
+    //DEFINE CONFIG-GLOBAL PARA OS REQUESTS DOS TESTES
+    RestAssuredWebTestClient.requestSpecification =
+         new WebTestClientRequestSpecBuilder()
+              .setContentType(API_CONTENT_TYPE)
+              .build();
 
-        //DEFINE CONFIG-GLOBAL PARA OS RESPONSE DOS TESTES
-        RestAssuredWebTestClient.responseSpecification =
-                new ResponseSpecBuilder()
-                        .expectResponseTime(
-                                Matchers.lessThanOrEqualTo(MAX_TIMEOUT))
-                        .build();
-    }
-
-
-    @AfterAll
-    public static void afterAll() {
-        RestAssuredWebTestClient.reset();
-    }
+    //DEFINE CONFIG-GLOBAL PARA OS RESPONSE DOS TESTES
+    RestAssuredWebTestClient.responseSpecification =
+         new ResponseSpecBuilder()
+              .expectResponseTime(
+                   Matchers.lessThanOrEqualTo(MAX_TIMEOUT))
+              .build();
+  }
 
 
-    public void checkTestcontainerComposeService(DockerComposeContainer<?> compose,String service
-            ,Integer port) {
-        String status =
-                "\nHost: " + compose.getServiceHost(service,port) +
-                        "\nPort: " + compose.getServicePort(service,port) +
-                        "\nCreated: " + compose.getContainerByServiceName(service + "_1")
-                                               .get()
-                                               .isCreated() +
-                        "\nRunning: " + compose.getContainerByServiceName(service + "_1")
-                                               .get()
-                                               .isRunning();
+  @AfterAll
+  public static void afterAll() {
+    RestAssuredWebTestClient.reset();
+  }
 
-        System.out.println(
-                "------------\n" + "COMPOSE-SERVICE: " + service + status +
-                        "\n------------");
-    }
+
+  public void checkTestcontainerComposeService(
+       DockerComposeContainer<?> compose,
+       String service
+       ,Integer port
+                                              ) {
+    String status =
+         "\nHost: " + compose.getServiceHost(service,port) +
+              "\nPort: " + compose.getServicePort(service,port) +
+              "\nCreated: " + compose.getContainerByServiceName(service + "_1")
+                                     .get()
+                                     .isCreated() +
+              "\nRunning: " + compose.getContainerByServiceName(service + "_1")
+                                     .get()
+                                     .isRunning();
+
+    System.out.println(
+         "------------\n" + "COMPOSE-SERVICE: " + service + status +
+              "\n------------");
+  }
 }
 
 

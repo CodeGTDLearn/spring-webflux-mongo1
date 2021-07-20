@@ -100,7 +100,7 @@ public class ExceptionsUserResourceTest extends ConfigControllerTests {
     void checkServices() {
         new ConfigComposeTests().checkTestcontainerComposeService(
                 compose,
-                ConfigComposeTests.SERVICE,
+                ConfigComposeTests.SERVICE_COMPOSE_FILE,
                 ConfigComposeTests.SERVICE_PORT
                                                                  );
     }

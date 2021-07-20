@@ -41,7 +41,7 @@ import static utils.databuilders.CommentBuilder.comment_simple;
 import static utils.databuilders.PostBuilder.postFull_CommentsEmpty;
 import static utils.databuilders.UserBuilder.*;
 
-public class UserResourceTest extends ConfigControllerTests {
+public class ResourceTests extends ConfigControllerTests {
 
   final String enabledTest = "true";
   private User user1, user3, userPostsOwner;
@@ -202,7 +202,7 @@ public class UserResourceTest extends ConfigControllerTests {
   void checkServices() {
     new ConfigComposeTests().checkTestcontainerComposeService(
          compose,
-         ConfigComposeTests.SERVICE,
+         ConfigComposeTests.SERVICE_COMPOSE_FILE,
          ConfigComposeTests.SERVICE_PORT
                                                              );
   }

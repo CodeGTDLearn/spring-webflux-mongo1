@@ -26,7 +26,7 @@ import static utils.databuilders.PostBuilder.post_IdNull_CommentsEmpty;
 import static utils.databuilders.UserBuilder.userFull_IdNull_ListIdPostsEmpty;
 import static utils.databuilders.UserBuilder.userWithID_IdPostsEmpty;
 
-public class UserRepoTest extends ConfigContainerTests {
+public class RepoTests extends ConfigContainerTests {
 
   final String enabledTest = "true";
   private User user1, user2WithId, user3;
@@ -54,6 +54,7 @@ public class UserRepoTest extends ConfigContainerTests {
 
   @BeforeEach
   void beforeEach() {
+
     user1 = userFull_IdNull_ListIdPostsEmpty().createTestUser();
     user3 = userFull_IdNull_ListIdPostsEmpty().createTestUser();
     userList = Arrays.asList(user1,user3);
@@ -101,7 +102,7 @@ public class UserRepoTest extends ConfigContainerTests {
   @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("Check Container")
   void checkContainer() {
-    assertTrue(container.isRunning());
+    assertTrue(sharedContainer.isRunning());
   }
 
 

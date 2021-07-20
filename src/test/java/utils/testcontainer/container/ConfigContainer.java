@@ -6,11 +6,6 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-/*
-SPEED-UP TESTCONTAINERS
-https://callistaenterprise.se/blogg/teknik/2020/10/09/speed-up-your-testcontainers-tests/
-https://medium.com/pictet-technologies-blog/speeding-up-your-integration-tests-with-testcontainers-e54ab655c03d
- */
 @Testcontainers
 public class ConfigContainer {
 
@@ -21,12 +16,12 @@ public class ConfigContainer {
         Containers declared as INSTANCE fields will be started and stopped for every test method.
      */
     @Container
-    public static final MongoDBContainer container = new MongoDBContainer("mongo:4.4.2");
+    public static final MongoDBContainer sharedContainer = new MongoDBContainer("mongo:4.4.2");
 
 
     @DynamicPropertySource
     static void mongoProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.data.mongodb.uri",container::getReplicaSetUrl);
+        registry.add("spring.data.mongodb.uri",sharedContainer::getReplicaSetUrl);
     }
 
 }

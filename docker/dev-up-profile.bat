@@ -17,8 +17,8 @@ docker network prune --force
 docker builder prune --all --force
 docker image rm pauloportfolio/api-web
 docker image rm pauloportfolio/api-db
-rem  THE IMAGE pauloportfolio/api IS NOT DELETED, 'cause compose is --forcing-recreating
-REM docker image rm pauloportfolio/api
+rem  THE IMAGE pauloportfolio/api IS NOT DELETED, when compose is --forcing-recreating
+docker image rm pauloportfolio/api
 docker image ls
 docker system df
 
@@ -30,5 +30,3 @@ docker-compose -f dev-compose.yml up --build --force-recreate
 
 pause
 
-rem docker image prune --force
-rem docker system prune -a --force

@@ -12,14 +12,14 @@ public class ConfigCompose {
 
     final static private String COMPOSE_PATH = "src/test/resources/compose-testcontainers.yml";
     final static public int SERVICE_PORT = 27017;
-    final static public String SERVICE = "db";
+    final static public String SERVICE_COMPOSE_FILE = "db";
 
 
     //    @Container //Nao anotar aqui. Annotacao deve ficar na classe receptora
     public DockerComposeContainer<?> compose =
             new DockerComposeContainer<>(new File(COMPOSE_PATH))
                     .withExposedService(
-                            SERVICE,
+                         SERVICE_COMPOSE_FILE,
                             SERVICE_PORT,
                             Wait.forListeningPort()
                                        );

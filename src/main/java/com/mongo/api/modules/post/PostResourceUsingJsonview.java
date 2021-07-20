@@ -18,7 +18,7 @@ import static org.springframework.http.HttpStatus.*;
 @RestController
 @AllArgsConstructor
 @RequestMapping(REQ_POST)
-public class PostResource {
+public class PostResourceUsingJsonview {
 
     private final PostServiceInt service;
 
