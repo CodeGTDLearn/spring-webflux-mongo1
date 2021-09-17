@@ -6,7 +6,7 @@ import com.mongo.api.modules.user.User;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public interface CommentServiceInt {
+public interface ICommentService {
   Flux<Comment> findAll();
 
   Mono<Comment> findById(String id);

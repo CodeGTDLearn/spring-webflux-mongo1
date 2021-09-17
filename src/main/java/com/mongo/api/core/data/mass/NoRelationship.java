@@ -2,7 +2,7 @@ package com.mongo.api.core.data.mass;
 
 import com.mongo.api.core.data.builder.UserDatabuilder;
 import com.mongo.api.modules.user.User;
-import com.mongo.api.modules.user.UserRepo;
+import com.mongo.api.modules.user.IUserRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -17,7 +17,7 @@ import java.util.List;
 public class NoRelationship implements CommandLineRunner {
 
     @Autowired
-    UserRepo userRepo;
+    IUserRepo userRepo;
 
     @Override
     public void run(String... args) throws Exception {

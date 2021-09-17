@@ -1,9 +1,9 @@
 package com.mongo.api.core.data.mass;
 
 import com.mongo.api.modules.post.Post;
-import com.mongo.api.modules.post.PostRepo;
+import com.mongo.api.modules.post.IPostRepo;
 import com.mongo.api.modules.user.User;
-import com.mongo.api.modules.user.UserRepo;
+import com.mongo.api.modules.user.IUserRepo;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -20,8 +20,8 @@ import static com.mongo.api.core.data.builder.UserDatabuilder.userNameParam;
 @Configuration
 public class EmbedRelationship implements CommandLineRunner {
 
-    private final UserRepo userRepo;
-    private final PostRepo postRepo;
+    private final IUserRepo userRepo;
+    private final IPostRepo postRepo;
 
     @Override
     public void run(String... args) {

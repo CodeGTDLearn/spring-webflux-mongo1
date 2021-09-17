@@ -6,13 +6,15 @@ import com.mongo.api.core.dto.UserAuthorDto;
 import com.mongo.api.core.exceptions.customExceptions.CustomExceptions;
 import com.mongo.api.core.exceptions.globalException.GlobalException;
 import com.mongo.api.modules.comment.Comment;
-import com.mongo.api.modules.comment.CommentServiceInt;
+import com.mongo.api.modules.comment.CommentService;
+import com.mongo.api.modules.comment.ICommentService;
+import com.mongo.api.modules.post.IPostService;
 import com.mongo.api.modules.post.Post;
-import com.mongo.api.modules.post.PostServiceInt;
+import com.mongo.api.modules.post.PostService;
 import org.junit.jupiter.api.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.EnabledIf;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -36,47 +38,32 @@ import static utils.databuilders.PostBuilder.postFull_CommentsEmpty;
 import static utils.databuilders.PostBuilder.post_IdNull_CommentsEmpty;
 import static utils.databuilders.UserBuilder.*;
 
-//@ComponentScan("com.mongo.api.modules.user")
-//@ComponentScan("com.mongo.api.core.exceptions")
+@Import({
+     UserService.class,
+     CommentService.class,
+     PostService.class,
+     GlobalException.class,
+     CustomExceptions.class})
 public class ServiceTests extends ConfigComposeTests {
 
+  @Container
+  private static final DockerComposeContainer<?> compose = new ConfigComposeTests().compose;
   final String enabledTest = "true";
   private User user1, user3, userWithIdForPost1Post2;
   private Post post1, post2;
   private List<User> userList;
 
-  @Container
-  private static final DockerComposeContainer<?> compose = new ConfigComposeTests().compose;
-
-//  @Lazy // sem lazy nao funciona
-        // sem instancia no BeforeAll tb nao funciona
-        // nao enxerfa UserService bean
-//  @Autowired
-  private UserServiceInt userService;
-
-  @Lazy
   @Autowired
-  private UserRepo userRepo;
+  private IUserService userService;
 
-  @Lazy
   @Autowired
-  private PostServiceInt postService;
+  private IPostService postService;
 
-  @Lazy
   @Autowired
-  private CommentServiceInt commentService;
+  private ICommentService commentService;
 
-  @Lazy
   @Autowired
-  private ModelMapper mapper;
-
-  @Lazy
-  @Autowired
-  private CustomExceptions customExceptions;
-
-  @Lazy
-  @Autowired
-  private GlobalException globalException;
+  private ModelMapper modelMapper;
 
 
   @BeforeAll
@@ -94,14 +81,6 @@ public class ServiceTests extends ConfigComposeTests {
 
   @BeforeEach
   void beforeEach() {
-    userService = new UserService(userRepo,
-                                  postService,
-                                  commentService,
-                                  mapper,
-                                  customExceptions,
-                                  globalException
-    );
-
     user1 = userFull_IdNull_ListIdPostsEmpty().createTestUser();
     user3 = userFull_IdNull_ListIdPostsEmpty().createTestUser();
     userList = Arrays.asList(user1,user3);
@@ -174,7 +153,7 @@ public class ServiceTests extends ConfigComposeTests {
                       .then(postService.deleteAll())
                       .thenMany(userService.findAll())
                       .flatMap(user2 -> {
-                        UserAuthorDto authorDto = mapper.map(user2,UserAuthorDto.class);
+                        UserAuthorDto authorDto = modelMapper.map(user2,UserAuthorDto.class);
                         post.setAuthor(authorDto);
                         return postService.save(post);
                       })

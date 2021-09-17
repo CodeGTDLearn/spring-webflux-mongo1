@@ -4,9 +4,9 @@ import com.github.javafaker.Faker;
 import com.mongo.api.core.dto.UserAllDto;
 import com.mongo.api.core.dto.UserAuthorDto;
 import com.mongo.api.modules.comment.Comment;
-import com.mongo.api.modules.comment.CommentServiceInt;
+import com.mongo.api.modules.comment.ICommentService;
+import com.mongo.api.modules.post.IPostService;
 import com.mongo.api.modules.post.Post;
-import com.mongo.api.modules.post.PostServiceInt;
 import io.restassured.http.ContentType;
 import io.restassured.module.webtestclient.RestAssuredWebTestClient;
 import org.hamcrest.CoreMatchers;
@@ -32,7 +32,7 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static com.mongo.api.core.Routes.*;
+import static com.mongo.api.core.routes.RoutesUser.*;
 import static org.hamcrest.CoreMatchers.containsStringIgnoringCase;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.Matchers.*;
@@ -42,34 +42,31 @@ import static utils.databuilders.PostBuilder.postFull_CommentsEmpty;
 import static utils.databuilders.UserBuilder.*;
 
 public class ResourceTests extends ConfigControllerTests {
-
   final String enabledTest = "true";
-  private User user1, user3, userPostsOwner;
-  private List<User> twoUserList;
-
   final ContentType CONT_ANY = ContentType.ANY;
   final ContentType CONT_JSON = ContentType.JSON;
 
   @Container
   private static final DockerComposeContainer<?> compose = new ConfigComposeTests().compose;
-
   // MOCKED-SERVER: WEB-TEST-CLIENT(non-blocking client)'
   // SHOULD BE USED WITH 'TEST-CONTAINERS'
   // BECAUSE THERE IS NO 'REAL-SERVER' CREATED VIA DOCKER-COMPOSE
   @Autowired
   WebTestClient mockedWebClient;
+  private User user1, user3, userPostsOwner;
+  private List<User> twoUserList;
 
   @Autowired
-  private UserServiceInt userService;
+  private IUserService userService;
 
   @Autowired
-  private PostServiceInt postService;
+  private IPostService postService;
 
   @Autowired
-  private CommentServiceInt commentService;
+  private ICommentService commentService;
 
   @Autowired
-  private ModelMapper mapper;
+  private ModelMapper modelMapper;
 
 
   @BeforeAll
@@ -161,7 +158,7 @@ public class ResourceTests extends ConfigControllerTests {
                       .then(postService.deleteAll())
                       .thenMany(userService.findAll())
                       .flatMap(user2 -> {
-                        UserAuthorDto authorDto = mapper.map(user2,UserAuthorDto.class);
+                        UserAuthorDto authorDto = modelMapper.map(user2,UserAuthorDto.class);
                         post.setAuthor(authorDto);
                         return postService.save(post);
                       })

@@ -11,19 +11,20 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import static com.mongo.api.core.Routes.*;
+import static com.mongo.api.core.routes.RoutesPost.*;
+import static com.mongo.api.core.routes.RoutesUser.FIND_USER_BY_POSTID;
 import static org.springframework.http.HttpStatus.*;
 
 @Slf4j
 @RestController
 @AllArgsConstructor
 @RequestMapping(REQ_POST)
-public class PostResourceUsingJsonview {
+public class PostResource {
 
-    private final PostServiceInt service;
+    private final IPostService service;
 
     @Autowired
-    private final ModelMapper converter;
+    private final ModelMapper modelMapper;
 
 
     @GetMapping(FIND_ALL_POSTS)
@@ -38,7 +39,7 @@ public class PostResourceUsingJsonview {
     public Mono<PostDto> findPostById(@PathVariable String id) {
         return service
                 .findById(id)
-                .map(post -> converter.map(post,PostDto.class));
+                .map(post -> modelMapper.map(post,PostDto.class));
     }
 
     @GetMapping(FIND_POSTS_BY_USERID)
@@ -46,7 +47,7 @@ public class PostResourceUsingJsonview {
     public Flux<PostDto> findPostsByAuthorId(@PathVariable String id) {
         return service
             .findPostsByAuthorId(id)
-                .map(post -> converter.map(post,PostDto.class));
+                .map(post -> modelMapper.map(post,PostDto.class));
     }
 
 
@@ -54,7 +55,7 @@ public class PostResourceUsingJsonview {
     @ResponseStatus(OK)
     public Mono<PostDtoComments> findPostByIdShowComments(@PathVariable String id) {
         return service.findPostByIdShowComments(id)
-                      .map(item -> converter.map(item,PostDtoComments.class));
+                      .map(item -> modelMapper.map(item,PostDtoComments.class));
     }
 
 

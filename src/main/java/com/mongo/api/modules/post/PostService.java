@@ -1,38 +1,36 @@
 package com.mongo.api.modules.post;
 
 import com.mongo.api.core.exceptions.customExceptions.CustomExceptions;
-import com.mongo.api.modules.comment.CommentServiceInt;
+import com.mongo.api.modules.comment.ICommentService;
+import com.mongo.api.modules.user.IUserService;
 import com.mongo.api.modules.user.User;
-import com.mongo.api.modules.user.UserServiceInt;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Slf4j
-@Service
+@Service("postService")
 @AllArgsConstructor
-public class PostService implements PostServiceInt {
+public class PostService implements IPostService {
 
-  private final PostRepo postRepo;
+  private final IPostRepo postRepo;
 
-  @Lazy
-  private final UserServiceInt userService;
+  private final IUserService userService;
 
-  private final CommentServiceInt commentService;
+  private final ICommentService commentService;
 
-  private final CustomExceptions exceptions;
+  private final CustomExceptions customExceptions;
 
-  private final ModelMapper mapper;
+  private final ModelMapper modelMapper;
 
 
   @Override
   public Mono<Post> findById(String id) {
     return postRepo.findById(id)
-                   .switchIfEmpty(exceptions.postNotFoundException());
+                   .switchIfEmpty(customExceptions.postNotFoundException());
   }
 
 
@@ -40,7 +38,7 @@ public class PostService implements PostServiceInt {
   public Mono<Post> findPostByIdShowComments(String id) {
     return postRepo
          .findById(id)
-         .switchIfEmpty(exceptions.postNotFoundException())
+         .switchIfEmpty(customExceptions.postNotFoundException())
          .flatMap(postFound -> commentService
                        .findCommentsByPostId(postFound.getPostId())
                        .collectList()
@@ -56,12 +54,12 @@ public class PostService implements PostServiceInt {
   public Mono<User> findUserByPostId(String id) {
     return postRepo
          .findById(id)
-         .switchIfEmpty(exceptions.postNotFoundException())
+         .switchIfEmpty(customExceptions.postNotFoundException())
          .flatMap(item -> {
            String idUser = item.getAuthor()
                                .getId();
            return userService.findById(idUser)
-                             .switchIfEmpty(exceptions.userNotFoundException());
+                             .switchIfEmpty(customExceptions.userNotFoundException());
          });
   }
 
@@ -70,7 +68,7 @@ public class PostService implements PostServiceInt {
   public Flux<Post> findPostsByAuthorId(String userId) {
     return userService
          .findById(userId)
-         .switchIfEmpty(exceptions.authorNotFoundException())
+         .switchIfEmpty(customExceptions.authorNotFoundException())
          .flatMapMany((userFound) -> {
            var id = userFound.getId();
            return postRepo.findPostsByAuthor_Id(id);
@@ -101,7 +99,7 @@ public class PostService implements PostServiceInt {
          .findById(post.getAuthor()
                        .getId())
 
-         .switchIfEmpty(exceptions.authorNotFoundException())
+         .switchIfEmpty(customExceptions.authorNotFoundException())
 
          .then(postRepo.save(post))
 
@@ -123,7 +121,7 @@ public class PostService implements PostServiceInt {
   public Mono<Void> delete(Post post) {
     return postRepo
          .findById(post.getPostId())
-         .switchIfEmpty(exceptions.postNotFoundException())
+         .switchIfEmpty(customExceptions.postNotFoundException())
          .flatMap(post1 -> commentService
                        .findCommentsByPostId(post1.getPostId())
                        .flatMap(commentService::delete)
@@ -149,9 +147,9 @@ public class PostService implements PostServiceInt {
   public Mono<Post> update(Post newPost) {
     return postRepo
          .findById(newPost.getPostId())
-         .switchIfEmpty(exceptions.postNotFoundException())
+         .switchIfEmpty(customExceptions.postNotFoundException())
          .flatMap(post -> {
-           Post updatedPost = mapper.map(newPost,Post.class);
+           Post updatedPost = modelMapper.map(newPost,Post.class);
            return postRepo.save(updatedPost);
          });
   }

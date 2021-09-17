@@ -11,18 +11,19 @@ import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
 
-import static com.mongo.api.core.Routes.*;
+import static com.mongo.api.core.routes.RoutesError.ERROR_PATH;
+import static com.mongo.api.core.routes.RoutesUser.*;
 import static org.springframework.http.HttpStatus.*;
 
 @Slf4j
 @RestController
 @AllArgsConstructor
 @RequestMapping(REQ_USER)
-public class UserResourceUsingDTO {
+public class UserResourceDTO {
 
-  private final UserServiceInt service;
+  private final IUserService service;
 
-  private final ModelMapper mapper;
+  private final ModelMapper modelMapper;
 
 
   @GetMapping(FIND_ALL_USERS)
@@ -45,7 +46,7 @@ public class UserResourceUsingDTO {
     return service
          .findAll()
          .map(user -> {
-           return mapper.map(user,UserDto.class);
+           return modelMapper.map(user,UserDto.class);
          });
   }
 
@@ -55,7 +56,7 @@ public class UserResourceUsingDTO {
   public Mono<UserDto> findById(@PathVariable String id) {
     return service
          .findById(id)
-         .map(userFound -> mapper.map(userFound,UserDto.class));
+         .map(userFound -> modelMapper.map(userFound,UserDto.class));
   }
 
 
@@ -69,10 +70,10 @@ public class UserResourceUsingDTO {
   @ResponseStatus(CREATED)
   public Mono<UserDto> save(@Valid @RequestBody UserDto userDto) {
     // Criar dtoSanitizado (procedimento OWASP de sanitizacao/filter/clean) com excecao
-    User user = mapper.map(userDto,User.class);
+    User user = modelMapper.map(userDto,User.class);
     return service
          .save(user)
-         .map(item -> mapper.map(item,UserDto.class));
+         .map(item -> modelMapper.map(item,UserDto.class));
   }
 
 
@@ -86,7 +87,7 @@ public class UserResourceUsingDTO {
   @PutMapping
   @ResponseStatus(OK)
   public Mono<User> update(@Valid @RequestBody UserDto userDto) {
-    User user = mapper.map(userDto,User.class);
+    User user = modelMapper.map(userDto,User.class);
     return service.update(user);
   }
 }

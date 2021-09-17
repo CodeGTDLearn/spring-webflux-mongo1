@@ -4,7 +4,7 @@ import com.mongo.api.core.dto.UserAllDto;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public interface UserServiceInt {
+public interface IUserService {
     Flux<User> findAll();
 
     Mono<User> findById(String id);

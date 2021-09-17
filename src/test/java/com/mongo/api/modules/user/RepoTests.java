@@ -2,7 +2,7 @@ package com.mongo.api.modules.user;
 
 import com.github.javafaker.Faker;
 import com.mongo.api.modules.post.Post;
-import com.mongo.api.modules.post.PostRepo;
+import com.mongo.api.modules.post.IPostRepo;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.EnabledIf;
@@ -34,10 +34,10 @@ public class RepoTests extends ConfigContainerTests {
   private List<User> userList;
 
   @Autowired
-  private UserRepo userRepo;
+  private IUserRepo userRepo;
 
   @Autowired
-  private PostRepo postRepo;
+  private IPostRepo postRepo;
 
 
   @BeforeAll

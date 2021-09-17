@@ -4,10 +4,10 @@ import com.mongo.api.core.dto.CommentAllDtoFull;
 import com.mongo.api.core.dto.PostDtoSlim;
 import com.mongo.api.core.exceptions.customExceptions.CustomExceptions;
 import com.mongo.api.modules.post.Post;
-import com.mongo.api.modules.post.PostRepo;
-import com.mongo.api.modules.post.PostServiceInt;
+import com.mongo.api.modules.post.IPostRepo;
+import com.mongo.api.modules.post.IPostService;
 import com.mongo.api.modules.user.User;
-import com.mongo.api.modules.user.UserServiceInt;
+import com.mongo.api.modules.user.IUserService;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Lazy;
@@ -16,24 +16,26 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 
-@Service
+@Service("comService")
 @AllArgsConstructor
-public class CommentService implements CommentServiceInt {
+public class CommentService implements ICommentService {
 
-  private final CommentRepo commentRepo;
-
-  @Lazy
-  private final PostRepo postRepo;
+  private final ICommentRepo commentRepo;
 
   @Lazy
-  private final PostServiceInt postService;
+  private final IPostRepo postRepo;
 
   @Lazy
-  private final UserServiceInt userService;
+  private final IPostService postService;
 
-  private final ModelMapper mapper;
+  @Lazy
+  private final IUserService userService;
 
-  private final CustomExceptions exceptions;
+  @Lazy
+  private final ModelMapper modelMapper;
+
+  @Lazy
+  private final CustomExceptions customExceptions;
 
 
   @Override
@@ -47,13 +49,13 @@ public class CommentService implements CommentServiceInt {
     return commentRepo
          .findAll()
          .flatMap(comment -> {
-           CommentAllDtoFull dto = mapper.map(comment,CommentAllDtoFull.class);
+           CommentAllDtoFull dto = modelMapper.map(comment,CommentAllDtoFull.class);
            return Mono.just(dto);
          })
          .flatMap(commentAllDtoFull -> postRepo
                        .findById(commentAllDtoFull.getPostId())
                        .flatMap(post -> {
-                         PostDtoSlim postSlim = mapper.map(post,PostDtoSlim.class);
+                         PostDtoSlim postSlim = modelMapper.map(post,PostDtoSlim.class);
                          commentAllDtoFull.setPost(postSlim);
                          return Mono.just(commentAllDtoFull);
                        })
@@ -64,7 +66,7 @@ public class CommentService implements CommentServiceInt {
   @Override
   public Mono<Comment> findById(String id) {
     return commentRepo.findById(id)
-                      .switchIfEmpty(exceptions.commentNotFoundException());
+                      .switchIfEmpty(customExceptions.commentNotFoundException());
   }
 
 
@@ -72,7 +74,7 @@ public class CommentService implements CommentServiceInt {
   public Mono<User> findUserByCommentId(String id) {
     return commentRepo
          .findById(id)
-         .switchIfEmpty(exceptions.commentNotFoundException())
+         .switchIfEmpty(customExceptions.commentNotFoundException())
          .flatMap(comment -> {
            String idUser = comment.getAuthor()
                                   .getId();
@@ -86,10 +88,10 @@ public class CommentService implements CommentServiceInt {
     return userService
          .findById(comment.getAuthor()
                           .getId())
-         .switchIfEmpty(exceptions.userNotFoundException())
+         .switchIfEmpty(customExceptions.userNotFoundException())
 
          .then(postRepo.findById(comment.getPostId())
-                       .switchIfEmpty(exceptions.postNotFoundException()))
+                       .switchIfEmpty(customExceptions.postNotFoundException()))
 
          .then(commentRepo.save(comment))
 
@@ -113,17 +115,17 @@ public class CommentService implements CommentServiceInt {
     return userService
          .findById(comment.getAuthor()
                           .getId())
-         .switchIfEmpty(exceptions.userNotFoundException())
+         .switchIfEmpty(customExceptions.userNotFoundException())
 
          .then(postRepo.findById(comment.getPostId()))
-         .switchIfEmpty(exceptions.postNotFoundException())
+         .switchIfEmpty(customExceptions.postNotFoundException())
 
          .then(commentRepo.save(comment))
 
          .flatMap(commentSaved ->
                        postRepo
                             .findById(commentSaved.getPostId())
-                            .switchIfEmpty(exceptions.postNotFoundException())
+                            .switchIfEmpty(customExceptions.postNotFoundException())
                             .flatMap(postFound ->
                                      {
                                        postFound.setComment(commentSaved);
@@ -138,14 +140,14 @@ public class CommentService implements CommentServiceInt {
     return userService
          .findById(comment.getAuthor()
                           .getId())
-         .switchIfEmpty(exceptions.userNotFoundException())
+         .switchIfEmpty(customExceptions.userNotFoundException())
          .then(postRepo.findById(comment.getPostId())
-                       .switchIfEmpty(exceptions.postNotFoundException()))
+                       .switchIfEmpty(customExceptions.postNotFoundException()))
          .then(commentRepo.save(comment))
          .flatMap(commentSaved ->
                        postRepo
                             .findById(commentSaved.getPostId())
-                            .switchIfEmpty(exceptions.postNotFoundException())
+                            .switchIfEmpty(customExceptions.postNotFoundException())
                             .flatMap(postFound ->
                                      {
                                        postFound.getListComments()
@@ -160,7 +162,7 @@ public class CommentService implements CommentServiceInt {
   public Mono<Void> delete(Comment comment) {
     return commentRepo
          .findById(comment.getCommentId())
-         .switchIfEmpty(exceptions.commentNotFoundException())
+         .switchIfEmpty(customExceptions.commentNotFoundException())
          .flatMap(comment1 -> postRepo
               .findById(comment1.getPostId())
               .flatMap(post -> {
@@ -180,9 +182,9 @@ public class CommentService implements CommentServiceInt {
   public Mono<Comment> update(Comment newComment) {
     return commentRepo
          .findById(newComment.getCommentId())
-         .switchIfEmpty(exceptions.commentNotFoundException())
+         .switchIfEmpty(customExceptions.commentNotFoundException())
          .flatMap(comment -> {
-           Comment updatedComment = mapper.map(newComment,Comment.class);
+           Comment updatedComment = modelMapper.map(newComment,Comment.class);
            return commentRepo.save(updatedComment);
          });
   }
@@ -192,7 +194,7 @@ public class CommentService implements CommentServiceInt {
   public Flux<Comment> findCommentsByPostId(String postId) {
     return postRepo
          .findById(postId)
-         .switchIfEmpty(exceptions.postNotFoundException())
+         .switchIfEmpty(customExceptions.postNotFoundException())
          .thenMany(commentRepo.findAll())
          .filter(commentsOfThePost -> commentsOfThePost.getPostId()
                                                        .equals(postId));
@@ -204,7 +206,7 @@ public class CommentService implements CommentServiceInt {
   public Flux<Comment> findCommentsByAuthorId(String authorId) {
     return userService
          .findById(authorId)
-         .switchIfEmpty(exceptions.userNotFoundException())
+         .switchIfEmpty(customExceptions.userNotFoundException())
          .thenMany(commentRepo.findAll())
          .filter(comment -> comment.getAuthor()
                                    .getId()

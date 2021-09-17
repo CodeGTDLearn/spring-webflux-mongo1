@@ -4,7 +4,7 @@ import com.mongo.api.modules.user.User;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public interface PostServiceInt {
+public interface IPostService {
     Mono<Post> findById(String id);
 
     Mono<Post> findPostByIdShowComments(String id);

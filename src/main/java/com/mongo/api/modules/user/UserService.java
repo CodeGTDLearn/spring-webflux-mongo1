@@ -6,30 +6,36 @@ import com.mongo.api.core.dto.UserAllDto;
 import com.mongo.api.core.dto.UserAuthorDto;
 import com.mongo.api.core.exceptions.customExceptions.CustomExceptions;
 import com.mongo.api.core.exceptions.globalException.GlobalException;
-import com.mongo.api.modules.comment.CommentServiceInt;
-import com.mongo.api.modules.post.PostServiceInt;
+import com.mongo.api.modules.comment.ICommentService;
+import com.mongo.api.modules.post.IPostService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Slf4j
-@Service
+@Service("userService")
 @AllArgsConstructor
-public class UserService implements UserServiceInt {
+public class UserService implements IUserService {
 
-  private final UserRepo userRepo;
+  private final IUserRepo userRepo;
 
-  private final PostServiceInt postService;
+  @Lazy
+  private final IPostService postService;
 
-  private final CommentServiceInt commentService;
+  @Lazy
+  private final ICommentService commentService;
 
-  private final ModelMapper mapper;
+  @Lazy
+  private final ModelMapper modelMapper;
 
+  @Lazy
   private final CustomExceptions customExceptions;
 
+  @Lazy
   private final GlobalException globalException;
 
 
@@ -83,14 +89,14 @@ public class UserService implements UserServiceInt {
 
          .thenMany(postService.findPostsByAuthorId(user.getId()))
          .flatMap(post -> {
-           UserAuthorDto authorDto = mapper.map(user,UserAuthorDto.class);
+           UserAuthorDto authorDto = modelMapper.map(user,UserAuthorDto.class);
            post.setAuthor(authorDto);
            return postService.update(post);
          })
 
          .thenMany(commentService.findCommentsByAuthorId(user.getId()))
          .flatMap(comment -> {
-           UserAuthorDto authorDto = mapper.map(user,UserAuthorDto.class);
+           UserAuthorDto authorDto = modelMapper.map(user,UserAuthorDto.class);
            comment.setAuthor(authorDto);
            return commentService.update(comment);
          })
@@ -129,20 +135,20 @@ public class UserService implements UserServiceInt {
     return userRepo
          .findAll()
          .flatMap(user -> {
-           UserAllDto userDto = mapper.map(user,UserAllDto.class);
+           UserAllDto userDto = modelMapper.map(user,UserAllDto.class);
 
            final Mono<UserAllDto> userAllDtoMono =
                 postService
                      .findPostsByAuthorId(userDto.getId())
                      .flatMap(post -> {
-                       PostAllDto postDto = mapper.map(post,PostAllDto.class);
+                       PostAllDto postDto = modelMapper.map(post,PostAllDto.class);
 
                        final Mono<PostAllDto> postAllDtoMono =
                             commentService.findCommentsByPostId(
                                  postDto.getPostId())
-                                          .map(c -> mapper.map(c,
-                                                               CommentAllDto.class
-                                                              ))
+                                          .map(c -> modelMapper.map(c,
+                                                                    CommentAllDto.class
+                                                                   ))
                                           .collectList()
                                           .flatMap(list -> {
                                             postDto.setListComments(list);
