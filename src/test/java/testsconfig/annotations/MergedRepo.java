@@ -1,4 +1,4 @@
-package config.annotations;
+package testsconfig.annotations;
 
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -12,5 +12,5 @@ import java.lang.annotation.Target;
 @Testcontainers
 @MongoDbConfig
 @GlobalConfig
-public @interface MergedAnnotations {
+public @interface MergedRepo {
 }

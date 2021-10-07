@@ -22,8 +22,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
-import config.testcontainer.compose.ConfigComposeTests;
-import config.testcontainer.compose.ConfigControllerTests;
+import testsconfig.annotations.MergedResource;
+import testsconfig.testcontainer.TcComposeConfig;
 
 import java.util.Arrays;
 import java.util.List;
@@ -37,17 +37,26 @@ import static org.hamcrest.CoreMatchers.containsStringIgnoringCase;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.http.HttpStatus.*;
-import static config.databuilders.CommentBuilder.comment_simple;
-import static config.databuilders.PostBuilder.postFull_CommentsEmpty;
-import static config.databuilders.UserBuilder.*;
+import static testsconfig.databuilders.CommentBuilder.comment_simple;
+import static testsconfig.databuilders.PostBuilder.postFull_CommentsEmpty;
+import static testsconfig.databuilders.UserBuilder.*;
+import static testsconfig.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE;
+import static testsconfig.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE_PORT;
+import static testsconfig.utils.TestUtils.*;
 
-public class ResourceTests extends ConfigControllerTests {
+@DisplayName("ResourceTests")
+@MergedResource
+public class ResourceTests {
+
+  //STATIC: one service for ALL tests
+  //NON-STATIC: one service for EACH test
+  @Container
+  private static final DockerComposeContainer<?> compose = new TcComposeConfig().getTcCompose();
+
+
   final String enabledTest = "true";
   final ContentType CONT_ANY = ContentType.ANY;
   final ContentType CONT_JSON = ContentType.JSON;
-
-  @Container
-  private static final DockerComposeContainer<?> compose = new ConfigComposeTests().compose;
   // MOCKED-SERVER: WEB-TEST-CLIENT(non-blocking client)'
   // SHOULD BE USED WITH 'TEST-CONTAINERS'
   // BECAUSE THERE IS NO 'REAL-SERVER' CREATED VIA DOCKER-COMPOSE
@@ -55,6 +64,7 @@ public class ResourceTests extends ConfigControllerTests {
   WebTestClient mockedWebClient;
   private User user1, user3, userPostsOwner;
   private List<User> twoUserList;
+  private Flux<User> userFlux;
 
   @Autowired
   private IUserService userService;
@@ -70,20 +80,26 @@ public class ResourceTests extends ConfigControllerTests {
 
 
   @BeforeAll
-  static void beforeAll() {
-    ConfigComposeTests.beforeAll();
+  public static void beforeAll(TestInfo testInfo) {
+    globalBeforeAll();
+    globalTestMessage(testInfo.getDisplayName(),"class-start");
+    globalComposeServiceContainerMessage(compose,
+                                         TC_COMPOSE_SERVICE,
+                                         TC_COMPOSE_SERVICE_PORT
+                                        );
   }
 
 
   @AfterAll
-  public static void afterAll() {
-    ConfigComposeTests.afterAll();
-    compose.close();
+  public static void afterAll(TestInfo testInfo) {
+    globalAfterAll();
+    globalTestMessage(testInfo.getDisplayName(),"class-end");
+//    compose.close();
   }
 
 
   @BeforeEach
-  public void beforeEach() {
+  public void beforeEach(TestInfo testInfo) {
     RestAssuredWebTestClient.reset();
     //REAL-SERVER INJECTED IN WEB-TEST-CLIENT(non-blocking client)'
     //SHOULD BE USED WHEN 'DOCKER-COMPOSE' UP A REAL-WEB-SERVER
@@ -92,14 +108,27 @@ public class ResourceTests extends ConfigControllerTests {
     //                      .baseUrl("http://localhost:8080/customer")
     //                      .build();
 
+    globalTestMessage(testInfo.getTestMethod()
+                              .toString(),"method-start");
+
     user1 = userWithID_IdPostsEmpty().createTestUser();
     user3 = userFull_IdNull_ListIdPostsEmpty().createTestUser();
     userPostsOwner = userWithID_IdPostsEmpty().createTestUser();
     twoUserList = Arrays.asList(user1,user3);
+
+    userFlux = saveUserListAndGetItsFlux(twoUserList);
+    StepVerifierCountUserFlux(userFlux,2);
   }
 
 
-  void cleanDbToTest() {
+  @AfterEach
+  void tearDown(TestInfo testInfo) {
+    globalTestMessage(testInfo.getTestMethod()
+                              .toString(),"method-end");
+  }
+
+
+  private void cleanDbToTest() {
     StepVerifier
          .create(userService.deleteAll())
          .expectSubscription()
@@ -196,22 +225,7 @@ public class ResourceTests extends ConfigControllerTests {
 
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
-  void checkServices() {
-    new ConfigComposeTests().checkTestcontainerComposeService(
-         compose,
-         ConfigComposeTests.SERVICE_COMPOSE_FILE,
-         ConfigComposeTests.SERVICE_PORT
-                                                             );
-  }
-
-
-  @Test
-  @EnabledIf(expression = enabledTest, loadContext = true)
-  void findAll() {
-    final Flux<User> userFlux = saveUserListAndGetItsFlux(twoUserList);
-
-    StepVerifierCountUserFlux(userFlux,2);
-
+  public void findAll() {
     RestAssuredWebTestClient
          .given()
          .webTestClient(mockedWebClient)
@@ -238,11 +252,7 @@ public class ResourceTests extends ConfigControllerTests {
 
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
-  void findAllDto() {
-    final Flux<User> userFlux = saveUserListAndGetItsFlux(twoUserList);
-
-    StepVerifierCountUserFlux(userFlux,2);
-
+  public void findAllDto() {
     RestAssuredWebTestClient
          .given()
          .webTestClient(mockedWebClient)
@@ -278,8 +288,7 @@ public class ResourceTests extends ConfigControllerTests {
 
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
-  void findAllShowAllDto() {
-
+  public void findAllShowAllDto() {
     User user = userWithID_IdPostsEmpty().createTestUser();
     Post post = postFull_CommentsEmpty(user).create();
     Comment comment = comment_simple(post).create();
@@ -320,11 +329,7 @@ public class ResourceTests extends ConfigControllerTests {
 
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
-  void findById() {
-    final Flux<User> userFlux = saveUserListAndGetItsFlux(twoUserList);
-
-    StepVerifierCountUserFlux(userFlux,2);
-
+  public void findById() {
     RestAssuredWebTestClient
          .given()
          .webTestClient(mockedWebClient)
@@ -349,7 +354,7 @@ public class ResourceTests extends ConfigControllerTests {
 
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
-  void save() {
+  public void save() {
     cleanDbToTest();
 
     StepVerifierCountUserFlux(userService.findAll(),0);
@@ -379,11 +384,7 @@ public class ResourceTests extends ConfigControllerTests {
 
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
-  void delete() {
-    Flux<User> userFlux = saveUserListAndGetItsFlux(twoUserList);
-
-    StepVerifierCountUserFlux(userFlux,2);
-
+  public void delete() {
     RestAssuredWebTestClient
          .given()
          .webTestClient(mockedWebClient)
@@ -407,11 +408,7 @@ public class ResourceTests extends ConfigControllerTests {
 
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
-  void update() {
-    final Flux<User> userFlux = saveUserListAndGetItsFlux(twoUserList);
-
-    StepVerifierCountUserFlux(userFlux,2);
-
+  public void update() {
     var previousEmail = user1.getEmail();
 
     var currentEmail = Faker.instance()

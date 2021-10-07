@@ -1,4 +1,4 @@
-package config.annotations;
+package testsconfig.annotations;
 
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;

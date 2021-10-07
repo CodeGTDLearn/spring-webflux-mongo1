@@ -13,10 +13,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
-import config.annotations.MergedAnnotations;
-import config.testcontainer.tcCompose.TcComposeConfig;
+import testsconfig.annotations.MergedRepo;
+import testsconfig.testcontainer.TcComposeConfig;
 
-import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -24,15 +23,15 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static config.databuilders.PostBuilder.post_IdNull_CommentsEmpty;
-import static config.databuilders.UserBuilder.userFull_IdNull_ListIdPostsEmpty;
-import static config.databuilders.UserBuilder.userWithID_IdPostsEmpty;
-import static config.testcontainer.tcCompose.TcComposeConfig.TC_COMPOSE_SERVICE;
-import static config.testcontainer.tcCompose.TcComposeConfig.TC_COMPOSE_SERVICE_PORT;
-import static config.utils.TestUtils.*;
+import static testsconfig.databuilders.PostBuilder.post_IdNull_CommentsEmpty;
+import static testsconfig.databuilders.UserBuilder.userFull_IdNull_ListIdPostsEmpty;
+import static testsconfig.databuilders.UserBuilder.userWithID_IdPostsEmpty;
+import static testsconfig.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE;
+import static testsconfig.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE_PORT;
+import static testsconfig.utils.TestUtils.*;
 
 @DisplayName("RepoTests")
-@MergedAnnotations
+@MergedRepo
 public class RepoTests {
 
   //STATIC: one service for ALL tests -> SUPER FASTER
@@ -72,7 +71,6 @@ public class RepoTests {
 
   @BeforeEach
   void beforeEach(TestInfo testInfo) {
-
     globalTestMessage(testInfo.getTestMethod()
                               .toString(),"method-start");
 
@@ -101,7 +99,6 @@ public class RepoTests {
   }
 
 
-  @NotNull
   private Flux<User> cleanDb_Saving02Users_GetThemInAFlux(List<User> userList) {
     return userRepo.deleteAll()
                    .thenMany(Flux.fromIterable(userList))
@@ -114,7 +111,6 @@ public class RepoTests {
   }
 
 
-  @NotNull
   private Flux<Post> cleanDb_Saving02Posts_GetThemInAFlux(List<Post> postList) {
     return postRepo.deleteAll()
                    .thenMany(Flux.fromIterable(postList))

@@ -1,4 +1,4 @@
-package config.utils;
+package testsconfig.utils;
 
 import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.http.ContentType;
@@ -11,7 +11,7 @@ import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.containers.MongoDBContainer;
 
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
-import static config.utils.BlockhoundUtils.*;
+import static testsconfig.utils.BlockhoundUtils.*;
 
 @Slf4j
 public class TestUtils {

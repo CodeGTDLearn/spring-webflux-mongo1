@@ -6,7 +6,6 @@ import com.mongo.api.modules.user.User;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -23,7 +22,6 @@ public class PostResource {
 
     private final IPostService service;
 
-    @Autowired
     private final ModelMapper modelMapper;
 
 

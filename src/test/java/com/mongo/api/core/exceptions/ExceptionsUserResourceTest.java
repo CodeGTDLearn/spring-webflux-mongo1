@@ -3,9 +3,7 @@ package com.mongo.api.core.exceptions;
 import com.github.javafaker.Faker;
 import com.mongo.api.core.exceptions.customExceptions.CustomExceptionsProperties;
 import com.mongo.api.core.exceptions.globalException.GlobalExceptionProperties;
-import com.mongo.api.modules.post.IPostRepo;
 import com.mongo.api.modules.post.Post;
-import com.mongo.api.modules.user.IUserService;
 import com.mongo.api.modules.user.User;
 import io.restassured.http.ContentType;
 import io.restassured.module.webtestclient.RestAssuredWebTestClient;
@@ -16,8 +14,8 @@ import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import reactor.blockhound.BlockingOperationError;
 import reactor.core.scheduler.Schedulers;
-import config.testcontainer.compose.ConfigComposeTests;
-import config.testcontainer.compose.ConfigControllerTests;
+import testsconfig.annotations.MergedResource;
+import testsconfig.testcontainer.TcComposeConfig;
 
 import java.util.Arrays;
 import java.util.List;
@@ -32,15 +30,24 @@ import static com.mongo.api.core.routes.RoutesUser.FIND_USER_BY_ID;
 import static com.mongo.api.core.routes.RoutesUser.REQ_USER;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static config.databuilders.UserBuilder.userFull_IdNull_ListIdPostsEmpty;
-import static config.databuilders.UserBuilder.userWithID_IdPostsEmpty;
+import static testsconfig.databuilders.UserBuilder.userFull_IdNull_ListIdPostsEmpty;
+import static testsconfig.databuilders.UserBuilder.userWithID_IdPostsEmpty;
+import static testsconfig.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE;
+import static testsconfig.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE_PORT;
+import static testsconfig.utils.TestUtils.*;
 
-public class ExceptionsUserResourceTest extends ConfigControllerTests {
+@DisplayName("ExceptionsUserResourceTest")
+@MergedResource
+public class ExceptionsUserResourceTest {
 
+  //STATIC: one service for ALL tests
+  //NON-STATIC: one service for EACH test
   @Container
-  private static final DockerComposeContainer<?> compose = new ConfigComposeTests().compose;
+  private static final DockerComposeContainer<?> compose = new TcComposeConfig().getTcCompose();
+
   final ContentType ANY = ContentType.ANY;
   final ContentType JSON = ContentType.JSON;
+
   // MOCKED-SERVER: WEB-TEST-CLIENT(non-blocking client)'
   // SHOULD BE USED WITH 'TEST-CONTAINERS'
   // BECAUSE THERE IS NO 'REAL-SERVER' CREATED VIA DOCKER-COMPOSE
@@ -48,30 +55,29 @@ public class ExceptionsUserResourceTest extends ConfigControllerTests {
   WebTestClient mockedWebClient;
   private User user1, user3, userPostsOwner, userItemTest;
   private Post post1, post2;
-  private List<User> userList;
+
   @Autowired
   private CustomExceptionsProperties customExceptions;
 
   @Autowired
   private GlobalExceptionProperties globalException;
 
-  @Autowired
-  private IUserService UserServiceInt;
-
-  @Autowired
-  private IPostRepo postRepo;
-
 
   @BeforeAll
-  static void beforeAll() {
-    ConfigComposeTests.beforeAll();
+  public static void beforeAll(TestInfo testInfo) {
+    globalBeforeAll();
+    globalTestMessage(testInfo.getDisplayName(),"class-start");
+    globalComposeServiceContainerMessage(compose,
+                                         TC_COMPOSE_SERVICE,
+                                         TC_COMPOSE_SERVICE_PORT
+                                        );
   }
 
 
   @AfterAll
-  public static void afterAll() {
-    ConfigComposeTests.afterAll();
-    compose.close();
+  public static void afterAll(TestInfo testInfo) {
+    globalAfterAll();
+    globalTestMessage(testInfo.getDisplayName(),"class-end");
   }
 
 
@@ -89,17 +95,7 @@ public class ExceptionsUserResourceTest extends ConfigControllerTests {
     user3 = userFull_IdNull_ListIdPostsEmpty().createTestUser();
     userPostsOwner = userWithID_IdPostsEmpty().createTestUser();
     userItemTest = userWithID_IdPostsEmpty().createTestUser();
-    userList = Arrays.asList(user1,user3);
-  }
-
-
-  @Test
-  void checkServices() {
-    new ConfigComposeTests().checkTestcontainerComposeService(
-         compose,
-         ConfigComposeTests.SERVICE_COMPOSE_FILE,
-         ConfigComposeTests.SERVICE_PORT
-                                                             );
+    List<User> userList = Arrays.asList(user1,user3);
   }
 
 

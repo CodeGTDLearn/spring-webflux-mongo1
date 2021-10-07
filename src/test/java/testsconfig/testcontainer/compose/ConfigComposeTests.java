@@ -1,4 +1,4 @@
-package config.testcontainer.compose;
+package testsconfig.testcontainer.compose;
 
 import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.http.ContentType;

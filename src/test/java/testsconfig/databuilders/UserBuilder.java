@@ -1,4 +1,4 @@
-package config.databuilders;
+package testsconfig.databuilders;
 
 import com.github.javafaker.Faker;
 import com.mongo.api.core.dto.CommentAllDto;

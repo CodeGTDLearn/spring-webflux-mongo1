@@ -1,4 +1,4 @@
-package config.annotations;
+package testsconfig.annotations;
 
 import org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;

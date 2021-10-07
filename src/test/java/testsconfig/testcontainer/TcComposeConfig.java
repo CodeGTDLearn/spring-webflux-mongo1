@@ -1,4 +1,4 @@
-package config.testcontainer.tcCompose;
+package testsconfig.testcontainer;
 
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
