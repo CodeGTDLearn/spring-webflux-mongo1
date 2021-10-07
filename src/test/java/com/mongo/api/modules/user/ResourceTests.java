@@ -22,8 +22,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
-import utils.testcontainer.compose.ConfigComposeTests;
-import utils.testcontainer.compose.ConfigControllerTests;
+import config.testcontainer.compose.ConfigComposeTests;
+import config.testcontainer.compose.ConfigControllerTests;
 
 import java.util.Arrays;
 import java.util.List;
@@ -37,9 +37,9 @@ import static org.hamcrest.CoreMatchers.containsStringIgnoringCase;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.http.HttpStatus.*;
-import static utils.databuilders.CommentBuilder.comment_simple;
-import static utils.databuilders.PostBuilder.postFull_CommentsEmpty;
-import static utils.databuilders.UserBuilder.*;
+import static config.databuilders.CommentBuilder.comment_simple;
+import static config.databuilders.PostBuilder.postFull_CommentsEmpty;
+import static config.databuilders.UserBuilder.*;
 
 public class ResourceTests extends ConfigControllerTests {
   final String enabledTest = "true";

@@ -1,17 +1,20 @@
 package com.mongo.api.modules.user;
 
 import com.github.javafaker.Faker;
-import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.post.IPostRepo;
+import com.mongo.api.modules.post.Post;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.EnabledIf;
+import org.testcontainers.containers.DockerComposeContainer;
+import org.testcontainers.junit.jupiter.Container;
 import reactor.blockhound.BlockingOperationError;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
-import utils.testcontainer.container.ConfigContainerTests;
+import config.annotations.MergedAnnotations;
+import config.testcontainer.tcCompose.TcComposeConfig;
 
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
@@ -21,17 +24,26 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static utils.databuilders.PostBuilder.post_IdNull_CommentsEmpty;
-import static utils.databuilders.UserBuilder.userFull_IdNull_ListIdPostsEmpty;
-import static utils.databuilders.UserBuilder.userWithID_IdPostsEmpty;
+import static config.databuilders.PostBuilder.post_IdNull_CommentsEmpty;
+import static config.databuilders.UserBuilder.userFull_IdNull_ListIdPostsEmpty;
+import static config.databuilders.UserBuilder.userWithID_IdPostsEmpty;
+import static config.testcontainer.tcCompose.TcComposeConfig.TC_COMPOSE_SERVICE;
+import static config.testcontainer.tcCompose.TcComposeConfig.TC_COMPOSE_SERVICE_PORT;
+import static config.utils.TestUtils.*;
 
-public class RepoTests extends ConfigContainerTests {
+@DisplayName("RepoTests")
+@MergedAnnotations
+public class RepoTests {
+
+  //STATIC: one service for ALL tests -> SUPER FASTER
+  //NON-STATIC: one service for EACH test
+  @Container
+  private static final DockerComposeContainer<?> compose = new TcComposeConfig().getTcCompose();
 
   final String enabledTest = "true";
   private User user1, user2WithId, user3;
   private Post post1, post2;
-  private List<User> userList;
+  private Flux<User> userFlux;
 
   @Autowired
   private IUserRepo userRepo;
@@ -41,23 +53,40 @@ public class RepoTests extends ConfigContainerTests {
 
 
   @BeforeAll
-  public static void beforeAll() {
-    ConfigContainerTests.beforeAll();
+  public static void beforeAll(TestInfo testInfo) {
+    globalBeforeAll();
+    globalTestMessage(testInfo.getDisplayName(),"class-start");
+    globalComposeServiceContainerMessage(compose,
+                                         TC_COMPOSE_SERVICE,
+                                         TC_COMPOSE_SERVICE_PORT
+                                        );
   }
 
 
   @AfterAll
-  public static void afterAll() {
-    ConfigContainerTests.afterAll();
+  public static void afterAll(TestInfo testInfo) {
+    globalAfterAll();
+    globalTestMessage(testInfo.getDisplayName(),"class-end");
   }
 
 
   @BeforeEach
-  void beforeEach() {
+  void beforeEach(TestInfo testInfo) {
+
+    globalTestMessage(testInfo.getTestMethod()
+                              .toString(),"method-start");
 
     user1 = userFull_IdNull_ListIdPostsEmpty().createTestUser();
     user3 = userFull_IdNull_ListIdPostsEmpty().createTestUser();
-    userList = Arrays.asList(user1,user3);
+    List<User> userList = Arrays.asList(user1,user3);
+    userFlux = cleanDb_Saving02Users_GetThemInAFlux(userList);
+  }
+
+
+  @AfterEach
+  void tearDown(TestInfo testInfo) {
+    globalTestMessage(testInfo.getTestMethod()
+                              .toString(),"method-end");
   }
 
 
@@ -67,7 +96,7 @@ public class RepoTests extends ConfigContainerTests {
          .expectSubscription()
          .verifyComplete();
 
-    System.out.println("\n\n==================> CLEAN-DB-TO-TEST" +
+    System.out.println("\n\n==================> CLEANING-DB-TO-TEST" +
                             " <==================\n\n");
   }
 
@@ -79,7 +108,7 @@ public class RepoTests extends ConfigContainerTests {
                    .flatMap(userRepo::save)
                    .doOnNext(item -> userRepo.findAll())
                    .doOnNext((item -> System.out.println(
-                        "\nRepo - UserID: " + item.getId() +
+                        "\n>>>>>>>>>>>>>>>Repo - UserID: " + item.getId() +
                              "|Name: " + item.getName() +
                              "|Email: " + item.getEmail())));
   }
@@ -92,17 +121,9 @@ public class RepoTests extends ConfigContainerTests {
                    .flatMap(postRepo::save)
                    .doOnNext(item -> postRepo.findAll())
                    .doOnNext((item -> System.out.println(
-                        "\nRepo - Post-ID: " + item.getPostId() +
+                        "\n>>>>>>>>>>>>>>>>>> Repo post - Post-ID: " + item.getPostId() +
                              "|Author: " + item.getAuthor()
                                                         )));
-  }
-
-
-  @Test
-  @EnabledIf(expression = enabledTest, loadContext = true)
-  @DisplayName("Check Container")
-  void checkContainer() {
-    assertTrue(sharedContainer.isRunning());
   }
 
 
@@ -137,8 +158,7 @@ public class RepoTests extends ConfigContainerTests {
     StepVerifier
          .create(postFlux)
          .expectSubscription()
-         .expectNext(post1)
-         .expectNext(post2)
+         .expectNextCount(2L)
          .verifyComplete();
 
     Flux<Post> postFluxByUserID = postRepo.findPostsByAuthor_Id(user2WithId.getId());
@@ -162,28 +182,12 @@ public class RepoTests extends ConfigContainerTests {
 
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
-  @DisplayName("Save: Object")
+  @DisplayName("Save: Objects")
   public void save_obj() {
-    cleanDbToTest();
-
-    StepVerifier
-         .create(userRepo.save(user3))
-         .expectSubscription()
-         .expectNext(user3)
-         .verifyComplete();
-  }
-
-
-  @Test
-  @EnabledIf(expression = enabledTest, loadContext = true)
-  @DisplayName("Find: Count")
-  public void find_count() {
-    final Flux<User> userFlux = cleanDb_Saving02Users_GetThemInAFlux(userList);
-
     StepVerifier
          .create(userFlux)
          .expectSubscription()
-         .expectNextCount(2)
+         .expectNextCount(2L)
          .verifyComplete();
   }
 
@@ -191,30 +195,11 @@ public class RepoTests extends ConfigContainerTests {
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("Find: Objects")
-  public void findAll_1() {
-    final Flux<User> userFlux = cleanDb_Saving02Users_GetThemInAFlux(userList);
-
+  public void findAll() {
     StepVerifier
          .create(userFlux)
          .expectSubscription()
-         .expectNextMatches(customer -> user1.getEmail()
-                                             .equals(customer.getEmail()))
-         .expectNextMatches(customer -> user3.getEmail()
-                                             .equals(customer.getEmail()))
-         .verifyComplete();
-  }
-
-
-  @Test
-  @EnabledIf(expression = enabledTest, loadContext = true)
-  @DisplayName("Find: Objects")
-  public void findAll_2() {
-    final Flux<User> userFlux = cleanDb_Saving02Users_GetThemInAFlux(userList);
-
-    StepVerifier
-         .create(userFlux)
-         .expectNext(user1)
-         .expectNext(user3)
+         .expectNextCount(2L)
          .verifyComplete();
   }
 
@@ -223,16 +208,15 @@ public class RepoTests extends ConfigContainerTests {
   @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("Delete: Count")
   public void deleteAll_count() {
-
     StepVerifier
          .create(userRepo.deleteAll())
          .expectSubscription()
          .verifyComplete();
 
-    Flux<User> fluxTest = userRepo.findAll();
+    Flux<User> userFlux = userRepo.findAll();
 
     StepVerifier
-         .create(fluxTest)
+         .create(userFlux)
          .expectSubscription()
          .expectNextCount(0)
          .verifyComplete();
@@ -244,8 +228,6 @@ public class RepoTests extends ConfigContainerTests {
   @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("DeleteById")
   public void deleteById() {
-    final Flux<User> userFlux = cleanDb_Saving02Users_GetThemInAFlux(userList);
-
     StepVerifier
          .create(userFlux)
          .expectNext(user1)
@@ -275,12 +257,9 @@ public class RepoTests extends ConfigContainerTests {
   @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("FindById")
   public void findById() {
-    final Flux<User> userFlux = cleanDb_Saving02Users_GetThemInAFlux(userList);
-
     StepVerifier
          .create(userFlux)
-         .expectNext(user1)
-         .expectNext(user3)
+         .expectNextCount(2L)
          .verifyComplete();
 
     Mono<User> itemFoundById =
@@ -301,12 +280,9 @@ public class RepoTests extends ConfigContainerTests {
   @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("Update")
   public void update() {
-    final Flux<User> userFlux = cleanDb_Saving02Users_GetThemInAFlux(userList);
-
     StepVerifier
          .create(userFlux)
-         .expectNext(user1)
-         .expectNext(user3)
+         .expectNextCount(2L)
          .verifyComplete();
 
     var newName = Faker.instance()
@@ -327,13 +303,6 @@ public class RepoTests extends ConfigContainerTests {
          .expectSubscription()
          .expectNextMatches(user -> user.getName()
                                         .equals(newName))
-         .verifyComplete();
-
-    StepVerifier
-         .create(userRepo.findAll()
-                         .log("The new item list : "))
-         .expectSubscription()
-         .expectNextCount(2)
          .verifyComplete();
   }
 

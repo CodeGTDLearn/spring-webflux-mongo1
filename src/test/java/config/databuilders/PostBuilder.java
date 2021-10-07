@@ -1,4 +1,4 @@
-package utils.databuilders;
+package config.databuilders;
 
 import com.github.javafaker.Faker;
 import com.mongo.api.core.dto.UserAuthorDto;

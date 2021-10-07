@@ -23,7 +23,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
-import utils.testcontainer.compose.ConfigComposeTests;
+import config.testcontainer.compose.ConfigComposeTests;
 
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
@@ -33,10 +33,10 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static utils.databuilders.CommentBuilder.comment_simple;
-import static utils.databuilders.PostBuilder.postFull_CommentsEmpty;
-import static utils.databuilders.PostBuilder.post_IdNull_CommentsEmpty;
-import static utils.databuilders.UserBuilder.*;
+import static config.databuilders.CommentBuilder.comment_simple;
+import static config.databuilders.PostBuilder.postFull_CommentsEmpty;
+import static config.databuilders.PostBuilder.post_IdNull_CommentsEmpty;
+import static config.databuilders.UserBuilder.*;
 
 @Import({
      UserService.class,

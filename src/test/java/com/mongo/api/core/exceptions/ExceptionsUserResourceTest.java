@@ -16,8 +16,8 @@ import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import reactor.blockhound.BlockingOperationError;
 import reactor.core.scheduler.Schedulers;
-import utils.testcontainer.compose.ConfigComposeTests;
-import utils.testcontainer.compose.ConfigControllerTests;
+import config.testcontainer.compose.ConfigComposeTests;
+import config.testcontainer.compose.ConfigControllerTests;
 
 import java.util.Arrays;
 import java.util.List;
@@ -32,8 +32,8 @@ import static com.mongo.api.core.routes.RoutesUser.FIND_USER_BY_ID;
 import static com.mongo.api.core.routes.RoutesUser.REQ_USER;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static utils.databuilders.UserBuilder.userFull_IdNull_ListIdPostsEmpty;
-import static utils.databuilders.UserBuilder.userWithID_IdPostsEmpty;
+import static config.databuilders.UserBuilder.userFull_IdNull_ListIdPostsEmpty;
+import static config.databuilders.UserBuilder.userWithID_IdPostsEmpty;
 
 public class ExceptionsUserResourceTest extends ConfigControllerTests {
 
