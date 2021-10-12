@@ -12,7 +12,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD;
 
 @Retention(RUNTIME)
-@Target({TYPE})
+@Target(TYPE)
 @DirtiesContext(classMode = BEFORE_EACH_TEST_METHOD)
 @TestPropertySource("classpath:application-test.properties")
 @ActiveProfiles("test")

@@ -1,8 +1,18 @@
 package com.mongo.api.modules.user;
 
 import com.github.javafaker.Faker;
+import com.mongo.api.core.dto.UserAllDto;
+import com.mongo.api.core.dto.UserAuthorDto;
+import com.mongo.api.core.exceptions.customExceptions.CustomExceptions;
+import com.mongo.api.core.exceptions.customExceptions.CustomExceptionsProperties;
+import com.mongo.api.modules.comment.Comment;
+import com.mongo.api.modules.comment.CommentService;
+import com.mongo.api.modules.comment.ICommentService;
+import com.mongo.api.modules.post.IPostService;
 import com.mongo.api.modules.post.Post;
+import com.mongo.api.modules.post.PostService;
 import org.junit.jupiter.api.*;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.EnabledIf;
@@ -24,10 +34,23 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static testsconfig.databuilders.UserBuilder.userFull_IdNull_ListIdPostsEmpty;
+import static testsconfig.databuilders.CommentBuilder.comment_simple;
+import static testsconfig.databuilders.PostBuilder.postFull_CommentsEmpty;
+import static testsconfig.databuilders.PostBuilder.post_IdNull_CommentsEmpty;
+import static testsconfig.databuilders.UserBuilder.*;
 import static testsconfig.utils.TestUtils.*;
 
-@Import({UserService.class})
+
+// IMPORTS:
+// - The main class must be imported
+// - The main-class dependencies must be imported AS WELL
+@Import({
+     UserService.class,
+     CustomExceptions.class,
+     CustomExceptionsProperties.class,
+     PostService.class,
+     CommentService.class,
+     ModelMapper.class})
 @DisplayName("ServiceTests")
 @MergedRepo
 public class ServiceTests {
@@ -45,24 +68,24 @@ public class ServiceTests {
   @Autowired
   private IUserService userService;
 
-  //  @Autowired
-  //  private IPostService postService;
-  //
-  //  @Autowired
-  //  private ICommentService commentService;
+  @Autowired
+  private IPostService postService;
 
-  //  @Autowired
-  //  private ModelMapper modelMapper;
+  @Autowired
+  private ICommentService commentService;
+
+  @Autowired
+  private ModelMapper modelMapper;
 
 
   @BeforeAll
   public static void beforeAll(TestInfo testInfo) {
     globalBeforeAll();
     globalTestMessage(testInfo.getDisplayName(),"class-start");
-//    globalComposeServiceContainerMessage(compose,
-//                                         TC_COMPOSE_SERVICE,
-//                                         TC_COMPOSE_SERVICE_PORT
-//                                        );
+    //    globalComposeServiceContainerMessage(compose,
+    //                                         TC_COMPOSE_SERVICE,
+    //                                         TC_COMPOSE_SERVICE_PORT
+    //                                        );
   }
 
 
@@ -142,8 +165,7 @@ public class ServiceTests {
 
     StepVerifier
          .create(userFlux)
-         .expectNext(user1)
-         .expectNext(user3)
+         .expectNextCount(2L)
          .verifyComplete();
 
     Mono<User> itemFoundById =
@@ -204,14 +226,11 @@ public class ServiceTests {
 
     StepVerifier
          .create(userFlux)
-         .expectNext(user1)
-         .expectNext(user3)
+         .expectNextCount(2L)
          .verifyComplete();
 
-    Mono<Void> deletedItem =
-         userService.findById(user1.getId())
-                    .map(User::getId)
-                    .flatMap(id -> userService.delete(id));
+    Mono<Void> deletedItem = userService.delete(userList.get(0)
+                                                        .getId());
 
     StepVerifier
          .create(deletedItem.log())
@@ -222,7 +241,7 @@ public class ServiceTests {
          .create(userService.findAll()
                             .log("The new item list : "))
          .expectSubscription()
-         .expectNextCount(1)
+         .expectNextCount(1L)
          .verifyComplete();
   }
 
@@ -235,8 +254,7 @@ public class ServiceTests {
 
     StepVerifier
          .create(userFlux)
-         .expectNext(user1)
-         .expectNext(user3)
+         .expectNextCount(2L)
          .verifyComplete();
 
     var newName = Faker.instance()
@@ -257,13 +275,6 @@ public class ServiceTests {
          .expectSubscription()
          .expectNextMatches(user -> user.getName()
                                         .equals(newName))
-         .verifyComplete();
-
-    StepVerifier
-         .create(userService.findAll()
-                            .log("The new item list : "))
-         .expectSubscription()
-         .expectNextCount(2)
          .verifyComplete();
   }
 
@@ -289,162 +300,172 @@ public class ServiceTests {
   }
 
 
-  //  @DisplayName("findPostsByUserId")
-  //  @Test
-  //  @EnabledIf(expression = enabledTest, loadContext = true)
-  //  void findPostsByUserId() {
-  //    userWithIdForPost1Post2 = userWithID_IdPostsEmpty().createTestUser();
-  //
-  //    post1 = post_IdNull_CommentsEmpty(userWithIdForPost1Post2).create();
-  //    post2 = post_IdNull_CommentsEmpty(userWithIdForPost1Post2).create();
-  //    List<Post> postList = Arrays.asList(post1,post2);
-  //
-  //    cleanDbToTest();
-  //
-  //    StepVerifier
-  //         .create(userService.save(userWithIdForPost1Post2))
-  //         .expectSubscription()
-  //         .expectNext(userWithIdForPost1Post2)
-  //         .verifyComplete();
-  //
-  //    StepVerifier
-  //         .create(userService.findAll())
-  //         .expectSubscription()
-  //         .expectNextMatches(user -> userWithIdForPost1Post2.getId()
-  //                                                           .equals(user.getId()))
-  //         .verifyComplete();
-  //
-  //    Flux<Post> postFluxPost1Post2 = cleanDb_Saving02Posts_GetThemInAFlux(postList);
-  //
-  //    StepVerifier
-  //         .create(postFluxPost1Post2)
-  //         .expectSubscription()
-  //         .expectNextCount(2)
-  //         .verifyComplete();
-  //
-  //    Flux<Post> postFluxPost1Post2ByUserID = postService.findPostsByAuthorId(
-  //         userWithIdForPost1Post2.getId());
-  //
-  //    StepVerifier
-  //         .create(postFluxPost1Post2ByUserID)
-  //         .expectSubscription()
-  //         .expectNextCount(2)
-  //         .verifyComplete();
-  //
-  //    StepVerifier
-  //         .create(postService.findAll())
-  //         .expectSubscription()
-  //         .expectNextMatches(post -> post1.getPostId()
-  //                                         .equals(post.getPostId()))
-  //         .expectNextMatches(post -> post2.getPostId()
-  //                                         .equals(post.getPostId()))
-  //         .verifyComplete();
-  //  }
-  //
-  //
-  //  @Test
-  //  @EnabledIf(expression = enabledTest, loadContext = true)
-  //  void findAllShowAllDto() {
-  //
-  //    User user = userWithID_IdPostsEmpty().createTestUser();
-  //    Post post = postFull_CommentsEmpty(user).create();
-  //    Comment comment = comment_simple(post).create();
-  //    UserAllDto userShowAll = userShowAll_Test(user,
-  //                                              post,
-  //                                              comment
-  //                                             ).createTestUserShowAll();
-  //    cleanDbToTest();
-  //
-  //    StepVerifier
-  //         .create(saveUserShowAllFinalInDb(user,post,comment))
-  //         .expectSubscription()
-  //         .verifyComplete();
-  //
-  //    StepVerifier
-  //         .create(userService.findAllShowAllDto())
-  //         .expectSubscription()
-  //         .expectNextMatches(user1 -> userShowAll.getId()
-  //                                                .equals(user1.getId()))
-  //         .expectNextMatches(user1 ->
-  //                                 userShowAll.getPosts()
-  //                                            .get(0)
-  //                                            .getPostId()
-  //                                            .equals(user1.getPosts()
-  //                                                         .get(0)
-  //                                                         .getPostId()))
-  //         .expectNextMatches(user1 ->
-  //                                 userShowAll.getPosts()
-  //                                            .get(0)
-  //                                            .getListComments()
-  //                                            .get(0)
-  //                                            .getCommentId()
-  //                                            .equals(user1.getPosts()
-  //                                                         .get(0)
-  //                                                         .getListComments()
-  //                                                         .get(0)
-  //                                                         .getCommentId()))
-  //         .verifyComplete();
-  //  }
+  @DisplayName("findPostsByUserId")
+  @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
+  void findPostsByUserId() {
+    userWithIdForPost1Post2 = userWithID_IdPostsEmpty().createTestUser();
 
-  //  @NotNull
-  //  private Flux<Post> cleanDb_Saving02Posts_GetThemInAFlux(List<Post> postList) {
-  //    return postService.deleteAll()
-  //                      .thenMany(Flux.fromIterable(postList))
-  //                      .flatMap(postService::save)
-  //                      .doOnNext(item -> postService.findAll())
-  //                      .doOnNext((item -> System.out.println(
-  //                           "\nUserRepo - Post-ID: " + item.getPostId() +
-  //                                "|Author: " + item.getAuthor() + "\n")));
-  //  }
+    post1 = post_IdNull_CommentsEmpty(userWithIdForPost1Post2).create();
+    post2 = post_IdNull_CommentsEmpty(userWithIdForPost1Post2).create();
+    List<Post> postList = Arrays.asList(post1,post2);
+
+    cleanDbToTest();
+
+    StepVerifier
+         .create(userService.save(userWithIdForPost1Post2))
+         .expectSubscription()
+         .expectNext(userWithIdForPost1Post2)
+         .verifyComplete();
+
+    StepVerifier
+         .create(userService.findAll())
+         .expectSubscription()
+         .expectNextMatches(user -> userWithIdForPost1Post2.getId()
+                                                           .equals(user.getId()))
+         .verifyComplete();
+
+    Flux<Post> postFluxPost1Post2 = cleanDb_Saving02Posts_GetThemInAFlux(postList);
+
+    StepVerifier
+         .create(postFluxPost1Post2)
+         .expectSubscription()
+         .expectNextCount(2L)
+         .verifyComplete();
+
+    Flux<Post> postFluxPost1Post2ByUserID = postService.findPostsByAuthorId(
+         userWithIdForPost1Post2.getId());
+
+    StepVerifier
+         .create(postFluxPost1Post2ByUserID)
+         .expectSubscription()
+         .expectNextCount(2L)
+         .verifyComplete();
+
+    StepVerifier
+         .create(postService.findAll())
+         .expectSubscription()
+         .expectNextMatches(post -> post1.getPostId()
+                                         .equals(post.getPostId()))
+         .expectNextMatches(post -> post2.getPostId()
+                                         .equals(post.getPostId()))
+         .verifyComplete();
+  }
 
 
-  //  private Mono<Void> saveUserShowAllFinalInDb(User user,Post post,Comment comment) {
-  //    return userService.deleteAll()
-  //                      .then(Mono.just(user))
-  //                      .flatMap(userService::save)
-  //                      .flatMap((user2 -> {
-  //                        System.out.println(
-  //                             "\nSaving 'User' in DB:" +
-  //                                  "\n -> ID: " + user2.getId() +
-  //                                  "\n -> Name: " + user2.getName() +
-  //                                  "\n -> Email: " + user2.getEmail() + "\n");
-  //                        return Mono.just(user2);
-  //                      }))
-  //                      .then(postService.deleteAll())
-  //                      .thenMany(userService.findAll())
-  //                      .flatMap(user2 -> {
-  //                        UserAuthorDto authorDto = modelMapper.map(user2,UserAuthorDto.class);
-  //                        post.setAuthor(authorDto);
-  //                        return postService.save(post);
-  //                      })
-  //                      .flatMap((post2 -> {
-  //                        System.out.println(
-  //                             "\nSaving 'Post' in DB:" +
-  //                                  "\n -> Post-ID: " + post2.getPostId() +
-  //                                  "\n -> Post-Title: " + post2.getTitle() + "\n" +
-  //                                  "\n -> Author-ID: " + post2.getAuthor()
-  //                                                             .getId() +
-  //                                  "\n -> Author-Name: " + post2.getAuthor()
-  //                                                               .getName() + "\n");
-  //                        return Mono.just(post2);
-  //                      }))
-  //                      .then(commentService.deleteAll())
-  //                      .thenMany(postService.findAll())
-  //                      .flatMap(post2 -> {
-  //                        comment.setPostId(post2.getPostId());
-  //                        comment.setAuthor(post2.getAuthor());
-  //                        return commentService.saveLinkedObject(comment);
-  //                      })
-  //                      .flatMap((comment2 -> {
-  //                        System.out.println(
-  //                             "\nSaving 'Comment' in DB:" +
-  //                                  "\n -> ID: " + comment2.getCommentId() +
-  //                                  "\n -> PostId: " + comment2.getPostId() +
-  //                                  "\n -> Author: " + comment2.getAuthor() + "\n");
-  //                        return Mono.just(comment2);
-  //                      }))
-  //                      .then()
-  //
-  //         ;
-  //  }
+  @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
+  void findAllShowAllDto() {
+
+    User user = userWithID_IdPostsEmpty().createTestUser();
+    Post post = postFull_CommentsEmpty(user).create();
+    Comment comment = comment_simple(post).create();
+    UserAllDto userShowAll = userShowAll_Test(user,
+                                              post,
+                                              comment
+                                             ).createTestUserShowAll();
+
+    StepVerifier
+         .create(saveUserShowAllFinalInDb(user,post,comment))
+         .expectSubscription()
+         .verifyComplete();
+
+    StepVerifier
+         .create(userService.findAllShowAllDto())
+         .expectSubscription()
+         .expectNextMatches(user1 -> userShowAll.getId()
+                                                .equals(user1.getId()))
+         .verifyComplete();
+
+    StepVerifier
+         .create(userService.findAllShowAllDto())
+         .expectSubscription()
+         .expectNextMatches(user1 ->
+                                 userShowAll.getPosts()
+                                            .get(0)
+                                            .getPostId()
+                                            .equals(user1.getPosts()
+                                                         .get(0)
+                                                         .getPostId()))
+         .verifyComplete();
+
+        StepVerifier
+             .create(userService.findAllShowAllDto())
+             .expectSubscription()
+             .expectNextMatches(user1 ->
+                                     userShowAll.getPosts()
+                                                .get(0)
+                                                .getListComments()
+                                                .get(0)
+                                                .getCommentId()
+                                                .equals(user1.getPosts()
+                                                             .get(0)
+                                                             .getListComments()
+                                                             .get(0)
+                                                             .getCommentId()))
+             .verifyComplete();
+  }
+
+
+  @NotNull
+  private Flux<Post> cleanDb_Saving02Posts_GetThemInAFlux(List<Post> postList) {
+    return postService.deleteAll()
+                      .thenMany(Flux.fromIterable(postList))
+                      .flatMap(postService::save)
+                      .doOnNext(item -> postService.findAll())
+                      .doOnNext((item -> System.out.println(
+                           "\nUserRepo - Post-ID: " + item.getPostId() +
+                                "|Author: " + item.getAuthor() + "\n")));
+  }
+
+
+  private Mono<Void> saveUserShowAllFinalInDb(User user,Post post,Comment comment) {
+    return userService.deleteAll()
+                      .then(Mono.just(user))
+                      .flatMap(userService::save)
+                      .flatMap((user2 -> {
+                        System.out.println(
+                             "\nSaving 'User' in DB:" +
+                                  "\n -> ID: " + user2.getId() +
+                                  "\n -> Name: " + user2.getName() +
+                                  "\n -> Email: " + user2.getEmail() + "\n");
+                        return Mono.just(user2);
+                      }))
+                      .then(postService.deleteAll())
+                      .thenMany(userService.findAll())
+                      .flatMap(user2 -> {
+                        UserAuthorDto authorDto = modelMapper.map(user2,UserAuthorDto.class);
+                        post.setAuthor(authorDto);
+                        return postService.save(post);
+                      })
+                      .flatMap((post2 -> {
+                        System.out.println(
+                             "\nSaving 'Post' in DB:" +
+                                  "\n -> Post-ID: " + post2.getPostId() +
+                                  "\n -> Post-Title: " + post2.getTitle() + "\n" +
+                                  "\n -> Author-ID: " + post2.getAuthor()
+                                                             .getId() +
+                                  "\n -> Author-Name: " + post2.getAuthor()
+                                                               .getName() + "\n");
+                        return Mono.just(post2);
+                      }))
+                      .then(commentService.deleteAll())
+                      .thenMany(postService.findAll())
+                      .flatMap(post2 -> {
+                        comment.setPostId(post2.getPostId());
+                        comment.setAuthor(post2.getAuthor());
+                        return commentService.saveLinkedObject(comment);
+                      })
+                      .flatMap((comment2 -> {
+                        System.out.println(
+                             "\nSaving 'Comment' in DB:" +
+                                  "\n -> ID: " + comment2.getCommentId() +
+                                  "\n -> PostId: " + comment2.getPostId() +
+                                  "\n -> Author: " + comment2.getAuthor() + "\n");
+                        return Mono.just(comment2);
+                      }))
+                      .then()
+
+         ;
+  }
 }

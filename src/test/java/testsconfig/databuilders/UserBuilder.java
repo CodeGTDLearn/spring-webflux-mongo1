@@ -18,10 +18,9 @@ import java.util.Locale;
 @Getter
 public class UserBuilder {
 
+  private static final Faker faker = new Faker(new Locale("en-CA.yml"));
   private final User user;
   private final UserAllDto userShowAll;
-
-  private static final Faker faker = new Faker(new Locale("en-CA.yml"));
   //    private static String FAKER_REGEX_CPF = "[0-9]{3}\\.[0-9]{3}\\.[0-9]{3}-[0-9]{2}";
   //    private static String FAKER_REGEX_DDD = "[0-9]{2}";
   //    private static String FAKER_REGEX_TEL = "[0-9]{9}";
@@ -91,6 +90,7 @@ public class UserBuilder {
 
     postAllDto.getListComments()
               .add(commentAllDto);
+
     userAllDto.getPosts()
               .add(postAllDto);
 

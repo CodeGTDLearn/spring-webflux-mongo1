@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import reactor.blockhound.BlockHound;
 
 @SpringBootApplication
-public class AppDriver {
+public class ApiDriver {
 
     static {
         BlockHound.install(
@@ -19,7 +19,7 @@ public class AppDriver {
 
     public static void main(String[] args) {
 //        ReactorDebugAgent.init();
-        SpringApplication.run(AppDriver.class,args);
+        SpringApplication.run(ApiDriver.class,args);
     }
 
 }

@@ -13,7 +13,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD;
 
 @Retention(RUNTIME)
-@Target({TYPE})
+@Target(TYPE)
 @AutoConfigureWebTestClient
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @DirtiesContext(classMode = AFTER_EACH_TEST_METHOD)

@@ -62,6 +62,7 @@ public class CommentBuilder {
 
         Comment commentFull = new Comment();
 
+        commentFull.setCommentId(faker.regexify("/^[a-f\\d]{24}$/i"));
         commentFull.setPostId(post.getPostId());
         commentFull.setDate(faker.date()
                                  .birthday());
