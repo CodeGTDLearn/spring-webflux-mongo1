@@ -32,7 +32,7 @@ import static testsconfig.utils.TestUtils.*;
 
 @DisplayName("RepoTests")
 @MergedRepo
-public class RepoTests {
+public class IUserRepoTest {
 
   //STATIC: one service for ALL tests -> SUPER FASTER
   //NON-STATIC: one service for EACH test
@@ -77,7 +77,7 @@ public class RepoTests {
     user1 = userFull_IdNull_ListIdPostsEmpty().createTestUser();
     user3 = userFull_IdNull_ListIdPostsEmpty().createTestUser();
     List<User> userList = Arrays.asList(user1,user3);
-    userFlux = cleanDb_Saving02Users_GetThemInAFlux(userList);
+    userFlux = cleanDb_SavingListUsers_GetThemInAFlux(userList);
   }
 
 
@@ -85,41 +85,6 @@ public class RepoTests {
   void tearDown(TestInfo testInfo) {
     globalTestMessage(testInfo.getTestMethod()
                               .toString(),"method-end");
-  }
-
-
-  private void cleanDbToTest() {
-    StepVerifier
-         .create(userRepo.deleteAll())
-         .expectSubscription()
-         .verifyComplete();
-
-    System.out.println("\n\n==================> CLEANING-DB-TO-TEST" +
-                            " <==================\n\n");
-  }
-
-
-  private Flux<User> cleanDb_Saving02Users_GetThemInAFlux(List<User> userList) {
-    return userRepo.deleteAll()
-                   .thenMany(Flux.fromIterable(userList))
-                   .flatMap(userRepo::save)
-                   .doOnNext(item -> userRepo.findAll())
-                   .doOnNext((item -> System.out.println(
-                        "\n>>>>>>>>>>>>>>>Repo - UserID: " + item.getId() +
-                             "|Name: " + item.getName() +
-                             "|Email: " + item.getEmail())));
-  }
-
-
-  private Flux<Post> cleanDb_Saving02Posts_GetThemInAFlux(List<Post> postList) {
-    return postRepo.deleteAll()
-                   .thenMany(Flux.fromIterable(postList))
-                   .flatMap(postRepo::save)
-                   .doOnNext(item -> postRepo.findAll())
-                   .doOnNext((item -> System.out.println(
-                        "\n>>>>>>>>>>>>>>>>>> Repo post - Post-ID: " + item.getPostId() +
-                             "|Author: " + item.getAuthor()
-                                                        )));
   }
 
 
@@ -321,6 +286,41 @@ public class RepoTests {
     } catch (ExecutionException | InterruptedException | TimeoutException e) {
       Assertions.assertTrue(e.getCause() instanceof BlockingOperationError,"detected");
     }
+  }
+
+
+  private void cleanDbToTest() {
+    StepVerifier
+         .create(userRepo.deleteAll())
+         .expectSubscription()
+         .verifyComplete();
+
+    System.out.println("\n\n==================> CLEANING-DB-TO-TEST" +
+                            " <==================\n\n");
+  }
+
+
+  private Flux<User> cleanDb_SavingListUsers_GetThemInAFlux(List<User> userList) {
+    return userRepo.deleteAll()
+                   .thenMany(Flux.fromIterable(userList))
+                   .flatMap(userRepo::save)
+                   .doOnNext(item -> userRepo.findAll())
+                   .doOnNext((item -> System.out.println(
+                        "\n>>>>>>>>>>>>>>>Repo - UserID: " + item.getId() +
+                             "|Name: " + item.getName() +
+                             "|Email: " + item.getEmail())));
+  }
+
+
+  private Flux<Post> cleanDb_Saving02Posts_GetThemInAFlux(List<Post> postList) {
+    return postRepo.deleteAll()
+                   .thenMany(Flux.fromIterable(postList))
+                   .flatMap(postRepo::save)
+                   .doOnNext(item -> postRepo.findAll())
+                   .doOnNext((item -> System.out.println(
+                        "\n>>>>>>>>>>>>>>>>>> Repo post - Post-ID: " + item.getPostId() +
+                             "|Author: " + item.getAuthor()
+                                                        )));
   }
 
 }

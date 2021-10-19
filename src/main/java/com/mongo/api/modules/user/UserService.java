@@ -4,8 +4,6 @@ import com.mongo.api.core.dto.CommentAllDto;
 import com.mongo.api.core.dto.PostAllDto;
 import com.mongo.api.core.dto.UserAllDto;
 import com.mongo.api.core.dto.UserAuthorDto;
-import com.mongo.api.core.exceptions.customExceptions.CustomExceptions;
-import com.mongo.api.core.exceptions.globalException.GlobalException;
 import com.mongo.api.modules.comment.ICommentService;
 import com.mongo.api.modules.post.IPostService;
 import lombok.AllArgsConstructor;
@@ -32,12 +30,6 @@ public class UserService implements IUserService {
   @Lazy
   private final ModelMapper modelMapper;
 
-  @Lazy
-  private final CustomExceptions customExceptions;
-
-  @Lazy
-  private final GlobalException globalException;
-
 
   @Override
   public Flux<User> findAll() {
@@ -47,17 +39,7 @@ public class UserService implements IUserService {
 
   @Override
   public Mono<User> findById(String id) {
-    return userRepo
-         .findById(id)
-         .switchIfEmpty(customExceptions.userNotFoundException());
-  }
-
-
-  @Override
-  public Flux<User> globalExceptionError() {
-    return userRepo
-         .findAll()
-         .concatWith(globalException.globalErrorException());
+    return userRepo.findById(id);
   }
 
 
@@ -77,7 +59,7 @@ public class UserService implements IUserService {
   public Mono<User> update(User user) {
     return userRepo
          .findById(user.getId())
-         .switchIfEmpty(customExceptions.userNotFoundException())
+         .switchIfEmpty(Mono.empty())
 
          .thenMany(postService.findPostsByAuthorId(user.getId()))
          .flatMap(post -> Mono.just(post.getPostId()))
@@ -110,7 +92,8 @@ public class UserService implements IUserService {
   public Mono<Void> delete(String id) {
     return userRepo
          .findById(id)
-         .switchIfEmpty(customExceptions.userNotFoundException())
+         .switchIfEmpty(Mono.empty())
+
          .flatMap(
               user -> postService
                    .findPostsByAuthorId(user.getId())
@@ -134,6 +117,7 @@ public class UserService implements IUserService {
 
     return userRepo
          .findAll()
+         .switchIfEmpty(Flux.empty())
          .flatMap(user -> {
            UserAllDto userDto = modelMapper.map(user,UserAllDto.class);
 

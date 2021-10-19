@@ -1,0 +1,271 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://example.com/example.json",
+  "type": "array",
+  "title": "The root schema",
+  "description": "The root schema comprises the entire JSON document.",
+  "default": [],
+  "examples": [
+    [
+      {
+        "id": "PP3e34x54r50mfg7e8m86l9isu",
+        "name": "Ms. Megan Thiel",
+        "posts": [
+          {
+            "postId": "dfbacaaaffbcfdfdeeafdcfa",
+            "title": "The Bee Gees",
+            "idAuthor": "PP3e34x54r50mfg7e8m86l9isu",
+            "listComments": [
+              {
+                "commentId": "/^c]]]]]]]]]]]]]]]]]]]]]]]]$/i",
+                "authorId": "PP3e34x54r50mfg7e8m86l9isu",
+                "postId": "dfbacaaaffbcfdfdeeafdcfa",
+                "text": "Comment-Text: Non et autem aut quaerat consectetur et aut voluptatem aliquid quo qui quasi fugiat minima delectus nostrum reiciendis est sit qui quibusdam iusto vero maiores."
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  ],
+  "additionalItems": true,
+  "items": {
+    "$id": "#/items",
+    "anyOf": [
+      {
+        "$id": "#/items/anyOf/0",
+        "type": "object",
+        "title": "The first anyOf schema",
+        "description": "An explanation about the purpose of this instance.",
+        "default": {},
+        "examples": [
+          {
+            "id": "PP3e34x54r50mfg7e8m86l9isu",
+            "name": "Ms. Megan Thiel",
+            "posts": [
+              {
+                "postId": "dfbacaaaffbcfdfdeeafdcfa",
+                "title": "The Bee Gees",
+                "idAuthor": "PP3e34x54r50mfg7e8m86l9isu",
+                "listComments": [
+                  {
+                    "commentId": "/^c]]]]]]]]]]]]]]]]]]]]]]]]$/i",
+                    "authorId": "PP3e34x54r50mfg7e8m86l9isu",
+                    "postId": "dfbacaaaffbcfdfdeeafdcfa",
+                    "text": "Comment-Text: Non et autem aut quaerat consectetur et aut voluptatem aliquid quo qui quasi fugiat minima delectus nostrum reiciendis est sit qui quibusdam iusto vero maiores."
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "required": [
+          "id",
+          "name",
+          "posts"
+        ],
+        "properties": {
+          "id": {
+            "$id": "#/items/anyOf/0/properties/id",
+            "type": "string",
+            "title": "The id schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+              "PP3e34x54r50mfg7e8m86l9isu"
+            ]
+          },
+          "name": {
+            "$id": "#/items/anyOf/0/properties/name",
+            "type": "string",
+            "title": "The name schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+              "Ms. Megan Thiel"
+            ]
+          },
+          "posts": {
+            "$id": "#/items/anyOf/0/properties/posts",
+            "type": "array",
+            "title": "The posts schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": [],
+            "examples": [
+              [
+                {
+                  "postId": "dfbacaaaffbcfdfdeeafdcfa",
+                  "title": "The Bee Gees",
+                  "idAuthor": "PP3e34x54r50mfg7e8m86l9isu",
+                  "listComments": [
+                    {
+                      "commentId": "/^c]]]]]]]]]]]]]]]]]]]]]]]]$/i",
+                      "authorId": "PP3e34x54r50mfg7e8m86l9isu",
+                      "postId": "dfbacaaaffbcfdfdeeafdcfa",
+                      "text": "Comment-Text: Non et autem aut quaerat consectetur et aut voluptatem aliquid quo qui quasi fugiat minima delectus nostrum reiciendis est sit qui quibusdam iusto vero maiores."
+                    }
+                  ]
+                }
+              ]
+            ],
+            "additionalItems": true,
+            "items": {
+              "$id": "#/items/anyOf/0/properties/posts/items",
+              "anyOf": [
+                {
+                  "$id": "#/items/anyOf/0/properties/posts/items/anyOf/0",
+                  "type": "object",
+                  "title": "The first anyOf schema",
+                  "description": "An explanation about the purpose of this instance.",
+                  "default": {},
+                  "examples": [
+                    {
+                      "postId": "dfbacaaaffbcfdfdeeafdcfa",
+                      "title": "The Bee Gees",
+                      "idAuthor": "PP3e34x54r50mfg7e8m86l9isu",
+                      "listComments": [
+                        {
+                          "commentId": "/^c]]]]]]]]]]]]]]]]]]]]]]]]$/i",
+                          "authorId": "PP3e34x54r50mfg7e8m86l9isu",
+                          "postId": "dfbacaaaffbcfdfdeeafdcfa",
+                          "text": "Comment-Text: Non et autem aut quaerat consectetur et aut voluptatem aliquid quo qui quasi fugiat minima delectus nostrum reiciendis est sit qui quibusdam iusto vero maiores."
+                        }
+                      ]
+                    }
+                  ],
+                  "required": [
+                    "postId",
+                    "title",
+                    "idAuthor",
+                    "listComments"
+                  ],
+                  "properties": {
+                    "postId": {
+                      "$id": "#/items/anyOf/0/properties/posts/items/anyOf/0/properties/postId",
+                      "type": "string",
+                      "title": "The postId schema",
+                      "description": "An explanation about the purpose of this instance.",
+                      "default": "",
+                      "examples": [
+                        "dfbacaaaffbcfdfdeeafdcfa"
+                      ]
+                    },
+                    "title": {
+                      "$id": "#/items/anyOf/0/properties/posts/items/anyOf/0/properties/title",
+                      "type": "string",
+                      "title": "The title schema",
+                      "description": "An explanation about the purpose of this instance.",
+                      "default": "",
+                      "examples": [
+                        "The Bee Gees"
+                      ]
+                    },
+                    "idAuthor": {
+                      "$id": "#/items/anyOf/0/properties/posts/items/anyOf/0/properties/idAuthor",
+                      "type": "string",
+                      "title": "The idAuthor schema",
+                      "description": "An explanation about the purpose of this instance.",
+                      "default": "",
+                      "examples": [
+                        "PP3e34x54r50mfg7e8m86l9isu"
+                      ]
+                    },
+                    "listComments": {
+                      "$id": "#/items/anyOf/0/properties/posts/items/anyOf/0/properties/listComments",
+                      "type": "array",
+                      "title": "The listComments schema",
+                      "description": "An explanation about the purpose of this instance.",
+                      "default": [],
+                      "examples": [
+                        [
+                          {
+                            "commentId": "/^c]]]]]]]]]]]]]]]]]]]]]]]]$/i",
+                            "authorId": "PP3e34x54r50mfg7e8m86l9isu",
+                            "postId": "dfbacaaaffbcfdfdeeafdcfa",
+                            "text": "Comment-Text: Non et autem aut quaerat consectetur et aut voluptatem aliquid quo qui quasi fugiat minima delectus nostrum reiciendis est sit qui quibusdam iusto vero maiores."
+                          }
+                        ]
+                      ],
+                      "additionalItems": true,
+                      "items": {
+                        "$id": "#/items/anyOf/0/properties/posts/items/anyOf/0/properties/listComments/items",
+                        "anyOf": [
+                          {
+                            "$id": "#/items/anyOf/0/properties/posts/items/anyOf/0/properties/listComments/items/anyOf/0",
+                            "type": "object",
+                            "title": "The first anyOf schema",
+                            "description": "An explanation about the purpose of this instance.",
+                            "default": {},
+                            "examples": [
+                              {
+                                "commentId": "/^c]]]]]]]]]]]]]]]]]]]]]]]]$/i",
+                                "authorId": "PP3e34x54r50mfg7e8m86l9isu",
+                                "postId": "dfbacaaaffbcfdfdeeafdcfa",
+                                "text": "Comment-Text: Non et autem aut quaerat consectetur et aut voluptatem aliquid quo qui quasi fugiat minima delectus nostrum reiciendis est sit qui quibusdam iusto vero maiores."
+                              }
+                            ],
+                            "required": [
+                              "commentId",
+                              "authorId",
+                              "postId",
+                              "text"
+                            ],
+                            "properties": {
+                              "commentId": {
+                                "$id": "#/items/anyOf/0/properties/posts/items/anyOf/0/properties/listComments/items/anyOf/0/properties/commentId",
+                                "type": "string",
+                                "title": "The commentId schema",
+                                "description": "An explanation about the purpose of this instance.",
+                                "default": "",
+                                "examples": [
+                                  "/^c]]]]]]]]]]]]]]]]]]]]]]]]$/i"
+                                ]
+                              },
+                              "authorId": {
+                                "$id": "#/items/anyOf/0/properties/posts/items/anyOf/0/properties/listComments/items/anyOf/0/properties/authorId",
+                                "type": "string",
+                                "title": "The authorId schema",
+                                "description": "An explanation about the purpose of this instance.",
+                                "default": "",
+                                "examples": [
+                                  "PP3e34x54r50mfg7e8m86l9isu"
+                                ]
+                              },
+                              "postId": {
+                                "$id": "#/items/anyOf/0/properties/posts/items/anyOf/0/properties/listComments/items/anyOf/0/properties/postId",
+                                "type": "string",
+                                "title": "The postId schema",
+                                "description": "An explanation about the purpose of this instance.",
+                                "default": "",
+                                "examples": [
+                                  "dfbacaaaffbcfdfdeeafdcfa"
+                                ]
+                              },
+                              "text": {
+                                "$id": "#/items/anyOf/0/properties/posts/items/anyOf/0/properties/listComments/items/anyOf/0/properties/text",
+                                "type": "string",
+                                "title": "The text schema",
+                                "description": "An explanation about the purpose of this instance.",
+                                "default": "",
+                                "examples": [
+                                  "Comment-Text: Non et autem aut quaerat consectetur et aut voluptatem aliquid quo qui quasi fugiat minima delectus nostrum reiciendis est sit qui quibusdam iusto vero maiores."
+                                ]
+                              }
+                            },
+                            "additionalProperties": true
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  "additionalProperties": true
+                }
+              ]
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    ]
+  }
+}

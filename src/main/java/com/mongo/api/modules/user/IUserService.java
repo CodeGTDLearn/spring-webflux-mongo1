@@ -9,8 +9,6 @@ public interface IUserService {
 
     Mono<User> findById(String id);
 
-    Flux<User> globalExceptionError();
-
     Mono<User> save(User user);
 
     Mono<Void> delete(String id);

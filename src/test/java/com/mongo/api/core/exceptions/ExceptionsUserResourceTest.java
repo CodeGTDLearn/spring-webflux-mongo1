@@ -4,6 +4,7 @@ import com.github.javafaker.Faker;
 import com.mongo.api.core.exceptions.customExceptions.CustomExceptionsProperties;
 import com.mongo.api.core.exceptions.globalException.GlobalExceptionProperties;
 import com.mongo.api.modules.post.Post;
+import com.mongo.api.modules.user.IUserRepo;
 import com.mongo.api.modules.user.User;
 import io.restassured.http.ContentType;
 import io.restassured.module.webtestclient.RestAssuredWebTestClient;
@@ -13,10 +14,13 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import reactor.blockhound.BlockingOperationError;
+import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
+import reactor.test.StepVerifier;
 import testsconfig.annotations.MergedResource;
 import testsconfig.testcontainer.TcComposeConfig;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -25,9 +29,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static com.mongo.api.core.routes.RoutesError.ERROR_PATH;
-import static com.mongo.api.core.routes.RoutesPost.FIND_POSTS_BY_USERID;
-import static com.mongo.api.core.routes.RoutesUser.FIND_USER_BY_ID;
-import static com.mongo.api.core.routes.RoutesUser.REQ_USER;
+import static com.mongo.api.core.routes.RoutesUser.*;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static testsconfig.databuilders.UserBuilder.userFull_IdNull_ListIdPostsEmpty;
@@ -55,6 +57,9 @@ public class ExceptionsUserResourceTest {
   WebTestClient mockedWebClient;
   private User user1, user3, userPostsOwner, userItemTest;
   private Post post1, post2;
+
+  @Autowired
+  private IUserRepo userRepo;
 
   @Autowired
   private CustomExceptionsProperties customExceptions;
@@ -101,7 +106,7 @@ public class ExceptionsUserResourceTest {
 
   @Test
   @DisplayName("findById: UserNotFound")
-  void findById() {
+  public void findById() {
     RestAssuredWebTestClient
          .given()
          .webTestClient(mockedWebClient)
@@ -114,23 +119,129 @@ public class ExceptionsUserResourceTest {
                                               .valid())
 
          .then()
-         .statusCode(NOT_FOUND.value())
-
-         .body("detail",equalTo(customExceptions.getUserNotFoundMessage()))
          .log()
+         .everything()
+
+         .contentType(JSON)
+         .statusCode(NOT_FOUND.value())
+         .body("detail",equalTo(customExceptions.getUserNotFoundMessage()))
+    ;
+  }
+
+
+  @Test
+  @DisplayName("findAll: Empty")
+  public void findAllEmpty() {
+    List<User> emptyList = new ArrayList<>();
+
+    Flux<User> userFlux = cleanDb_SavingListUsers_GetThemInAFlux(emptyList);
+
+    StepVerifier
+         .create(userFlux)
+         .expectSubscription()
+         .expectNextCount(0L)
+         .verifyComplete();
+
+    RestAssuredWebTestClient
+
+         .given()
+         .webTestClient(mockedWebClient)
+         .header("Accept",ANY)
+         .header("Content-type",JSON)
+
+         .when()
+         .get(REQ_USER + FIND_ALL_USERS)
+
+         .then()
+         .log()
+         .everything()
+
+         .contentType(JSON)
+         .statusCode(NOT_FOUND.value())
+         .body("detail",equalTo(customExceptions.getUsersNotFoundMessage()))
+    ;
+  }
+
+
+  @Test
+  @DisplayName("findShowAll: Empty")
+  public void findShowAllEmpty() {
+    List<User> emptyList = new ArrayList<>();
+
+    Flux<User> userFlux = cleanDb_SavingListUsers_GetThemInAFlux(emptyList);
+
+    StepVerifier
+         .create(userFlux)
+         .expectSubscription()
+         .expectNextCount(0L)
+         .verifyComplete();
+
+    RestAssuredWebTestClient
+
+         .given()
+         .webTestClient(mockedWebClient)
+         .header("Accept",JSON)
+         .header("Content-type",JSON)
+
+         .when()
+         .get(REQ_USER + FIND_ALL_SHOW_ALL_DTO)
+
+         .then()
+         .log()
+         .everything()
+
+         .contentType(JSON)
+         .statusCode(NOT_FOUND.value())
+         .body("detail",equalTo(customExceptions.getUsersNotFoundMessage()))
+    ;
+  }
+
+
+  @Test
+  @DisplayName("findAllDto: Empty")
+  public void findAllDtoEmpty() {
+    List<User> emptyList = new ArrayList<>();
+
+    Flux<User> userFlux = cleanDb_SavingListUsers_GetThemInAFlux(emptyList);
+
+    StepVerifier
+         .create(userFlux)
+         .expectSubscription()
+         .expectNextCount(0L)
+         .verifyComplete();
+
+    RestAssuredWebTestClient
+
+         .given()
+         .webTestClient(mockedWebClient)
+         .header("Accept",ANY)
+         .header("Content-type",JSON)
+
+         .when()
+         .get(REQ_USER + FIND_ALL_USERS_DTO)
+
+         .then()
+         .log()
+         .everything()
+
+         .contentType(JSON)
+         .statusCode(NOT_FOUND.value())
+         .body("detail",equalTo(customExceptions.getUsersNotFoundMessage()))
     ;
   }
 
 
   @Test
   @DisplayName("delete: UserNotFound")
-  void delete() {
+  public void delete() {
     RestAssuredWebTestClient
          .given()
          .webTestClient(mockedWebClient)
          .header("Accept",ANY)
          .header("Content-type",JSON)
+
          .body(userItemTest)
+         .contentType(JSON)
 
          .when()
          .delete(REQ_USER)
@@ -146,52 +257,33 @@ public class ExceptionsUserResourceTest {
 
   @Test
   @DisplayName("update: UserNotFound")
-  void update() {
+  public void update() {
     RestAssuredWebTestClient
          .given()
          .webTestClient(mockedWebClient)
          .header("Accept",ANY)
          .header("Content-type",JSON)
+
          .body(userItemTest)
+         .contentType(JSON)
 
          .when()
          .put(REQ_USER)
 
          .then()
-         .statusCode(NOT_FOUND.value())
-
-         .body("detail",equalTo(customExceptions.getUserNotFoundMessage()))
          .log()
-    ;
-  }
+         .everything()
 
-
-  @Test
-  @DisplayName("findPostsByUserId: UserNotFound")
-  void findPostsByUserId() {
-    RestAssuredWebTestClient
-         .given()
-         .webTestClient(mockedWebClient)
-         .header("Accept",ANY)
-         .header("Content-type",JSON)
-
-         .when()
-         .get(REQ_USER + FIND_POSTS_BY_USERID,Faker.instance()
-                                                   .idNumber()
-                                                   .valid())
-
-         .then()
+         .contentType(JSON)
          .statusCode(NOT_FOUND.value())
-
          .body("detail",equalTo(customExceptions.getUserNotFoundMessage()))
-         .log()
     ;
   }
 
 
   @Test
   @DisplayName("Global-Exception Error")
-  void globalExceptionError() {
+  public void globalExceptionError() {
     RestAssuredWebTestClient
          .given()
          .webTestClient(mockedWebClient)
@@ -232,5 +324,17 @@ public class ExceptionsUserResourceTest {
     } catch (ExecutionException | InterruptedException | TimeoutException e) {
       Assertions.assertTrue(e.getCause() instanceof BlockingOperationError,"detected");
     }
+  }
+
+
+  private Flux<User> cleanDb_SavingListUsers_GetThemInAFlux(List<User> userList) {
+    return userRepo.deleteAll()
+                   .thenMany(Flux.fromIterable(userList))
+                   .flatMap(userRepo::save)
+                   .doOnNext(item -> userRepo.findAll())
+                   .doOnNext((item -> System.out.println(
+                        "\n>>>>>>>>>>>>>>>Repo - UserID: " + item.getId() +
+                             "|Name: " + item.getName() +
+                             "|Email: " + item.getEmail())));
   }
 }

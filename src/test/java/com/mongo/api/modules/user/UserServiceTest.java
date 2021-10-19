@@ -26,7 +26,7 @@ import reactor.test.StepVerifier;
 import testsconfig.annotations.MergedRepo;
 import testsconfig.testcontainer.TcComposeConfig;
 
-import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -53,7 +53,7 @@ import static testsconfig.utils.TestUtils.*;
      ModelMapper.class})
 @DisplayName("ServiceTests")
 @MergedRepo
-public class ServiceTests {
+public class UserServiceTest {
 
   //STATIC: one service for ALL tests
   //NON-STATIC: one service for EACH test
@@ -104,55 +104,26 @@ public class ServiceTests {
   }
 
 
-  void cleanDbToTest() {
-    StepVerifier
-         .create(userService.deleteAll())
-         .expectSubscription()
-         .verifyComplete();
-
-    //    StepVerifier
-    //         .create(postService.deleteAll())
-    //         .expectSubscription()
-    //         .verifyComplete();
-    //
-    //    StepVerifier
-    //         .create(commentService.deleteAll())
-    //         .expectSubscription()
-    //         .verifyComplete();
-
-    System.out.println("\n>==================================================>" +
-                            "\n>===============> CLEAN-DB-TO-TEST >===============>" +
-                            "\n>==================================================>\n");
-  }
-
-
-  @NotNull
-  private Flux<User> cleanDb_Saving02Users_GetThemInAFlux(List<User> userList) {
-    return userService.deleteAll()
-                      .thenMany(Flux.fromIterable(userList))
-                      .flatMap(userService::save)
-                      .thenMany(userService.findAll())
-                      .flatMap((user2 -> {
-                        System.out.println(
-                             "\nSaving 'User' in DB:" +
-                                  "\n -> ID: " + user2.getId() +
-                                  "\n -> Name: " + user2.getName() +
-                                  "\n -> Email: " + user2.getEmail() + "\n");
-                        return Mono.just(user2);
-                      }));
-  }
-
-
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("FindAll")
   void findAll() {
-    final Flux<User> userFlux = cleanDb_Saving02Users_GetThemInAFlux(userList);
+    Flux<User> userFlux = cleanDb_SavingListUsers_GetThemInAFlux(userList);
 
     StepVerifier
          .create(userFlux)
          .expectSubscription()
          .expectNextCount(2)
+         .verifyComplete();
+
+    List<User> emptyList = new ArrayList<>();
+
+    userFlux = cleanDb_SavingListUsers_GetThemInAFlux(emptyList);
+
+    StepVerifier
+         .create(userFlux)
+         .expectSubscription()
+         .expectNextCount(0L)
          .verifyComplete();
   }
 
@@ -161,7 +132,7 @@ public class ServiceTests {
   @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("FindById")
   void findById() {
-    final Flux<User> userFlux = cleanDb_Saving02Users_GetThemInAFlux(userList);
+    final Flux<User> userFlux = cleanDb_SavingListUsers_GetThemInAFlux(userList);
 
     StepVerifier
          .create(userFlux)
@@ -200,7 +171,7 @@ public class ServiceTests {
   @DisplayName("Delete: Count")
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
-  public void deleteAll_count() {
+  public void deleteAll() {
 
     StepVerifier
          .create(userService.deleteAll())
@@ -222,7 +193,7 @@ public class ServiceTests {
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
   public void deleteById() {
-    final Flux<User> userFlux = cleanDb_Saving02Users_GetThemInAFlux(userList);
+    final Flux<User> userFlux = cleanDb_SavingListUsers_GetThemInAFlux(userList);
 
     StepVerifier
          .create(userFlux)
@@ -250,7 +221,7 @@ public class ServiceTests {
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
   public void update() {
-    final Flux<User> userFlux = cleanDb_Saving02Users_GetThemInAFlux(userList);
+    final Flux<User> userFlux = cleanDb_SavingListUsers_GetThemInAFlux(userList);
 
     StepVerifier
          .create(userFlux)
@@ -303,7 +274,7 @@ public class ServiceTests {
   @DisplayName("findPostsByUserId")
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
-  void findPostsByUserId() {
+  public void findPostsByUserId() {
     userWithIdForPost1Post2 = userWithID_IdPostsEmpty().createTestUser();
 
     post1 = post_IdNull_CommentsEmpty(userWithIdForPost1Post2).create();
@@ -355,7 +326,7 @@ public class ServiceTests {
 
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
-  void findAllShowAllDto() {
+  public void findShowAllDto() {
 
     User user = userWithID_IdPostsEmpty().createTestUser();
     Post post = postFull_CommentsEmpty(user).create();
@@ -389,25 +360,23 @@ public class ServiceTests {
                                                          .getPostId()))
          .verifyComplete();
 
-        StepVerifier
-             .create(userService.findAllShowAllDto())
-             .expectSubscription()
-             .expectNextMatches(user1 ->
-                                     userShowAll.getPosts()
-                                                .get(0)
-                                                .getListComments()
-                                                .get(0)
-                                                .getCommentId()
-                                                .equals(user1.getPosts()
-                                                             .get(0)
-                                                             .getListComments()
-                                                             .get(0)
-                                                             .getCommentId()))
-             .verifyComplete();
+    StepVerifier
+         .create(userService.findAllShowAllDto())
+         .expectSubscription()
+         .expectNextMatches(user1 ->
+                                 userShowAll.getPosts()
+                                            .get(0)
+                                            .getListComments()
+                                            .get(0)
+                                            .getCommentId()
+                                            .equals(user1.getPosts()
+                                                         .get(0)
+                                                         .getListComments()
+                                                         .get(0)
+                                                         .getCommentId()))
+         .verifyComplete();
   }
 
-
-  @NotNull
   private Flux<Post> cleanDb_Saving02Posts_GetThemInAFlux(List<Post> postList) {
     return postService.deleteAll()
                       .thenMany(Flux.fromIterable(postList))
@@ -468,4 +437,44 @@ public class ServiceTests {
 
          ;
   }
+
+
+  private void cleanDbToTest() {
+    StepVerifier
+         .create(userService.deleteAll())
+         .expectSubscription()
+         .verifyComplete();
+
+    //    StepVerifier
+    //         .create(postService.deleteAll())
+    //         .expectSubscription()
+    //         .verifyComplete();
+    //
+    //    StepVerifier
+    //         .create(commentService.deleteAll())
+    //         .expectSubscription()
+    //         .verifyComplete();
+
+    System.out.println("\n>==================================================>" +
+                            "\n>===============> CLEAN-DB-TO-TEST >===============>" +
+                            "\n>==================================================>\n");
+  }
+
+
+  private Flux<User> cleanDb_SavingListUsers_GetThemInAFlux(List<User> userList) {
+    return userService.deleteAll()
+                      .thenMany(Flux.fromIterable(userList))
+                      .flatMap(userService::save)
+                      .thenMany(userService.findAll())
+                      .flatMap((user2 -> {
+                        System.out.println(
+                             "\nSaving 'User' in DB:" +
+                                  "\n -> ID: " + user2.getId() +
+                                  "\n -> Name: " + user2.getName() +
+                                  "\n -> Email: " + user2.getEmail() + "\n");
+                        return Mono.just(user2);
+                      }));
+  }
+
+
 }

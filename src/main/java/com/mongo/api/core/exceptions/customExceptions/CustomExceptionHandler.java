@@ -1,9 +1,6 @@
 package com.mongo.api.core.exceptions.customExceptions;
 
-import com.mongo.api.core.exceptions.customExceptions.customExceptionTypes.CommentNotFoundException;
-import com.mongo.api.core.exceptions.customExceptions.customExceptionTypes.PostAuthorNotFoundException;
-import com.mongo.api.core.exceptions.customExceptions.customExceptionTypes.PostNotFoundException;
-import com.mongo.api.core.exceptions.customExceptions.customExceptionTypes.UserNotFoundException;
+import com.mongo.api.core.exceptions.customExceptions.customExceptionTypes.*;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -30,6 +27,20 @@ public class CustomExceptionHandler {
                         NOT_FOUND.value(),
                         new Date().getTime()
                 );
+        return new ResponseEntity<>(customExceptionAttributes,NOT_FOUND);
+    }
+
+    @ExceptionHandler(UsersNotFoundException.class)
+    public ResponseEntity<?> CustomExceptionWithCustomAttributes(UsersNotFoundException exception) {
+        CustomExceptionAttributes customExceptionAttributes =
+             new CustomExceptionAttributes(
+                  //                        "User not Found",
+                  exception.getMessage(),
+                  exception.getClass()
+                           .getName(),
+                  NOT_FOUND.value(),
+                  new Date().getTime()
+             );
         return new ResponseEntity<>(customExceptionAttributes,NOT_FOUND);
     }
 

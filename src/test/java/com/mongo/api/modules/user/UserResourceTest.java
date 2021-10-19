@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static com.mongo.api.core.routes.RoutesUser.*;
+import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.hamcrest.CoreMatchers.containsStringIgnoringCase;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.Matchers.*;
@@ -46,7 +47,7 @@ import static testsconfig.utils.TestUtils.*;
 
 @DisplayName("ResourceTests")
 @MergedResource
-public class ResourceTests {
+public class UserResourceTest {
 
   //STATIC: one service for ALL tests
   //NON-STATIC: one service for EACH test
@@ -55,8 +56,8 @@ public class ResourceTests {
 
 
   final String enabledTest = "true";
-  final ContentType CONT_ANY = ContentType.ANY;
-  final ContentType CONT_JSON = ContentType.JSON;
+  final ContentType ANY = ContentType.ANY;
+  final ContentType JSON = ContentType.JSON;
   // MOCKED-SERVER: WEB-TEST-CLIENT(non-blocking client)'
   // SHOULD BE USED WITH 'TEST-CONTAINERS'
   // BECAUSE THERE IS NO 'REAL-SERVER' CREATED VIA DOCKER-COMPOSE
@@ -94,7 +95,6 @@ public class ResourceTests {
   public static void afterAll(TestInfo testInfo) {
     globalAfterAll();
     globalTestMessage(testInfo.getDisplayName(),"class-end");
-//    compose.close();
   }
 
 
@@ -125,6 +125,264 @@ public class ResourceTests {
   void tearDown(TestInfo testInfo) {
     globalTestMessage(testInfo.getTestMethod()
                               .toString(),"method-end");
+  }
+
+
+  @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
+  public void findAll() {
+    RestAssuredWebTestClient
+
+         .given()
+         .webTestClient(mockedWebClient)
+         .header("Accept",ANY)
+         .header("Content-type",JSON)
+
+         .when()
+         .get(REQ_USER + FIND_ALL_USERS)
+
+         .then()
+         .log()
+         .everything()
+
+         .contentType(JSON)
+         .statusCode(OK.value())
+         .body("size()",is(2))
+         .body("id",hasItem(user1.getId()))
+         .body("id",hasItem(user3.getId()))
+
+         .body(matchesJsonSchemaInClasspath("contracts/findAll.json"))
+    ;
+  }
+
+
+  @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
+  public void findAllDto() {
+    RestAssuredWebTestClient
+
+         .given()
+         .webTestClient(mockedWebClient)
+         .header("Accept",ANY)
+         .header("Content-type",JSON)
+
+         .when()
+         .get(REQ_USER + FIND_ALL_USERS_DTO)
+
+         .then()
+         .log()
+         .everything()
+
+         .contentType(JSON)
+         .statusCode(OK.value())
+         .body("$",hasSize(2))
+         .body("[0]",hasKey("id"))
+         .body("[0]",hasKey("name"))
+         .body("[0]",hasKey("email"))
+         .body("[0]",CoreMatchers.not(hasKey("idPosts")))
+         .body("[1]",hasKey("id"))
+         .body("[1]",hasKey("name"))
+         .body("[1]",hasKey("email"))
+         .body("[1]",CoreMatchers.not(hasKey("idPosts")))
+         .body("id",hasItems(user1.getId(),user3.getId()))
+         .body("name",hasItems(user1.getName(),user3.getName()))
+         .body("email",hasItems(user1.getEmail(),user3.getEmail()))
+
+         .body(matchesJsonSchemaInClasspath("contracts/findAllDto.json"))
+    ;
+  }
+
+
+  @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
+  public void findShowAll() {
+    User user = userWithID_IdPostsEmpty().createTestUser();
+    Post post = postFull_CommentsEmpty(user).create();
+    Comment comment = comment_simple(post).create();
+    UserAllDto userShowAll = userShowAll_Test(user,
+                                              post,
+                                              comment
+                                             ).createTestUserShowAll();
+    cleanDbToTest();
+
+    StepVerifier
+         .create(saveUserShowAllFinalInDb(user,post,comment))
+         .expectSubscription()
+         .verifyComplete();
+
+    RestAssuredWebTestClient
+
+         .given()
+         .webTestClient(mockedWebClient)
+         .header("Accept",JSON)
+         .header("Content-type",JSON)
+
+         .when()
+         .get(REQ_USER + FIND_ALL_SHOW_ALL_DTO)
+
+         .then()
+         .log()
+         .everything()
+
+         .contentType(JSON)
+         .statusCode(OK.value())
+         .body("id",hasItem(userShowAll.getId()))
+         .body("posts[0].postId",hasItem(post.getPostId()))
+         .body("posts[0].listComments[0].commentId",hasItem(comment.getCommentId()))
+
+         .body(matchesJsonSchemaInClasspath("contracts/findShowAll.json"))
+    ;
+  }
+
+
+  @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
+  public void findById() {
+    RestAssuredWebTestClient
+
+         .given()
+         .webTestClient(mockedWebClient)
+         .header("Accept",ANY)
+         .header("Content-type",JSON)
+
+         .when()
+         .get(REQ_USER + FIND_USER_BY_ID,user3.getId())
+
+         .then()
+         .log()
+         .everything()
+
+         .contentType(JSON)
+         .statusCode(OK.value())
+         .body("id",equalTo(user3.getId()))
+
+         .body(matchesJsonSchemaInClasspath("contracts/findById.json"))
+    ;
+  }
+
+
+  @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
+  public void save() {
+    cleanDbToTest();
+
+    StepVerifierCountUserFlux(userService.findAll(),0);
+
+    RestAssuredWebTestClient
+
+         .given()
+         .webTestClient(mockedWebClient)
+         .header("Accept",ANY)
+         .header("Content-type",JSON)
+
+         .body(userPostsOwner)
+         .contentType(JSON)
+
+         .when()
+         .post(REQ_USER)
+
+         .then()
+         .log()
+         .everything()
+
+         .contentType(JSON)
+         .statusCode(CREATED.value())
+         .body("id",containsStringIgnoringCase(userPostsOwner.getId()))
+         .body("email",containsStringIgnoringCase(userPostsOwner.getEmail()))
+         .body("name",containsStringIgnoringCase(userPostsOwner.getName()))
+
+         .body(matchesJsonSchemaInClasspath("contracts/save.json"))
+    ;
+
+    StepVerifierCountUserFlux(userService.findAll(),1);
+  }
+
+
+  @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
+  public void delete() {
+    RestAssuredWebTestClient
+
+         .given()
+         .webTestClient(mockedWebClient)
+         .header("Accept",ANY)
+         .header("Content-type",JSON)
+
+         .body(user1)
+         .contentType(JSON)
+
+         .when()
+         .delete(REQ_USER)
+
+         .then()
+         .log()
+         .everything()
+
+         .statusCode(NO_CONTENT.value())
+    ;
+
+    StepVerifierCountUserFlux(userService.findAll(),1);
+  }
+
+
+  @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
+  public void update() {
+    var previousEmail = user1.getEmail();
+
+    var newEmail = Faker.instance()
+                        .internet()
+                        .emailAddress();
+
+    user1.setEmail(newEmail);
+
+    RestAssuredWebTestClient
+
+         .given()
+         .webTestClient(mockedWebClient)
+         .header("Accept",ANY)
+         .header("Content-type",JSON)
+
+         .body(user1)
+         .contentType(JSON)
+
+         .when()
+         .put(REQ_USER)
+
+         .then()
+         .log()
+         .everything()
+
+         .contentType(JSON)
+         .statusCode(OK.value())
+         .body("id",equalTo(user1.getId()))
+         .body("name",equalTo(user1.getName()))
+         .body("email",equalTo(newEmail))
+         .body("email",not(equalTo(previousEmail)))
+
+         .body(matchesJsonSchemaInClasspath("contracts/update.json"))
+    ;
+  }
+
+
+  @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
+  @DisplayName("BHWorks")
+  public void bHWorks() {
+    try {
+      FutureTask<?> task = new FutureTask<>(() -> {
+        Thread.sleep(0);
+        return "";
+      });
+
+      Schedulers.parallel()
+                .schedule(task);
+
+      task.get(10,TimeUnit.SECONDS);
+      Assertions.fail("should fail");
+    } catch (ExecutionException | InterruptedException | TimeoutException e) {
+      Assertions.assertTrue(e.getCause() instanceof BlockingOperationError,"detected");
+    }
   }
 
 
@@ -223,246 +481,4 @@ public class ResourceTests {
   }
 
 
-  @Test
-  @EnabledIf(expression = enabledTest, loadContext = true)
-  public void findAll() {
-    RestAssuredWebTestClient
-         .given()
-         .webTestClient(mockedWebClient)
-         .header("Accept",CONT_ANY)
-         .header("Content-type",CONT_JSON)
-
-         .when()
-         .get(REQ_USER + FIND_ALL_USERS)
-
-         .then()
-         .statusCode(OK.value())
-         .log()
-         .headers()
-         .and()
-         .log()
-
-         .body()
-         .body("size()",is(2))
-         .body("id",hasItem(user1.getId()))
-         .body("id",hasItem(user3.getId()))
-    ;
-  }
-
-
-  @Test
-  @EnabledIf(expression = enabledTest, loadContext = true)
-  public void findAllDto() {
-    RestAssuredWebTestClient
-         .given()
-         .webTestClient(mockedWebClient)
-         .header("Accept",CONT_ANY)
-         .header("Content-type",CONT_JSON)
-
-         .when()
-         .get(REQ_USER + FIND_ALL_USERS_DTO)
-
-         .then()
-         .statusCode(OK.value())
-         .log()
-         .headers()
-         .and()
-         .log()
-
-         .body()
-         .body("$",hasSize(2))
-         .body("[0]",hasKey("id"))
-         .body("[0]",hasKey("name"))
-         .body("[0]",hasKey("email"))
-         .body("[0]",CoreMatchers.not(hasKey("idPosts")))
-         .body("[1]",hasKey("id"))
-         .body("[1]",hasKey("name"))
-         .body("[1]",hasKey("email"))
-         .body("[1]",CoreMatchers.not(hasKey("idPosts")))
-         .body("id",hasItems(user1.getId(),user3.getId()))
-         .body("name",hasItems(user1.getName(),user3.getName()))
-         .body("email",hasItems(user1.getEmail(),user3.getEmail()))
-    ;
-  }
-
-
-  @Test
-  @EnabledIf(expression = enabledTest, loadContext = true)
-  public void findAllShowAllDto() {
-    User user = userWithID_IdPostsEmpty().createTestUser();
-    Post post = postFull_CommentsEmpty(user).create();
-    Comment comment = comment_simple(post).create();
-    UserAllDto userShowAll = userShowAll_Test(user,
-                                              post,
-                                              comment
-                                             ).createTestUserShowAll();
-    cleanDbToTest();
-
-    StepVerifier
-         .create(saveUserShowAllFinalInDb(user,post,comment))
-         .expectSubscription()
-         .verifyComplete();
-
-    RestAssuredWebTestClient
-         .given()
-         .webTestClient(mockedWebClient)
-         .header("Accept",CONT_JSON)
-         .header("Content-type",CONT_JSON)
-
-         .when()
-         .get(REQ_USER + FIND_ALL_SHOW_ALL_DTO)
-
-         .then()
-         .statusCode(OK.value())
-         .log()
-         .headers()
-         .and()
-         .log()
-
-         .body()
-         .body("id",hasItem(userShowAll.getId()))
-         .body("posts[0].postId",hasItem(post.getPostId()))
-         .body("posts[0].listComments[0].commentId",hasItem(comment.getCommentId()))
-    ;
-  }
-
-
-  @Test
-  @EnabledIf(expression = enabledTest, loadContext = true)
-  public void findById() {
-    RestAssuredWebTestClient
-         .given()
-         .webTestClient(mockedWebClient)
-         .header("Accept",CONT_ANY)
-         .header("Content-type",CONT_JSON)
-
-         .when()
-         .get(REQ_USER + FIND_USER_BY_ID,user3.getId())
-
-         .then()
-         .statusCode(OK.value())
-         .log()
-         .headers()
-         .and()
-         .log()
-
-         .body()
-         .body("id",equalTo(user3.getId()))
-    ;
-  }
-
-
-  @Test
-  @EnabledIf(expression = enabledTest, loadContext = true)
-  public void save() {
-    cleanDbToTest();
-
-    StepVerifierCountUserFlux(userService.findAll(),0);
-
-    RestAssuredWebTestClient
-         .given()
-         .webTestClient(mockedWebClient)
-         .header("Accept",CONT_ANY)
-         .header("Content-type",CONT_JSON)
-
-         .body(userPostsOwner)
-
-         .when()
-         .post(REQ_USER)
-
-         .then()
-         .statusCode(CREATED.value())
-         .contentType(CONT_JSON)
-         .body("id",containsStringIgnoringCase(userPostsOwner.getId()))
-         .body("email",containsStringIgnoringCase(userPostsOwner.getEmail()))
-         .body("name",containsStringIgnoringCase(userPostsOwner.getName()))
-    ;
-
-    StepVerifierCountUserFlux(userService.findAll(),1);
-  }
-
-
-  @Test
-  @EnabledIf(expression = enabledTest, loadContext = true)
-  public void delete() {
-    RestAssuredWebTestClient
-         .given()
-         .webTestClient(mockedWebClient)
-         .header("Accept",CONT_ANY)
-         .header("Content-type",CONT_JSON)
-
-         .body(user1)
-
-         .when()
-         .delete(REQ_USER)
-
-         .then()
-         .log()
-         .headers()
-         .statusCode(NO_CONTENT.value())
-    ;
-
-    StepVerifierCountUserFlux(userService.findAll(),1);
-  }
-
-
-  @Test
-  @EnabledIf(expression = enabledTest, loadContext = true)
-  public void update() {
-    var previousEmail = user1.getEmail();
-
-    var currentEmail = Faker.instance()
-                            .internet()
-                            .emailAddress();
-
-    user1.setEmail(currentEmail);
-
-    RestAssuredWebTestClient
-         .given()
-         .webTestClient(mockedWebClient)
-         .header("Accept",CONT_ANY)
-         .header("Content-type",CONT_JSON)
-
-         .body(user1)
-
-         .when()
-         .put(REQ_USER)
-
-         .then()
-         .log()
-         .headers()
-         .and()
-         .log()
-         .body()
-         .and()
-         .statusCode(OK.value())
-         .contentType(CONT_JSON)
-
-         .body("id",equalTo(user1.getId()))
-         .body("name",equalTo(user1.getName()))
-         .body("email",equalTo(currentEmail))
-         .body("email",not(equalTo(previousEmail)))
-    ;
-  }
-
-
-  @Test
-  @EnabledIf(expression = enabledTest, loadContext = true)
-  @DisplayName("BHWorks")
-  public void bHWorks() {
-    try {
-      FutureTask<?> task = new FutureTask<>(() -> {
-        Thread.sleep(0);
-        return "";
-      });
-
-      Schedulers.parallel()
-                .schedule(task);
-
-      task.get(10,TimeUnit.SECONDS);
-      Assertions.fail("should fail");
-    } catch (ExecutionException | InterruptedException | TimeoutException e) {
-      Assertions.assertTrue(e.getCause() instanceof BlockingOperationError,"detected");
-    }
-  }
 }
