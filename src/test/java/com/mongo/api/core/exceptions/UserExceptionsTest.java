@@ -17,8 +17,8 @@ import reactor.blockhound.BlockingOperationError;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
-import testsconfig.annotations.MergedResource;
-import testsconfig.testcontainer.TcComposeConfig;
+import config.annotations.MergedResource;
+import config.testcontainer.TcComposeConfig;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,18 +32,18 @@ import static com.mongo.api.core.routes.RoutesError.ERROR_PATH;
 import static com.mongo.api.core.routes.RoutesUser.*;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static testsconfig.databuilders.UserBuilder.userFull_IdNull_ListIdPostsEmpty;
-import static testsconfig.databuilders.UserBuilder.userWithID_IdPostsEmpty;
-import static testsconfig.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE;
-import static testsconfig.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE_PORT;
-import static testsconfig.utils.TestUtils.*;
+import static config.databuilders.UserBuilder.userFull_IdNull_ListIdPostsEmpty;
+import static config.databuilders.UserBuilder.userWithID_IdPostsEmpty;
+import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE;
+import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE_PORT;
+import static config.utils.TestUtils.*;
 
-@DisplayName("ExceptionsUserResourceTest")
+@DisplayName("UserExceptionsTest")
 @MergedResource
-public class ExceptionsUserResourceTest {
+public class UserExceptionsTest {
 
-  //STATIC: one service for ALL tests
-  //NON-STATIC: one service for EACH test
+  // STATIC-@Container: one service for ALL tests
+  // NON-STATIC-@Container: one service for EACH test
   @Container
   private static final DockerComposeContainer<?> compose = new TcComposeConfig().getTcCompose();
 

@@ -1,4 +1,4 @@
-package testsconfig.annotations;
+package config.annotations;
 
 import org.testcontainers.junit.jupiter.Testcontainers;
 

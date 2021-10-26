@@ -2,15 +2,19 @@ package com.mongo.api.modules.user;
 
 import com.github.javafaker.Faker;
 import com.mongo.api.core.dto.UserAllDto;
-import com.mongo.api.core.dto.UserAuthorDto;
 import com.mongo.api.core.exceptions.customExceptions.CustomExceptions;
 import com.mongo.api.core.exceptions.customExceptions.CustomExceptionsProperties;
+import com.mongo.api.core.testconfig.DbUtilsConfig;
 import com.mongo.api.modules.comment.Comment;
 import com.mongo.api.modules.comment.CommentService;
 import com.mongo.api.modules.comment.ICommentService;
 import com.mongo.api.modules.post.IPostService;
 import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.post.PostService;
+import config.annotations.MergedRepo;
+import config.testcontainer.TcComposeConfig;
+import config.utils.DbUtils;
+import config.utils.TestUtils;
 import org.junit.jupiter.api.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,45 +22,42 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.EnabledIf;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
-import reactor.blockhound.BlockingOperationError;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
-import testsconfig.annotations.MergedRepo;
-import testsconfig.testcontainer.TcComposeConfig;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
-import static testsconfig.databuilders.CommentBuilder.comment_simple;
-import static testsconfig.databuilders.PostBuilder.postFull_CommentsEmpty;
-import static testsconfig.databuilders.PostBuilder.post_IdNull_CommentsEmpty;
-import static testsconfig.databuilders.UserBuilder.*;
-import static testsconfig.utils.TestUtils.*;
+import static config.databuilders.CommentBuilder.comment_simple;
+import static config.databuilders.PostBuilder.postFull_withId_CommentsEmpty;
+import static config.databuilders.PostBuilder.post_IdNull_CommentsEmpty;
+import static config.databuilders.UserBuilder.*;
+import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE;
+import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE_PORT;
+import static config.utils.TestUtils.*;
 
 
-// IMPORTS:
-// - The main class must be imported
-// - The main-class dependencies must be imported AS WELL
+// @Import Annotation:
+// - IMPORTS:
+//   * The 'main class' must be imported "AND"
+//   * The 'main-class's dependencies' must be imported "AS WELL"
 @Import({
      UserService.class,
      CustomExceptions.class,
      CustomExceptionsProperties.class,
      PostService.class,
      CommentService.class,
-     ModelMapper.class})
+     ModelMapper.class,
+     DbUtilsConfig.class,
+     TestUtils.class})
 @DisplayName("ServiceTests")
 @MergedRepo
 public class UserServiceTest {
 
-  //STATIC: one service for ALL tests
-  //NON-STATIC: one service for EACH test
+  // STATIC-@Container: one service for ALL tests -> SUPER FASTER
+  // NON-STATIC-@Container: one service for EACH test
   @Container
   private static final DockerComposeContainer<?> compose = new TcComposeConfig().getTcCompose();
 
@@ -64,6 +65,12 @@ public class UserServiceTest {
   private User user1, user3, userWithIdForPost1Post2;
   private Post post1, post2;
   private List<User> userList;
+
+  @Autowired
+  private DbUtils<User> userDbUtils;
+
+  @Autowired
+  private TestUtils testUtils;
 
   @Autowired
   private IUserService userService;
@@ -82,10 +89,10 @@ public class UserServiceTest {
   public static void beforeAll(TestInfo testInfo) {
     globalBeforeAll();
     globalTestMessage(testInfo.getDisplayName(),"class-start");
-    //    globalComposeServiceContainerMessage(compose,
-    //                                         TC_COMPOSE_SERVICE,
-    //                                         TC_COMPOSE_SERVICE_PORT
-    //                                        );
+    globalComposeServiceContainerMessage(compose,
+                                         TC_COMPOSE_SERVICE,
+                                         TC_COMPOSE_SERVICE_PORT
+                                        );
   }
 
 
@@ -108,7 +115,7 @@ public class UserServiceTest {
   @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("FindAll")
   void findAll() {
-    Flux<User> userFlux = cleanDb_SavingListUsers_GetThemInAFlux(userList);
+    Flux<User> userFlux = userDbUtils.saveUserListAndGetFlux(userList,userService);
 
     StepVerifier
          .create(userFlux)
@@ -118,7 +125,7 @@ public class UserServiceTest {
 
     List<User> emptyList = new ArrayList<>();
 
-    userFlux = cleanDb_SavingListUsers_GetThemInAFlux(emptyList);
+    userFlux = userDbUtils.saveUserListAndGetFlux(emptyList,userService);
 
     StepVerifier
          .create(userFlux)
@@ -132,7 +139,7 @@ public class UserServiceTest {
   @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("FindById")
   void findById() {
-    final Flux<User> userFlux = cleanDb_SavingListUsers_GetThemInAFlux(userList);
+    final Flux<User> userFlux = userDbUtils.saveUserListAndGetFlux(userList,userService);
 
     StepVerifier
          .create(userFlux)
@@ -157,7 +164,7 @@ public class UserServiceTest {
   @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("Save: Object")
   void save() {
-    cleanDbToTest();
+    userDbUtils.cleanTestDb(userService,postService,commentService);
 
     StepVerifier
          .create(userService.save(user3))
@@ -193,7 +200,7 @@ public class UserServiceTest {
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
   public void deleteById() {
-    final Flux<User> userFlux = cleanDb_SavingListUsers_GetThemInAFlux(userList);
+    final Flux<User> userFlux = userDbUtils.saveUserListAndGetFlux(userList,userService);
 
     StepVerifier
          .create(userFlux)
@@ -221,7 +228,7 @@ public class UserServiceTest {
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
   public void update() {
-    final Flux<User> userFlux = cleanDb_SavingListUsers_GetThemInAFlux(userList);
+    final Flux<User> userFlux = userDbUtils.saveUserListAndGetFlux(userList,userService);
 
     StepVerifier
          .create(userFlux)
@@ -254,20 +261,7 @@ public class UserServiceTest {
   @EnabledIf(expression = "true", loadContext = true)
   @DisplayName("BHWorks")
   public void bHWorks() {
-    try {
-      FutureTask<?> task = new FutureTask<>(() -> {
-        Thread.sleep(0);
-        return "";
-      });
-
-      Schedulers.parallel()
-                .schedule(task);
-
-      task.get(10,TimeUnit.SECONDS);
-      Assertions.fail("should fail");
-    } catch (ExecutionException | InterruptedException | TimeoutException e) {
-      Assertions.assertTrue(e.getCause() instanceof BlockingOperationError,"detected");
-    }
+    testUtils.bhWorks();
   }
 
 
@@ -281,7 +275,7 @@ public class UserServiceTest {
     post2 = post_IdNull_CommentsEmpty(userWithIdForPost1Post2).create();
     List<Post> postList = Arrays.asList(post1,post2);
 
-    cleanDbToTest();
+    userDbUtils.cleanTestDb(userService,postService,commentService);
 
     StepVerifier
          .create(userService.save(userWithIdForPost1Post2))
@@ -296,7 +290,8 @@ public class UserServiceTest {
                                                            .equals(user.getId()))
          .verifyComplete();
 
-    Flux<Post> postFluxPost1Post2 = cleanDb_Saving02Posts_GetThemInAFlux(postList);
+    Flux<Post> postFluxPost1Post2 =
+         userDbUtils.savePostListAndGetFlux(postList,postService);
 
     StepVerifier
          .create(postFluxPost1Post2)
@@ -329,7 +324,7 @@ public class UserServiceTest {
   public void findShowAllDto() {
 
     User user = userWithID_IdPostsEmpty().createTestUser();
-    Post post = postFull_CommentsEmpty(user).create();
+    Post post = postFull_withId_CommentsEmpty(user).create();
     Comment comment = comment_simple(post).create();
     UserAllDto userShowAll = userShowAll_Test(user,
                                               post,
@@ -337,7 +332,9 @@ public class UserServiceTest {
                                              ).createTestUserShowAll();
 
     StepVerifier
-         .create(saveUserShowAllFinalInDb(user,post,comment))
+         .create(
+              userDbUtils.saveUserShowAllFinalInDb(
+                   user,post,comment,userService,postService,commentService))
          .expectSubscription()
          .verifyComplete();
 
@@ -376,105 +373,5 @@ public class UserServiceTest {
                                                          .getCommentId()))
          .verifyComplete();
   }
-
-  private Flux<Post> cleanDb_Saving02Posts_GetThemInAFlux(List<Post> postList) {
-    return postService.deleteAll()
-                      .thenMany(Flux.fromIterable(postList))
-                      .flatMap(postService::save)
-                      .doOnNext(item -> postService.findAll())
-                      .doOnNext((item -> System.out.println(
-                           "\nUserRepo - Post-ID: " + item.getPostId() +
-                                "|Author: " + item.getAuthor() + "\n")));
-  }
-
-
-  private Mono<Void> saveUserShowAllFinalInDb(User user,Post post,Comment comment) {
-    return userService.deleteAll()
-                      .then(Mono.just(user))
-                      .flatMap(userService::save)
-                      .flatMap((user2 -> {
-                        System.out.println(
-                             "\nSaving 'User' in DB:" +
-                                  "\n -> ID: " + user2.getId() +
-                                  "\n -> Name: " + user2.getName() +
-                                  "\n -> Email: " + user2.getEmail() + "\n");
-                        return Mono.just(user2);
-                      }))
-                      .then(postService.deleteAll())
-                      .thenMany(userService.findAll())
-                      .flatMap(user2 -> {
-                        UserAuthorDto authorDto = modelMapper.map(user2,UserAuthorDto.class);
-                        post.setAuthor(authorDto);
-                        return postService.save(post);
-                      })
-                      .flatMap((post2 -> {
-                        System.out.println(
-                             "\nSaving 'Post' in DB:" +
-                                  "\n -> Post-ID: " + post2.getPostId() +
-                                  "\n -> Post-Title: " + post2.getTitle() + "\n" +
-                                  "\n -> Author-ID: " + post2.getAuthor()
-                                                             .getId() +
-                                  "\n -> Author-Name: " + post2.getAuthor()
-                                                               .getName() + "\n");
-                        return Mono.just(post2);
-                      }))
-                      .then(commentService.deleteAll())
-                      .thenMany(postService.findAll())
-                      .flatMap(post2 -> {
-                        comment.setPostId(post2.getPostId());
-                        comment.setAuthor(post2.getAuthor());
-                        return commentService.saveLinkedObject(comment);
-                      })
-                      .flatMap((comment2 -> {
-                        System.out.println(
-                             "\nSaving 'Comment' in DB:" +
-                                  "\n -> ID: " + comment2.getCommentId() +
-                                  "\n -> PostId: " + comment2.getPostId() +
-                                  "\n -> Author: " + comment2.getAuthor() + "\n");
-                        return Mono.just(comment2);
-                      }))
-                      .then()
-
-         ;
-  }
-
-
-  private void cleanDbToTest() {
-    StepVerifier
-         .create(userService.deleteAll())
-         .expectSubscription()
-         .verifyComplete();
-
-    //    StepVerifier
-    //         .create(postService.deleteAll())
-    //         .expectSubscription()
-    //         .verifyComplete();
-    //
-    //    StepVerifier
-    //         .create(commentService.deleteAll())
-    //         .expectSubscription()
-    //         .verifyComplete();
-
-    System.out.println("\n>==================================================>" +
-                            "\n>===============> CLEAN-DB-TO-TEST >===============>" +
-                            "\n>==================================================>\n");
-  }
-
-
-  private Flux<User> cleanDb_SavingListUsers_GetThemInAFlux(List<User> userList) {
-    return userService.deleteAll()
-                      .thenMany(Flux.fromIterable(userList))
-                      .flatMap(userService::save)
-                      .thenMany(userService.findAll())
-                      .flatMap((user2 -> {
-                        System.out.println(
-                             "\nSaving 'User' in DB:" +
-                                  "\n -> ID: " + user2.getId() +
-                                  "\n -> Name: " + user2.getName() +
-                                  "\n -> Email: " + user2.getEmail() + "\n");
-                        return Mono.just(user2);
-                      }));
-  }
-
-
 }
+

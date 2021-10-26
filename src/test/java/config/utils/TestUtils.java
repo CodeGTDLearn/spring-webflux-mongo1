@@ -1,4 +1,4 @@
-package testsconfig.utils;
+package config.utils;
 
 import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.http.ContentType;
@@ -6,12 +6,20 @@ import io.restassured.module.webtestclient.RestAssuredWebTestClient;
 import io.restassured.module.webtestclient.specification.WebTestClientRequestSpecBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.containers.MongoDBContainer;
+import reactor.blockhound.BlockingOperationError;
+import reactor.core.scheduler.Schedulers;
 
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import static config.utils.BlockhoundUtils.blockhoundInstallSimple;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
-import static testsconfig.utils.BlockhoundUtils.*;
 
 @Slf4j
 public class TestUtils {
@@ -150,6 +158,24 @@ public class TestUtils {
                 .get()
                 .isRunning()
                      );
+  }
+
+
+  public void bhWorks() {
+    try {
+      FutureTask<?> task = new FutureTask<>(() -> {
+        Thread.sleep(0);
+        return "";
+      });
+
+      Schedulers.parallel()
+                .schedule(task);
+
+      task.get(10,TimeUnit.SECONDS);
+      Assertions.fail("should fail");
+    } catch (ExecutionException | InterruptedException | TimeoutException e) {
+      Assertions.assertTrue(e.getCause() instanceof BlockingOperationError,"detected");
+    }
   }
 }
 

@@ -1,4 +1,4 @@
-package testsconfig.databuilders;
+package config.databuilders;
 
 import com.github.javafaker.Faker;
 import com.mongo.api.core.dto.UserAuthorDto;
@@ -27,7 +27,7 @@ public class PostBuilder {
   //    private static String FAKER_REGEX_TEL = "[0-9]{9}";
 
 
-  public static PostBuilder postFull
+  public static PostBuilder postFull_withID
        (User postUserAuthor,
         Comment comment,
         List<Comment> commentList) {
@@ -76,7 +76,7 @@ public class PostBuilder {
                       .build();
   }
 
-  public static PostBuilder postFull_CommentsEmpty(User user) {
+  public static PostBuilder postFull_withId_CommentsEmpty(User user) {
 
     Post postFull = new Post();
 

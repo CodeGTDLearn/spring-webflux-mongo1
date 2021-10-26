@@ -1,0 +1,93 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "title": "The root schema",
+  "description": "The root schema comprises the entire JSON document.",
+  "default": {},
+  "examples": [
+    {
+      "id": "617873172753665f13dde374",
+      "date": "1997-08-12T23:47:55.015+00:00",
+      "title": "The Velvet Underground",
+      "body": "Nostrum aut impedit doloremque eum enim aut aut quam quia natus natus veniam aut voluptatibus rerum id iure aperiam id fugiat quod beatae vel vero.",
+      "authorName": "Jeraldine Daniel",
+      "idComments": []
+    }
+  ],
+  "required": [
+    "id",
+    "date",
+    "title",
+    "body",
+    "authorName",
+    "idComments"
+  ],
+  "properties": {
+    "id": {
+      "$id": "#/properties/id",
+      "type": "string",
+      "title": "The id schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "617873172753665f13dde374"
+      ]
+    },
+    "date": {
+      "$id": "#/properties/date",
+      "type": "string",
+      "title": "The date schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "1997-08-12T23:47:55.015+00:00"
+      ]
+    },
+    "title": {
+      "$id": "#/properties/title",
+      "type": "string",
+      "title": "The title schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "The Velvet Underground"
+      ]
+    },
+    "body": {
+      "$id": "#/properties/body",
+      "type": "string",
+      "title": "The body schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "Nostrum aut impedit doloremque eum enim aut aut quam quia natus natus veniam aut voluptatibus rerum id iure aperiam id fugiat quod beatae vel vero."
+      ]
+    },
+    "authorName": {
+      "$id": "#/properties/authorName",
+      "type": "string",
+      "title": "The authorName schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "Jeraldine Daniel"
+      ]
+    },
+    "idComments": {
+      "$id": "#/properties/idComments",
+      "type": "array",
+      "title": "The idComments schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": [],
+      "examples": [
+        []
+      ],
+      "additionalItems": true,
+      "items": {
+        "$id": "#/properties/idComments/items"
+      }
+    }
+  },
+  "additionalProperties": true
+}

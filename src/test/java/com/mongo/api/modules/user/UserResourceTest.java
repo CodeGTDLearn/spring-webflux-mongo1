@@ -2,59 +2,58 @@ package com.mongo.api.modules.user;
 
 import com.github.javafaker.Faker;
 import com.mongo.api.core.dto.UserAllDto;
-import com.mongo.api.core.dto.UserAuthorDto;
+import com.mongo.api.core.testconfig.DbUtilsConfig;
+import com.mongo.api.core.testconfig.TestUtilsConfig;
 import com.mongo.api.modules.comment.Comment;
 import com.mongo.api.modules.comment.ICommentService;
 import com.mongo.api.modules.post.IPostService;
 import com.mongo.api.modules.post.Post;
+import config.annotations.MergedResource;
+import config.testcontainer.TcComposeConfig;
+import config.utils.DbUtils;
+import config.utils.TestUtils;
 import io.restassured.http.ContentType;
 import io.restassured.module.webtestclient.RestAssuredWebTestClient;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.*;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.EnabledIf;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
-import reactor.blockhound.BlockingOperationError;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
-import testsconfig.annotations.MergedResource;
-import testsconfig.testcontainer.TcComposeConfig;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import static com.mongo.api.core.routes.RoutesUser.*;
+import static config.databuilders.CommentBuilder.comment_simple;
+import static config.databuilders.PostBuilder.postFull_withId_CommentsEmpty;
+import static config.databuilders.UserBuilder.*;
+import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE;
+import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE_PORT;
+import static config.utils.TestUtils.*;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.hamcrest.CoreMatchers.containsStringIgnoringCase;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.http.HttpStatus.*;
-import static testsconfig.databuilders.CommentBuilder.comment_simple;
-import static testsconfig.databuilders.PostBuilder.postFull_CommentsEmpty;
-import static testsconfig.databuilders.UserBuilder.*;
-import static testsconfig.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE;
-import static testsconfig.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE_PORT;
-import static testsconfig.utils.TestUtils.*;
 
+// ==> EXCEPTIONS IN CONTROLLER:
+// *** REASON: IN WEBFLUX, EXCEPTIONS MUST BE IN CONTROLLER - WHY?
+//     - "Como stream pode ser manipulado por diferentes grupos de thread, caso um erro aconteça em
+// uma thread que não é a que operou a controller, o ControllerAdvice não vai ser notificado "
+//     - https://medium.com/nstech/programa%C3%A7%C3%A3o-reativa-com-spring-boot-webflux-e-mongodb-chega-de-sofrer-f92fb64517c3
+@Import({DbUtilsConfig.class, TestUtilsConfig.class})
 @DisplayName("ResourceTests")
 @MergedResource
 public class UserResourceTest {
-
-  //STATIC: one service for ALL tests
-  //NON-STATIC: one service for EACH test
+  // STATIC-@Container: one service for ALL tests -> SUPER FASTER
+  // NON-STATIC-@Container: one service for EACH test
   @Container
   private static final DockerComposeContainer<?> compose = new TcComposeConfig().getTcCompose();
-
-
   final String enabledTest = "true";
   final ContentType ANY = ContentType.ANY;
   final ContentType JSON = ContentType.JSON;
@@ -63,9 +62,16 @@ public class UserResourceTest {
   // BECAUSE THERE IS NO 'REAL-SERVER' CREATED VIA DOCKER-COMPOSE
   @Autowired
   WebTestClient mockedWebClient;
+  
   private User user1, user3, userPostsOwner;
   private List<User> twoUserList;
-  private Flux<User> userFlux;
+  private Flux<User> flux;
+
+  @Autowired
+  private DbUtils<User> userDbUtils;
+
+  @Autowired
+  private TestUtils testUtils;
 
   @Autowired
   private IUserService userService;
@@ -75,9 +81,6 @@ public class UserResourceTest {
 
   @Autowired
   private ICommentService commentService;
-
-  @Autowired
-  private ModelMapper modelMapper;
 
 
   @BeforeAll
@@ -116,8 +119,9 @@ public class UserResourceTest {
     userPostsOwner = userWithID_IdPostsEmpty().createTestUser();
     twoUserList = Arrays.asList(user1,user3);
 
-    userFlux = saveUserListAndGetItsFlux(twoUserList);
-    StepVerifierCountUserFlux(userFlux,2);
+    flux = userDbUtils.saveUserListAndGetFlux(twoUserList,userService);
+
+    userDbUtils.StepVerifierCountAndExecuteFlux(flux,2);
   }
 
 
@@ -151,7 +155,7 @@ public class UserResourceTest {
          .body("id",hasItem(user1.getId()))
          .body("id",hasItem(user3.getId()))
 
-         .body(matchesJsonSchemaInClasspath("contracts/findAll.json"))
+         .body(matchesJsonSchemaInClasspath("contracts/user/findAll.json"))
     ;
   }
 
@@ -188,7 +192,7 @@ public class UserResourceTest {
          .body("name",hasItems(user1.getName(),user3.getName()))
          .body("email",hasItems(user1.getEmail(),user3.getEmail()))
 
-         .body(matchesJsonSchemaInClasspath("contracts/findAllDto.json"))
+         .body(matchesJsonSchemaInClasspath("contracts/user/findAllDto.json"))
     ;
   }
 
@@ -197,16 +201,24 @@ public class UserResourceTest {
   @EnabledIf(expression = enabledTest, loadContext = true)
   public void findShowAll() {
     User user = userWithID_IdPostsEmpty().createTestUser();
-    Post post = postFull_CommentsEmpty(user).create();
+    Post post = postFull_withId_CommentsEmpty(user).create();
     Comment comment = comment_simple(post).create();
     UserAllDto userShowAll = userShowAll_Test(user,
                                               post,
                                               comment
                                              ).createTestUserShowAll();
-    cleanDbToTest();
+
+    userDbUtils.cleanTestDb(userService,postService,commentService);
 
     StepVerifier
-         .create(saveUserShowAllFinalInDb(user,post,comment))
+         .create(
+              userDbUtils.saveUserShowAllFinalInDb(user,
+                                                   post,
+                                                   comment,
+                                                   userService,
+                                                   postService,
+                                                   commentService
+                                                  ))
          .expectSubscription()
          .verifyComplete();
 
@@ -230,7 +242,7 @@ public class UserResourceTest {
          .body("posts[0].postId",hasItem(post.getPostId()))
          .body("posts[0].listComments[0].commentId",hasItem(comment.getCommentId()))
 
-         .body(matchesJsonSchemaInClasspath("contracts/findShowAll.json"))
+         .body(matchesJsonSchemaInClasspath("contracts/user/findShowAll.json"))
     ;
   }
 
@@ -256,7 +268,7 @@ public class UserResourceTest {
          .statusCode(OK.value())
          .body("id",equalTo(user3.getId()))
 
-         .body(matchesJsonSchemaInClasspath("contracts/findById.json"))
+         .body(matchesJsonSchemaInClasspath("contracts/user/findById.json"))
     ;
   }
 
@@ -264,10 +276,6 @@ public class UserResourceTest {
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
   public void save() {
-    cleanDbToTest();
-
-    StepVerifierCountUserFlux(userService.findAll(),0);
-
     RestAssuredWebTestClient
 
          .given()
@@ -291,10 +299,8 @@ public class UserResourceTest {
          .body("email",containsStringIgnoringCase(userPostsOwner.getEmail()))
          .body("name",containsStringIgnoringCase(userPostsOwner.getName()))
 
-         .body(matchesJsonSchemaInClasspath("contracts/save.json"))
+         .body(matchesJsonSchemaInClasspath("contracts/user/save.json"))
     ;
-
-    StepVerifierCountUserFlux(userService.findAll(),1);
   }
 
 
@@ -321,7 +327,8 @@ public class UserResourceTest {
          .statusCode(NO_CONTENT.value())
     ;
 
-    StepVerifierCountUserFlux(userService.findAll(),1);
+    //    stepVerifierCountAndExecuteFlux(userService.findAll(),1);
+    userDbUtils.StepVerifierCountAndExecuteFlux(userService.findAll(),1);
   }
 
 
@@ -360,7 +367,7 @@ public class UserResourceTest {
          .body("email",equalTo(newEmail))
          .body("email",not(equalTo(previousEmail)))
 
-         .body(matchesJsonSchemaInClasspath("contracts/update.json"))
+         .body(matchesJsonSchemaInClasspath("contracts/user/update.json"))
     ;
   }
 
@@ -369,116 +376,6 @@ public class UserResourceTest {
   @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("BHWorks")
   public void bHWorks() {
-    try {
-      FutureTask<?> task = new FutureTask<>(() -> {
-        Thread.sleep(0);
-        return "";
-      });
-
-      Schedulers.parallel()
-                .schedule(task);
-
-      task.get(10,TimeUnit.SECONDS);
-      Assertions.fail("should fail");
-    } catch (ExecutionException | InterruptedException | TimeoutException e) {
-      Assertions.assertTrue(e.getCause() instanceof BlockingOperationError,"detected");
-    }
+    testUtils.bhWorks();
   }
-
-
-  private void cleanDbToTest() {
-    StepVerifier
-         .create(userService.deleteAll())
-         .expectSubscription()
-         .verifyComplete();
-
-    StepVerifier
-         .create(postService.deleteAll())
-         .expectSubscription()
-         .verifyComplete();
-
-    StepVerifier
-         .create(commentService.deleteAll())
-         .expectSubscription()
-         .verifyComplete();
-
-    System.out.println("\n>==================================================>" +
-                            "\n>===============> CLEAN-DB-TO-TEST >===============>" +
-                            "\n>==================================================>\n");
-  }
-
-
-  private void StepVerifierCountUserFlux(Flux<User> flux,int totalElements) {
-    StepVerifier
-         .create(flux)
-         .expectSubscription()
-         .expectNextCount(totalElements)
-         .verifyComplete();
-  }
-
-
-  private Flux<User> saveUserListAndGetItsFlux(List<User> listUser) {
-    return userService.deleteAll()
-                      .thenMany(Flux.fromIterable(listUser))
-                      .flatMap(userService::save)
-                      .doOnNext(item -> userService.findAll())
-                      .doOnNext((item -> System.out.println(
-                           "\nSaving 'User' in DB:" +
-                                "\n -> ID: " + item.getId() +
-                                "\n -> Name: " + item.getName() +
-                                "\n -> Email: " + item.getEmail() + "\n")));
-  }
-
-
-  private Mono<Void> saveUserShowAllFinalInDb(User user,Post post,Comment comment) {
-    return userService.deleteAll()
-                      .then(Mono.just(user))
-                      .flatMap(userService::save)
-                      .flatMap((user2 -> {
-                        System.out.println(
-                             "\nSaving 'User' in DB:" +
-                                  "\n -> ID: " + user2.getId() +
-                                  "\n -> Name: " + user2.getName() +
-                                  "\n -> Email: " + user2.getEmail() + "\n");
-                        return Mono.just(user2);
-                      }))
-                      .then(postService.deleteAll())
-                      .thenMany(userService.findAll())
-                      .flatMap(user2 -> {
-                        UserAuthorDto authorDto = modelMapper.map(user2,UserAuthorDto.class);
-                        post.setAuthor(authorDto);
-                        return postService.save(post);
-                      })
-                      .flatMap((post2 -> {
-                        System.out.println(
-                             "\nSaving 'Post' in DB:" +
-                                  "\n -> Post-ID: " + post2.getPostId() +
-                                  "\n -> Post-Title: " + post2.getTitle() + "\n" +
-                                  "\n -> Author-ID: " + post2.getAuthor()
-                                                             .getId() +
-                                  "\n -> Author-Name: " + post2.getAuthor()
-                                                               .getName() + "\n");
-                        return Mono.just(post2);
-                      }))
-                      .then(commentService.deleteAll())
-                      .thenMany(postService.findAll())
-                      .flatMap(post2 -> {
-                        comment.setPostId(post2.getPostId());
-                        comment.setAuthor(post2.getAuthor());
-                        return commentService.saveLinkedObject(comment);
-                      })
-                      .flatMap((comment2 -> {
-                        System.out.println(
-                             "\nSaving 'Comment' in DB:" +
-                                  "\n -> ID: " + comment2.getCommentId() +
-                                  "\n -> PostId: " + comment2.getPostId() +
-                                  "\n -> Author: " + comment2.getAuthor() + "\n");
-                        return Mono.just(comment2);
-                      }))
-                      .then()
-
-         ;
-  }
-
-
 }

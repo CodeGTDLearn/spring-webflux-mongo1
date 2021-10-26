@@ -34,13 +34,13 @@ public class PostResource {
 
     @GetMapping(FIND_POST_BY_ID)
     @ResponseStatus(OK)
-    public Mono<PostDto> findPostById(@PathVariable String id) {
+    public Mono<PostDto> findById(@PathVariable String id) {
         return service
                 .findById(id)
                 .map(post -> modelMapper.map(post,PostDto.class));
     }
 
-    @GetMapping(FIND_POSTS_BY_USERID)
+    @GetMapping(FIND_POSTS_BY_AUTHORID)
     @ResponseStatus(OK)
     public Flux<PostDto> findPostsByAuthorId(@PathVariable String id) {
         return service

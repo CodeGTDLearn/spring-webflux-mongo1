@@ -13,8 +13,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
-import testsconfig.annotations.MergedRepo;
-import testsconfig.testcontainer.TcComposeConfig;
+import config.annotations.MergedRepo;
+import config.testcontainer.TcComposeConfig;
 
 import java.util.Arrays;
 import java.util.List;
@@ -23,19 +23,19 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static testsconfig.databuilders.PostBuilder.post_IdNull_CommentsEmpty;
-import static testsconfig.databuilders.UserBuilder.userFull_IdNull_ListIdPostsEmpty;
-import static testsconfig.databuilders.UserBuilder.userWithID_IdPostsEmpty;
-import static testsconfig.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE;
-import static testsconfig.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE_PORT;
-import static testsconfig.utils.TestUtils.*;
+import static config.databuilders.PostBuilder.post_IdNull_CommentsEmpty;
+import static config.databuilders.UserBuilder.userFull_IdNull_ListIdPostsEmpty;
+import static config.databuilders.UserBuilder.userWithID_IdPostsEmpty;
+import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE;
+import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE_PORT;
+import static config.utils.TestUtils.*;
 
 @DisplayName("RepoTests")
 @MergedRepo
 public class IUserRepoTest {
 
-  //STATIC: one service for ALL tests -> SUPER FASTER
-  //NON-STATIC: one service for EACH test
+  // STATIC-@Container: one service for ALL tests -> SUPER FASTER
+  // NON-STATIC-@Container: one service for EACH test
   @Container
   private static final DockerComposeContainer<?> compose = new TcComposeConfig().getTcCompose();
 

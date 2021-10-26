@@ -1,0 +1,197 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://example.com/example.json",
+  "type": "array",
+  "title": "The root schema",
+  "description": "The root schema comprises the entire JSON document.",
+  "default": [],
+  "examples": [
+    [
+      {
+        "postId": "dbacaeccddceeacdbdadcbec",
+        "date": "1972-11-04T12:49:17.379+00:00",
+        "title": "Audioslave",
+        "body": "Quia repudiandae ab provident dignissimos neque totam id id qui eum sed sapiente reprehenderit similique amet praesentium et iure cum sit ut vel sint corporis provident.",
+        "author": {
+          "id": "PP5c2du585c4k4d46w1ps79f65",
+          "name": "Myriam Willms"
+        },
+        "comment": null,
+        "listComments": [],
+        "idComments": []
+      },
+      {
+        "postId": "fabcddfecaaebfebfeaadefd",
+        "date": "1983-09-21T04:40:06.031+00:00",
+        "title": "The Doors",
+        "body": "Quia et harum ut quis et occaecati sed facilis eaque nam aperiam suscipit dignissimos consectetur veritatis expedita iure quas quisquam magnam dolorem in ea mollitia fugit.",
+        "author": {
+          "id": "PP5c2du585c4k4d46w1ps79f65",
+          "name": "Myriam Willms"
+        },
+        "comment": null,
+        "listComments": [],
+        "idComments": []
+      }
+    ]
+  ],
+  "additionalItems": true,
+  "items": {
+    "$id": "#/items",
+    "anyOf": [
+      {
+        "$id": "#/items/anyOf/0",
+        "type": "object",
+        "title": "The first anyOf schema",
+        "description": "An explanation about the purpose of this instance.",
+        "default": {},
+        "examples": [
+          {
+            "postId": "dbacaeccddceeacdbdadcbec",
+            "date": "1972-11-04T12:49:17.379+00:00",
+            "title": "Audioslave",
+            "body": "Quia repudiandae ab provident dignissimos neque totam id id qui eum sed sapiente reprehenderit similique amet praesentium et iure cum sit ut vel sint corporis provident.",
+            "author": {
+              "id": "PP5c2du585c4k4d46w1ps79f65",
+              "name": "Myriam Willms"
+            },
+            "comment": null,
+            "listComments": [],
+            "idComments": []
+          }
+        ],
+        "required": [
+          "postId",
+          "date",
+          "title",
+          "body",
+          "author",
+          "comment",
+          "listComments",
+          "idComments"
+        ],
+        "properties": {
+          "postId": {
+            "$id": "#/items/anyOf/0/properties/postId",
+            "type": "string",
+            "title": "The postId schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+              "dbacaeccddceeacdbdadcbec"
+            ]
+          },
+          "date": {
+            "$id": "#/items/anyOf/0/properties/date",
+            "type": "string",
+            "title": "The date schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+              "1972-11-04T12:49:17.379+00:00"
+            ]
+          },
+          "title": {
+            "$id": "#/items/anyOf/0/properties/title",
+            "type": "string",
+            "title": "The title schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+              "Audioslave"
+            ]
+          },
+          "body": {
+            "$id": "#/items/anyOf/0/properties/body",
+            "type": "string",
+            "title": "The body schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+              "Quia repudiandae ab provident dignissimos neque totam id id qui eum sed sapiente reprehenderit similique amet praesentium et iure cum sit ut vel sint corporis provident."
+            ]
+          },
+          "author": {
+            "$id": "#/items/anyOf/0/properties/author",
+            "type": "object",
+            "title": "The author schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": {},
+            "examples": [
+              {
+                "id": "PP5c2du585c4k4d46w1ps79f65",
+                "name": "Myriam Willms"
+              }
+            ],
+            "required": [
+              "id",
+              "name"
+            ],
+            "properties": {
+              "id": {
+                "$id": "#/items/anyOf/0/properties/author/properties/id",
+                "type": "string",
+                "title": "The id schema",
+                "description": "An explanation about the purpose of this instance.",
+                "default": "",
+                "examples": [
+                  "PP5c2du585c4k4d46w1ps79f65"
+                ]
+              },
+              "name": {
+                "$id": "#/items/anyOf/0/properties/author/properties/name",
+                "type": "string",
+                "title": "The name schema",
+                "description": "An explanation about the purpose of this instance.",
+                "default": "",
+                "examples": [
+                  "Myriam Willms"
+                ]
+              }
+            },
+            "additionalProperties": true
+          },
+          "comment": {
+            "$id": "#/items/anyOf/0/properties/comment",
+            "type": "null",
+            "title": "The comment schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": null,
+            "examples": [
+              null
+            ]
+          },
+          "listComments": {
+            "$id": "#/items/anyOf/0/properties/listComments",
+            "type": "array",
+            "title": "The listComments schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": [],
+            "examples": [
+              []
+            ],
+            "additionalItems": true,
+            "items": {
+              "$id": "#/items/anyOf/0/properties/listComments/items"
+            }
+          },
+          "idComments": {
+            "$id": "#/items/anyOf/0/properties/idComments",
+            "type": "array",
+            "title": "The idComments schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": [],
+            "examples": [
+              []
+            ],
+            "additionalItems": true,
+            "items": {
+              "$id": "#/items/anyOf/0/properties/idComments/items"
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    ]
+  }
+}
