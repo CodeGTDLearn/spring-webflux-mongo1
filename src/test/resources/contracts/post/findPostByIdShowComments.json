@@ -1,0 +1,93 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "title": "The root schema",
+  "description": "The root schema comprises the entire JSON document.",
+  "default": {},
+  "examples": [
+    {
+      "id": "617af7d764613d0665997bd0",
+      "date": "1998-09-10T09:23:49.262+00:00",
+      "title": "Fleetwood Mac",
+      "body": "Numquam labore aut eius facere nam sapiente nam omnis magnam ut eligendi quibusdam exercitationem autem deleniti quia cumque omnis laudantium quo ullam autem laboriosam autem error laudantium.",
+      "authorName": "Hyman Streich",
+      "listComments": []
+    }
+  ],
+  "required": [
+    "id",
+    "date",
+    "title",
+    "body",
+    "authorName",
+    "listComments"
+  ],
+  "properties": {
+    "id": {
+      "$id": "#/properties/id",
+      "type": "string",
+      "title": "The id schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "617af7d764613d0665997bd0"
+      ]
+    },
+    "date": {
+      "$id": "#/properties/date",
+      "type": "string",
+      "title": "The date schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "1998-09-10T09:23:49.262+00:00"
+      ]
+    },
+    "title": {
+      "$id": "#/properties/title",
+      "type": "string",
+      "title": "The title schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "Fleetwood Mac"
+      ]
+    },
+    "body": {
+      "$id": "#/properties/body",
+      "type": "string",
+      "title": "The body schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "Numquam labore aut eius facere nam sapiente nam omnis magnam ut eligendi quibusdam exercitationem autem deleniti quia cumque omnis laudantium quo ullam autem laboriosam autem error laudantium."
+      ]
+    },
+    "authorName": {
+      "$id": "#/properties/authorName",
+      "type": "string",
+      "title": "The authorName schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "Hyman Streich"
+      ]
+    },
+    "listComments": {
+      "$id": "#/properties/listComments",
+      "type": "array",
+      "title": "The listComments schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": [],
+      "examples": [
+        []
+      ],
+      "additionalItems": true,
+      "items": {
+        "$id": "#/properties/listComments/items"
+      }
+    }
+  },
+  "additionalProperties": true
+}

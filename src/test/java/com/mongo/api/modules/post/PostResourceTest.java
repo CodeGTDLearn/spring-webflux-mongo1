@@ -1,7 +1,8 @@
 package com.mongo.api.modules.post;
 
-import com.mongo.api.core.testconfig.DbUtilsConfig;
-import com.mongo.api.core.testconfig.TestUtilsConfig;
+import com.github.javafaker.Faker;
+import com.mongo.api.core.config.TestDbConfig;
+import com.mongo.api.core.config.TestUtilsConfig;
 import com.mongo.api.modules.user.IUserService;
 import com.mongo.api.modules.user.User;
 import config.annotations.MergedResource;
@@ -21,7 +22,6 @@ import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static com.mongo.api.core.routes.RoutesPost.*;
@@ -31,11 +31,16 @@ import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE;
 import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE_PORT;
 import static config.utils.TestUtils.*;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
-import static org.hamcrest.CoreMatchers.*;
+import static java.util.Collections.singletonList;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.equalTo;
-import static org.springframework.http.HttpStatus.OK;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.not;
+import static org.springframework.http.HttpStatus.*;
 
-@Import({DbUtilsConfig.class,TestUtilsConfig.class})
+@Import({TestUtilsConfig.class, TestDbConfig.class})
 @DisplayName("PostResourceTest")
 @MergedResource
 class PostResourceTest {
@@ -56,15 +61,15 @@ class PostResourceTest {
   WebTestClient mockedWebClient;
 
   private Post post1, post3;
-  private List<Post> twoPostsList;
+  private List<Post> postList;
   private Flux<Post> postFlux;
-  private User postAuthor;
+  private User postsAuthor;
 
   @Autowired
   private TestUtils testUtils;
 
   @Autowired
-  private DbUtils<Post> postDbUtils;
+  private DbUtils dbUtils;
 
   @Autowired
   private IUserService userService;
@@ -103,22 +108,20 @@ class PostResourceTest {
     globalTestMessage(testInfo.getTestMethod()
                               .toString(),"method-start");
 
-    postAuthor = userWithID_IdPostsEmpty().createTestUser();
-    post1 = post_IdNull_CommentsEmpty(postAuthor).create();
-    post3 = post_IdNull_CommentsEmpty(postAuthor).create();
-
-    Flux<User> userFlux = postDbUtils.saveUserListAndGetFlux(
-         Collections.singletonList(postAuthor),userService);
-
+    postsAuthor = userWithID_IdPostsEmpty().createTestUser();
+    Flux<User> userFlux = dbUtils.saveUserList(singletonList(postsAuthor));
     StepVerifier
          .create(userFlux)
          .expectSubscription()
          .expectNextCount(1L)
          .verifyComplete();
 
-    twoPostsList = Arrays.asList(post1,post3);
-    postFlux = postDbUtils.savePostListAndGetFlux(twoPostsList,postService);
-    postDbUtils.StepVerifierCountAndExecuteFlux(postFlux,2);
+    post1 = post_IdNull_CommentsEmpty(postsAuthor).createTestPost();
+    post3 = post_IdNull_CommentsEmpty(postsAuthor).createTestPost();
+    postList = Arrays.asList(post1,post3);
+    postFlux = dbUtils.savePostList(postList);
+    dbUtils.countAndExecutePostFlux(postFlux,2);
+
   }
 
 
@@ -130,7 +133,7 @@ class PostResourceTest {
 
 
   @Test
-  @EnabledIf(expression = "true", loadContext = true)
+  @EnabledIf(expression = enabledTest, loadContext = true)
   void findAll() {
     RestAssuredWebTestClient
 
@@ -152,7 +155,7 @@ class PostResourceTest {
          .body("body",hasItem(post1.getBody()))
          .body("body",hasItem(post3.getBody()))
          .body("title",hasItems(post1.getTitle(),post3.getTitle()))
-         .body("author.id",hasItems(postAuthor.getId(),postAuthor.getId()))
+         .body("author.id",hasItems(postsAuthor.getId(),postsAuthor.getId()))
          .body(matchesJsonSchemaInClasspath("contracts/post/findAll.json"))
     ;
   }
@@ -204,7 +207,7 @@ class PostResourceTest {
          .header("Content-type",JSON)
 
          .when()
-         .get(REQ_POST + FIND_POSTS_BY_AUTHORID,postAuthor.getId())
+         .get(REQ_POST + FIND_POSTS_BY_AUTHORID,postsAuthor.getId())
 
          .then()
          .log()
@@ -212,10 +215,158 @@ class PostResourceTest {
 
          .contentType(JSON)
          .statusCode(OK.value())
-         .body("id",equalTo(post1.getPostId()))
-         .body("body",equalTo(post1.getBody()))
+         .body("id",hasItems(post1.getPostId(),post3.getPostId()))
+         .body("body",hasItems(post1.getBody(),post3.getBody()))
 
-//         .body(matchesJsonSchemaInClasspath("contracts/post/findById.json"))
+         .body(matchesJsonSchemaInClasspath("contracts/post/findPostsByAuthorId.json"))
+    ;
+  }
+
+
+  @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
+  void findPostByIdShowComments() {
+    RestAssuredWebTestClient
+
+         .given()
+         .webTestClient(mockedWebClient)
+         .header("Accept",ANY)
+         .header("Content-type",JSON)
+
+         .when()
+         .get(REQ_POST + FIND_POST_BY_ID_SHOW_COMMENTS,post1.getPostId())
+
+         .then()
+         .log()
+         .everything()
+
+         .contentType(JSON)
+         .statusCode(OK.value())
+         .body("id",containsString(post1.getPostId()))
+         .body("body",containsString(post1.getBody()))
+
+         .body(matchesJsonSchemaInClasspath("contracts/post/findPostByIdShowComments.json"))
+    ;
+  }
+
+
+  @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
+  void saveEmbedObject() {
+    post3 = post_IdNull_CommentsEmpty(postsAuthor).createTestPost();
+
+    RestAssuredWebTestClient
+
+         .given()
+         .webTestClient(mockedWebClient)
+         .header("Accept",ANY)
+         .header("Content-type",JSON)
+
+         .body(post3)
+         .contentType(JSON)
+
+         .when()
+         .post(REQ_POST + SAVE_EMBED_USER_IN_THE_POST)
+
+         .then()
+         .log()
+         .everything()
+
+         .contentType(JSON)
+         .statusCode(CREATED.value())
+         .body("id",equalTo(post3.getPostId()))
+         .body("body",equalTo(post3.getBody()))
+
+         .body(matchesJsonSchemaInClasspath("contracts/post/saveObject.json"))
+    ;
+  }
+
+
+  @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
+  void delete() {
+    RestAssuredWebTestClient
+
+         .given()
+         .webTestClient(mockedWebClient)
+         .header("Accept",ANY)
+         .header("Content-type",JSON)
+
+         .body(post1)
+         .contentType(JSON)
+
+         .when()
+         .delete(REQ_POST)
+
+         .then()
+         .log()
+         .everything()
+
+         .statusCode(NO_CONTENT.value())
+    ;
+
+    dbUtils.countAndExecuteUserFlux(userService.findAll(),1);
+  }
+
+
+  @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
+  void update() {
+    var previousTitle = post1.getTitle();
+
+    var updatedTitle = Faker.instance().book().title();
+
+    post1.setTitle(updatedTitle);
+
+    RestAssuredWebTestClient
+
+         .given()
+         .webTestClient(mockedWebClient)
+         .header("Accept",ANY)
+         .header("Content-type",JSON)
+
+         .body(post1)
+         .contentType(JSON)
+
+         .when()
+         .put(REQ_POST)
+
+         .then()
+         .log()
+         .everything()
+
+         .contentType(JSON)
+         .statusCode(OK.value())
+         .body("title",equalTo(updatedTitle))
+         .body("title",not(equalTo(previousTitle)))
+
+         .body(matchesJsonSchemaInClasspath("contracts/post/update.json"))
+    ;
+  }
+
+
+  @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
+  void findUserByPostId() {
+    RestAssuredWebTestClient
+
+         .given()
+         .webTestClient(mockedWebClient)
+         .header("Accept",ANY)
+         .header("Content-type",JSON)
+
+         .when()
+         .get(REQ_POST + FIND_USER_BY_POSTID,post1.getPostId())
+
+         .then()
+         .log()
+         .everything()
+
+         .contentType(JSON)
+         .statusCode(OK.value())
+         .body("id",equalTo(post1.getAuthor().getId()))
+
+         .body(matchesJsonSchemaInClasspath("contracts/post/findUserByPostId.json"))
     ;
   }
 }

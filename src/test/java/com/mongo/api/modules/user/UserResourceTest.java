@@ -1,12 +1,10 @@
 package com.mongo.api.modules.user;
 
 import com.github.javafaker.Faker;
+import com.mongo.api.core.config.TestDbConfig;
+import com.mongo.api.core.config.TestUtilsConfig;
 import com.mongo.api.core.dto.UserAllDto;
-import com.mongo.api.core.testconfig.DbUtilsConfig;
-import com.mongo.api.core.testconfig.TestUtilsConfig;
 import com.mongo.api.modules.comment.Comment;
-import com.mongo.api.modules.comment.ICommentService;
-import com.mongo.api.modules.post.IPostService;
 import com.mongo.api.modules.post.Post;
 import config.annotations.MergedResource;
 import config.testcontainer.TcComposeConfig;
@@ -46,8 +44,8 @@ import static org.springframework.http.HttpStatus.*;
 //     - "Como stream pode ser manipulado por diferentes grupos de thread, caso um erro aconteça em
 // uma thread que não é a que operou a controller, o ControllerAdvice não vai ser notificado "
 //     - https://medium.com/nstech/programa%C3%A7%C3%A3o-reativa-com-spring-boot-webflux-e-mongodb-chega-de-sofrer-f92fb64517c3
-@Import({DbUtilsConfig.class, TestUtilsConfig.class})
-@DisplayName("ResourceTests")
+@Import({TestUtilsConfig.class,TestDbConfig.class})
+@DisplayName("UserResourceTest")
 @MergedResource
 public class UserResourceTest {
   // STATIC-@Container: one service for ALL tests -> SUPER FASTER
@@ -62,25 +60,17 @@ public class UserResourceTest {
   // BECAUSE THERE IS NO 'REAL-SERVER' CREATED VIA DOCKER-COMPOSE
   @Autowired
   WebTestClient mockedWebClient;
-  
-  private User user1, user3, userPostsOwner;
-  private List<User> twoUserList;
-  private Flux<User> flux;
+
+  private User user1, user3, postsAuthor;
 
   @Autowired
-  private DbUtils<User> userDbUtils;
+  private DbUtils dbUtils;
 
   @Autowired
   private TestUtils testUtils;
 
   @Autowired
   private IUserService userService;
-
-  @Autowired
-  private IPostService postService;
-
-  @Autowired
-  private ICommentService commentService;
 
 
   @BeforeAll
@@ -116,12 +106,11 @@ public class UserResourceTest {
 
     user1 = userWithID_IdPostsEmpty().createTestUser();
     user3 = userFull_IdNull_ListIdPostsEmpty().createTestUser();
-    userPostsOwner = userWithID_IdPostsEmpty().createTestUser();
-    twoUserList = Arrays.asList(user1,user3);
+    postsAuthor = userWithID_IdPostsEmpty().createTestUser();
 
-    flux = userDbUtils.saveUserListAndGetFlux(twoUserList,userService);
-
-    userDbUtils.StepVerifierCountAndExecuteFlux(flux,2);
+    List<User> userList = Arrays.asList(user1,user3);
+    Flux<User> flux = dbUtils.saveUserList(userList);
+    dbUtils.countAndExecuteUserFlux(flux,2);
   }
 
 
@@ -201,24 +190,15 @@ public class UserResourceTest {
   @EnabledIf(expression = enabledTest, loadContext = true)
   public void findShowAll() {
     User user = userWithID_IdPostsEmpty().createTestUser();
-    Post post = postFull_withId_CommentsEmpty(user).create();
+    Post post = postFull_withId_CommentsEmpty(user).createTestPost();
     Comment comment = comment_simple(post).create();
-    UserAllDto userShowAll = userShowAll_Test(user,
-                                              post,
-                                              comment
-                                             ).createTestUserShowAll();
+    UserAllDto userShowAll = userShowAll_Test(user,post,comment).createTestUserShowAll();
 
-    userDbUtils.cleanTestDb(userService,postService,commentService);
+    dbUtils.cleanTestDb();
 
     StepVerifier
          .create(
-              userDbUtils.saveUserShowAllFinalInDb(user,
-                                                   post,
-                                                   comment,
-                                                   userService,
-                                                   postService,
-                                                   commentService
-                                                  ))
+              dbUtils.saveUserShowAllFinalInDb(user,post,comment))
          .expectSubscription()
          .verifyComplete();
 
@@ -283,7 +263,7 @@ public class UserResourceTest {
          .header("Accept",ANY)
          .header("Content-type",JSON)
 
-         .body(userPostsOwner)
+         .body(postsAuthor)
          .contentType(JSON)
 
          .when()
@@ -295,9 +275,9 @@ public class UserResourceTest {
 
          .contentType(JSON)
          .statusCode(CREATED.value())
-         .body("id",containsStringIgnoringCase(userPostsOwner.getId()))
-         .body("email",containsStringIgnoringCase(userPostsOwner.getEmail()))
-         .body("name",containsStringIgnoringCase(userPostsOwner.getName()))
+         .body("id",containsStringIgnoringCase(postsAuthor.getId()))
+         .body("email",containsStringIgnoringCase(postsAuthor.getEmail()))
+         .body("name",containsStringIgnoringCase(postsAuthor.getName()))
 
          .body(matchesJsonSchemaInClasspath("contracts/user/save.json"))
     ;
@@ -327,8 +307,7 @@ public class UserResourceTest {
          .statusCode(NO_CONTENT.value())
     ;
 
-    //    stepVerifierCountAndExecuteFlux(userService.findAll(),1);
-    userDbUtils.StepVerifierCountAndExecuteFlux(userService.findAll(),1);
+    dbUtils.countAndExecuteUserFlux(userService.findAll(),1);
   }
 
 

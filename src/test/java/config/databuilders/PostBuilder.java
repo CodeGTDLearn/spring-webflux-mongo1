@@ -17,11 +17,9 @@ import java.util.Locale;
 @Getter
 public class PostBuilder {
 
-  private final Post post;
-
   private static final ModelMapper conv = new ModelMapper();
-
-  private static final Faker faker = new Faker(new Locale("en-CA.yml"));
+  private static Faker faker = new Faker(new Locale("en-CA.yml"));
+  private final Post post;
   //    private static String FAKER_REGEX_CPF = "[0-9]{3}\\.[0-9]{3}\\.[0-9]{3}-[0-9]{2}";
   //    private static String FAKER_REGEX_DDD = "[0-9]{2}";
   //    private static String FAKER_REGEX_TEL = "[0-9]{9}";
@@ -57,7 +55,7 @@ public class PostBuilder {
 
 
   public static PostBuilder post_IdNull_CommentsEmpty(User user) {
-
+    faker = new Faker(new Locale("en-CA.yml"));
     Post postFull = new Post();
 
     postFull.setTitle(faker.rockBand()
@@ -75,6 +73,7 @@ public class PostBuilder {
                       .post(postFull)
                       .build();
   }
+
 
   public static PostBuilder postFull_withId_CommentsEmpty(User user) {
 
@@ -99,7 +98,7 @@ public class PostBuilder {
   }
 
 
-  public Post create() {
+  public Post createTestPost() {
     return this.post;
   }
 }

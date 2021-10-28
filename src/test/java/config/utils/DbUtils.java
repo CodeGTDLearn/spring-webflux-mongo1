@@ -9,6 +9,7 @@ import com.mongo.api.modules.user.IUserService;
 import com.mongo.api.modules.user.User;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -16,9 +17,19 @@ import reactor.test.StepVerifier;
 import java.util.List;
 
 @Slf4j
-public class DbUtils<E> {
+public class DbUtils {
 
-  public void StepVerifierCountAndExecuteFlux(Flux<E> flux,int totalElements) {
+  @Autowired
+  private IUserService userService;
+
+  @Autowired
+  private IPostService postService;
+
+  @Autowired
+  private ICommentService commentService;
+
+
+  public void countAndExecuteUserFlux(Flux<User> flux,int totalElements) {
     StepVerifier
          .create(flux)
          .expectSubscription()
@@ -27,23 +38,36 @@ public class DbUtils<E> {
   }
 
 
-  public Flux<User> saveUserListAndGetFlux(List<User> listUser,IUserService userService) {
-    return userService.deleteAll()
-                      .thenMany(Flux.fromIterable(listUser))
-                      .flatMap(userService::save)
-                      .doOnNext(item -> userService.findAll())
-                      .doOnNext((item -> System.out.println(
-                           "\nSaving 'User' in DB:" +
-                                "\n -> " + item.getId() +
-                                "\n -> " + item.getName() +
-                                "\n -> " + item.getEmail() + "\n")));
+  public void countAndExecutePostFlux(Flux<Post> flux,int totalElements) {
+    StepVerifier
+         .create(flux)
+         .expectSubscription()
+         .expectNextCount(totalElements)
+         .verifyComplete();
   }
 
 
-  public void cleanTestDb(
-       IUserService userService,
-       IPostService postService,
-       ICommentService commentService) {
+  public Flux<User> saveUserList(List<User> userList) {
+    return userService.deleteAll()
+                      .thenMany(Flux.fromIterable(userList))
+                      .flatMap(userService::save)
+                      .doOnNext(item -> userService.findAll())
+                      .doOnNext(item -> System.out.println(
+                           "\n--> Saved 'User' in DB: \n    --> " + item.toString() + "\n"));
+  }
+
+
+  public Flux<Post> savePostList(List<Post> postList) {
+    return postService.deleteAll()
+                      .thenMany(Flux.fromIterable(postList))
+                      .flatMap(postService::save)
+                      .doOnNext(item -> postService.findAll())
+                      .doOnNext(item -> System.out.println(
+                           "\n--> Saved 'Post' in DB: \n    --> " + item.toString() + "\n"));
+  }
+
+
+  public void cleanTestDb() {
     StepVerifier
          .create(userService.deleteAll())
          .expectSubscription()
@@ -65,10 +89,7 @@ public class DbUtils<E> {
   }
 
 
-  public Mono<Void> saveUserShowAllFinalInDb(User user,Post post,Comment comment,
-                                             IUserService userService,
-                                             IPostService postService,
-                                             ICommentService commentService) {
+  public Mono<Void> saveUserShowAllFinalInDb(User user,Post post,Comment comment) {
     return userService.deleteAll()
                       .then(Mono.just(user))
                       .flatMap(userService::save)
@@ -117,22 +138,6 @@ public class DbUtils<E> {
 
          ;
   }
-
-
-  public Flux<Post> savePostListAndGetFlux(List<Post> postList,IPostService postService) {
-    return postService.deleteAll()
-                      .thenMany(Flux.fromIterable(postList))
-                      .flatMap(postService::save)
-                      .doOnNext(item -> postService.findAll())
-                      .doOnNext((item -> System.out.println(
-                           "\nSaving 'Post' in DB:" +
-                                "\n -> " + item.getPostId() +
-                                "\n -> " + item.getTitle() +
-                                "\n -> " + item.getDate() +
-                                "\n -> " + item.getAuthor() +
-                                "\n -> " + item.getBody() + "\n")));
-  }
-
 }
 
 

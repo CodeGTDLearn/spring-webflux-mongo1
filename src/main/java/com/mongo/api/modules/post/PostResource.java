@@ -11,7 +11,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import static com.mongo.api.core.routes.RoutesPost.*;
-import static com.mongo.api.core.routes.RoutesUser.FIND_USER_BY_POSTID;
 import static org.springframework.http.HttpStatus.*;
 
 @Slf4j
@@ -20,67 +19,68 @@ import static org.springframework.http.HttpStatus.*;
 @RequestMapping(REQ_POST)
 public class PostResource {
 
-    private final IPostService service;
+  private final IPostService service;
 
-    private final ModelMapper modelMapper;
-
-
-    @GetMapping(FIND_ALL_POSTS)
-    @ResponseStatus(OK)
-    public Flux<Post> findAll() {
-        return service.findAll();
-    }
+  private final ModelMapper modelMapper;
 
 
-    @GetMapping(FIND_POST_BY_ID)
-    @ResponseStatus(OK)
-    public Mono<PostDto> findById(@PathVariable String id) {
-        return service
-                .findById(id)
-                .map(post -> modelMapper.map(post,PostDto.class));
-    }
-
-    @GetMapping(FIND_POSTS_BY_AUTHORID)
-    @ResponseStatus(OK)
-    public Flux<PostDto> findPostsByAuthorId(@PathVariable String id) {
-        return service
-            .findPostsByAuthorId(id)
-                .map(post -> modelMapper.map(post,PostDto.class));
-    }
+  @GetMapping(FIND_ALL_POSTS)
+  @ResponseStatus(OK)
+  public Flux<Post> findAll() {
+    return service.findAll();
+  }
 
 
-    @GetMapping(FIND_POST_BY_ID_SHOW_COMMENTS)
-    @ResponseStatus(OK)
-    public Mono<PostDtoComments> findPostByIdShowComments(@PathVariable String id) {
-        return service.findPostByIdShowComments(id)
-                      .map(item -> modelMapper.map(item,PostDtoComments.class));
-    }
+  @GetMapping(FIND_POST_BY_ID)
+  @ResponseStatus(OK)
+  public Mono<PostDto> findById(@PathVariable String id) {
+    return service
+         .findById(id)
+         .map(post -> modelMapper.map(post,PostDto.class));
+  }
 
 
-    @PostMapping(SAVE_EMBED_USER_IN_THE_POST)
-    @ResponseStatus(CREATED)
-    public Mono<Post> saveEmbedObject(@RequestBody Post post) {
-        return service.save(post);
-    }
+  @GetMapping(FIND_POSTS_BY_AUTHORID)
+  @ResponseStatus(OK)
+  public Flux<PostDto> findPostsByAuthorId(@PathVariable String id) {
+    return service
+         .findPostsByAuthorId(id)
+         .map(post -> modelMapper.map(post,PostDto.class));
+  }
 
 
-    @DeleteMapping
-    @ResponseStatus(NO_CONTENT)
-    public Mono<Void> delete(@RequestBody Post post) {
-        return service.delete(post);
-    }
+  @GetMapping(FIND_POST_BY_ID_SHOW_COMMENTS)
+  @ResponseStatus(OK)
+  public Mono<PostDtoComments> findPostByIdShowComments(@PathVariable String id) {
+    return service.findPostByIdShowComments(id)
+                  .map(item -> modelMapper.map(item,PostDtoComments.class));
+  }
 
 
-    @PutMapping
-    @ResponseStatus(OK)
-    public Mono<Post> update(@RequestBody Post post) {
-        return service.update(post);
-    }
+  @PostMapping(SAVE_EMBED_USER_IN_THE_POST)
+  @ResponseStatus(CREATED)
+  public Mono<Post> saveEmbedObject(@RequestBody Post post) {
+    return service.save(post);
+  }
 
 
-    @GetMapping(FIND_USER_BY_POSTID)
-    @ResponseStatus(OK)
-    public Mono<User> findUserByPostId(@PathVariable String id) {
-        return service.findUserByPostId(id);
-    }
+  @DeleteMapping
+  @ResponseStatus(NO_CONTENT)
+  public Mono<Void> delete(@RequestBody Post post) {
+    return service.delete(post);
+  }
+
+
+  @PutMapping
+  @ResponseStatus(OK)
+  public Mono<Post> update(@RequestBody Post post) {
+    return service.update(post);
+  }
+
+
+  @GetMapping(FIND_USER_BY_POSTID)
+  @ResponseStatus(OK)
+  public Mono<User> findUserByPostId(@PathVariable String id) {
+    return service.findUserByPostId(id);
+  }
 }

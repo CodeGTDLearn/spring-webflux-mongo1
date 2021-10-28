@@ -1,13 +1,13 @@
 package com.mongo.api.modules.user;
 
 import com.github.javafaker.Faker;
+import com.mongo.api.core.config.TestDbConfig;
+import com.mongo.api.core.config.TestUtilsConfig;
 import com.mongo.api.core.dto.UserAllDto;
 import com.mongo.api.core.exceptions.customExceptions.CustomExceptions;
 import com.mongo.api.core.exceptions.customExceptions.CustomExceptionsProperties;
-import com.mongo.api.core.testconfig.DbUtilsConfig;
 import com.mongo.api.modules.comment.Comment;
 import com.mongo.api.modules.comment.CommentService;
-import com.mongo.api.modules.comment.ICommentService;
 import com.mongo.api.modules.post.IPostService;
 import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.post.PostService;
@@ -41,18 +41,20 @@ import static config.utils.TestUtils.*;
 
 // @Import Annotation:
 // - IMPORTS:
-//   * The 'main class' must be imported "AND"
+//   * The 'main class' must be imported "AND" (Ex.: UserService)
 //   * The 'main-class's dependencies' must be imported "AS WELL"
+//     (Ex.: PostService, CommentService, CustomExceptions, CustomExceptionsProperties, ModelMapper)
 @Import({
+     TestUtilsConfig.class,
+     TestDbConfig.class,
      UserService.class,
-     CustomExceptions.class,
-     CustomExceptionsProperties.class,
      PostService.class,
      CommentService.class,
+     CustomExceptions.class,
+     CustomExceptionsProperties.class,
      ModelMapper.class,
-     DbUtilsConfig.class,
-     TestUtils.class})
-@DisplayName("ServiceTests")
+})
+@DisplayName("UserServiceTest")
 @MergedRepo
 public class UserServiceTest {
 
@@ -67,22 +69,16 @@ public class UserServiceTest {
   private List<User> userList;
 
   @Autowired
-  private DbUtils<User> userDbUtils;
-
-  @Autowired
-  private TestUtils testUtils;
-
-  @Autowired
   private IUserService userService;
 
   @Autowired
   private IPostService postService;
 
   @Autowired
-  private ICommentService commentService;
+  private DbUtils dbUtils;
 
   @Autowired
-  private ModelMapper modelMapper;
+  private TestUtils testUtils;
 
 
   @BeforeAll
@@ -115,7 +111,7 @@ public class UserServiceTest {
   @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("FindAll")
   void findAll() {
-    Flux<User> userFlux = userDbUtils.saveUserListAndGetFlux(userList,userService);
+    Flux<User> userFlux = dbUtils.saveUserList(userList);
 
     StepVerifier
          .create(userFlux)
@@ -125,7 +121,7 @@ public class UserServiceTest {
 
     List<User> emptyList = new ArrayList<>();
 
-    userFlux = userDbUtils.saveUserListAndGetFlux(emptyList,userService);
+    userFlux = dbUtils.saveUserList(emptyList);
 
     StepVerifier
          .create(userFlux)
@@ -139,7 +135,7 @@ public class UserServiceTest {
   @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("FindById")
   void findById() {
-    final Flux<User> userFlux = userDbUtils.saveUserListAndGetFlux(userList,userService);
+    final Flux<User> userFlux = dbUtils.saveUserList(userList);
 
     StepVerifier
          .create(userFlux)
@@ -164,7 +160,7 @@ public class UserServiceTest {
   @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("Save: Object")
   void save() {
-    userDbUtils.cleanTestDb(userService,postService,commentService);
+    dbUtils.cleanTestDb();
 
     StepVerifier
          .create(userService.save(user3))
@@ -200,7 +196,7 @@ public class UserServiceTest {
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
   public void deleteById() {
-    final Flux<User> userFlux = userDbUtils.saveUserListAndGetFlux(userList,userService);
+    final Flux<User> userFlux = dbUtils.saveUserList(userList);
 
     StepVerifier
          .create(userFlux)
@@ -228,7 +224,7 @@ public class UserServiceTest {
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
   public void update() {
-    final Flux<User> userFlux = userDbUtils.saveUserListAndGetFlux(userList,userService);
+    final Flux<User> userFlux = dbUtils.saveUserList(userList);
 
     StepVerifier
          .create(userFlux)
@@ -258,7 +254,7 @@ public class UserServiceTest {
 
 
   @Test
-  @EnabledIf(expression = "true", loadContext = true)
+  @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("BHWorks")
   public void bHWorks() {
     testUtils.bhWorks();
@@ -271,11 +267,11 @@ public class UserServiceTest {
   public void findPostsByUserId() {
     userWithIdForPost1Post2 = userWithID_IdPostsEmpty().createTestUser();
 
-    post1 = post_IdNull_CommentsEmpty(userWithIdForPost1Post2).create();
-    post2 = post_IdNull_CommentsEmpty(userWithIdForPost1Post2).create();
+    post1 = post_IdNull_CommentsEmpty(userWithIdForPost1Post2).createTestPost();
+    post2 = post_IdNull_CommentsEmpty(userWithIdForPost1Post2).createTestPost();
     List<Post> postList = Arrays.asList(post1,post2);
 
-    userDbUtils.cleanTestDb(userService,postService,commentService);
+    dbUtils.cleanTestDb();
 
     StepVerifier
          .create(userService.save(userWithIdForPost1Post2))
@@ -291,7 +287,7 @@ public class UserServiceTest {
          .verifyComplete();
 
     Flux<Post> postFluxPost1Post2 =
-         userDbUtils.savePostListAndGetFlux(postList,postService);
+         dbUtils.savePostList(postList);
 
     StepVerifier
          .create(postFluxPost1Post2)
@@ -324,7 +320,7 @@ public class UserServiceTest {
   public void findShowAllDto() {
 
     User user = userWithID_IdPostsEmpty().createTestUser();
-    Post post = postFull_withId_CommentsEmpty(user).create();
+    Post post = postFull_withId_CommentsEmpty(user).createTestPost();
     Comment comment = comment_simple(post).create();
     UserAllDto userShowAll = userShowAll_Test(user,
                                               post,
@@ -333,8 +329,8 @@ public class UserServiceTest {
 
     StepVerifier
          .create(
-              userDbUtils.saveUserShowAllFinalInDb(
-                   user,post,comment,userService,postService,commentService))
+              dbUtils.saveUserShowAllFinalInDb(
+                   user,post,comment))
          .expectSubscription()
          .verifyComplete();
 

@@ -6,6 +6,5 @@ public class RoutesUser {
   public static final String FIND_ALL_USERS_DTO = "/findAllUsersDto";
   public static final String FIND_ALL_SHOW_ALL_DTO = "/findAllShowAllDto";
   public static final String FIND_USER_BY_ID = "/{id}";
-  public static final String FIND_USER_BY_POSTID = "/{id}/user";
   public static final String SAVE_LINKED_POST_IN_THE_USER = "/saveLinkedObject";
 }

@@ -13,6 +13,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "post")

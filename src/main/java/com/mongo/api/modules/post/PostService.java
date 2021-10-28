@@ -78,7 +78,6 @@ public class PostService implements IPostService {
 
   @Override
   public Flux<Post> findAll() {
-
     return postRepo
          .findAll()
          .flatMap(post -> commentService

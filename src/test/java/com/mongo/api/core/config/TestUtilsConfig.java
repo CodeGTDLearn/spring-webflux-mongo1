@@ -1,4 +1,4 @@
-package com.mongo.api.core.testconfig;
+package com.mongo.api.core.config;
 
 import config.utils.TestUtils;
 import org.springframework.boot.test.context.TestConfiguration;

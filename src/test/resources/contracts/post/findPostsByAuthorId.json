@@ -1,0 +1,126 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://example.com/example.json",
+  "type": "array",
+  "title": "The root schema",
+  "description": "The root schema comprises the entire JSON document.",
+  "default": [],
+  "examples": [
+    [
+      {
+        "id": "617acd4fa81a6d7d297f36d2",
+        "date": "1958-09-05T04:58:11.206+00:00",
+        "title": "Creedence Clearwater Revival",
+        "body": "Ut cupiditate deleniti id qui quia aliquam est quisquam deserunt enim vel ducimus non ipsam aut quis quis repellendus tempore consequatur tempora numquam et quibusdam deserunt quo debitis labore.",
+        "authorName": "Percy Rosenbaum",
+        "idComments": []
+      },
+      {
+        "id": "617acd4fa81a6d7d297f36d1",
+        "date": "1975-04-19T22:28:24.883+00:00",
+        "title": "Lynyrd Skynyrd",
+        "body": "Aut enim aliquam autem dignissimos sit quod cumque porro at neque impedit repellat voluptas magni non sint illum aut alias repellat vel inventore expedita enim commodi.",
+        "authorName": "Percy Rosenbaum",
+        "idComments": []
+      }
+    ]
+  ],
+  "additionalItems": true,
+  "items": {
+    "$id": "#/items",
+    "anyOf": [
+      {
+        "$id": "#/items/anyOf/0",
+        "type": "object",
+        "title": "The first anyOf schema",
+        "description": "An explanation about the purpose of this instance.",
+        "default": {},
+        "examples": [
+          {
+            "id": "617acd4fa81a6d7d297f36d2",
+            "date": "1958-09-05T04:58:11.206+00:00",
+            "title": "Creedence Clearwater Revival",
+            "body": "Ut cupiditate deleniti id qui quia aliquam est quisquam deserunt enim vel ducimus non ipsam aut quis quis repellendus tempore consequatur tempora numquam et quibusdam deserunt quo debitis labore.",
+            "authorName": "Percy Rosenbaum",
+            "idComments": []
+          }
+        ],
+        "required": [
+          "id",
+          "date",
+          "title",
+          "body",
+          "authorName",
+          "idComments"
+        ],
+        "properties": {
+          "id": {
+            "$id": "#/items/anyOf/0/properties/id",
+            "type": "string",
+            "title": "The id schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+              "617acd4fa81a6d7d297f36d2"
+            ]
+          },
+          "date": {
+            "$id": "#/items/anyOf/0/properties/date",
+            "type": "string",
+            "title": "The date schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+              "1958-09-05T04:58:11.206+00:00"
+            ]
+          },
+          "title": {
+            "$id": "#/items/anyOf/0/properties/title",
+            "type": "string",
+            "title": "The title schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+              "Creedence Clearwater Revival"
+            ]
+          },
+          "body": {
+            "$id": "#/items/anyOf/0/properties/body",
+            "type": "string",
+            "title": "The body schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+              "Ut cupiditate deleniti id qui quia aliquam est quisquam deserunt enim vel ducimus non ipsam aut quis quis repellendus tempore consequatur tempora numquam et quibusdam deserunt quo debitis labore."
+            ]
+          },
+          "authorName": {
+            "$id": "#/items/anyOf/0/properties/authorName",
+            "type": "string",
+            "title": "The authorName schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+              "Percy Rosenbaum"
+            ]
+          },
+          "idComments": {
+            "$id": "#/items/anyOf/0/properties/idComments",
+            "type": "array",
+            "title": "The idComments schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": [],
+            "examples": [
+              []
+            ],
+            "additionalItems": true,
+            "items": {
+              "$id": "#/items/anyOf/0/properties/idComments/items"
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    ]
+  }
+}

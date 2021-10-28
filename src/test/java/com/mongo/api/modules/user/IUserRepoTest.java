@@ -1,27 +1,24 @@
 package com.mongo.api.modules.user;
 
 import com.github.javafaker.Faker;
+import com.mongo.api.core.config.TestUtilsConfig;
 import com.mongo.api.modules.post.IPostRepo;
 import com.mongo.api.modules.post.Post;
+import config.annotations.MergedRepo;
+import config.testcontainer.TcComposeConfig;
+import config.utils.TestUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.EnabledIf;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
-import reactor.blockhound.BlockingOperationError;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
-import config.annotations.MergedRepo;
-import config.testcontainer.TcComposeConfig;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import static config.databuilders.PostBuilder.post_IdNull_CommentsEmpty;
 import static config.databuilders.UserBuilder.userFull_IdNull_ListIdPostsEmpty;
@@ -30,7 +27,8 @@ import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE;
 import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE_PORT;
 import static config.utils.TestUtils.*;
 
-@DisplayName("RepoTests")
+@Import({TestUtilsConfig.class})
+@DisplayName("IUserRepoTest")
 @MergedRepo
 public class IUserRepoTest {
 
@@ -49,6 +47,9 @@ public class IUserRepoTest {
 
   @Autowired
   private IPostRepo postRepo;
+
+  @Autowired
+  private TestUtils testUtils;
 
 
   @BeforeAll
@@ -95,8 +96,8 @@ public class IUserRepoTest {
 
     user2WithId = userWithID_IdPostsEmpty().createTestUser();
 
-    post1 = post_IdNull_CommentsEmpty(user2WithId).create();
-    post2 = post_IdNull_CommentsEmpty(user2WithId).create();
+    post1 = post_IdNull_CommentsEmpty(user2WithId).createTestPost();
+    post2 = post_IdNull_CommentsEmpty(user2WithId).createTestPost();
     List<Post> postList = Arrays.asList(post1,post2);
 
     cleanDbToTest();
@@ -272,20 +273,7 @@ public class IUserRepoTest {
   @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("BHWorks")
   public void bHWorks() {
-    try {
-      FutureTask<?> task = new FutureTask<>(() -> {
-        Thread.sleep(0);
-        return "";
-      });
-
-      Schedulers.parallel()
-                .schedule(task);
-
-      task.get(10,TimeUnit.SECONDS);
-      Assertions.fail("should fail");
-    } catch (ExecutionException | InterruptedException | TimeoutException e) {
-      Assertions.assertTrue(e.getCause() instanceof BlockingOperationError,"detected");
-    }
+    testUtils.bhWorks();
   }
 
 

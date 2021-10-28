@@ -1,0 +1,85 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "title": "The root schema",
+  "description": "The root schema comprises the entire JSON document.",
+  "default": {},
+  "examples": [
+    {
+      "id": "617b06aff391fd4d4cf703c2",
+      "name": "AAAAA",
+      "email": "AAAAA",
+      "idPosts": [
+        "617b06caf391fd4d4cf703c3"
+      ]
+    }
+  ],
+  "required": [
+    "id",
+    "name",
+    "email",
+    "idPosts"
+  ],
+  "properties": {
+    "id": {
+      "$id": "#/properties/id",
+      "type": "string",
+      "title": "The id schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "617b06aff391fd4d4cf703c2"
+      ]
+    },
+    "name": {
+      "$id": "#/properties/name",
+      "type": "string",
+      "title": "The name schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "AAAAA"
+      ]
+    },
+    "email": {
+      "$id": "#/properties/email",
+      "type": "string",
+      "title": "The email schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "AAAAA"
+      ]
+    },
+    "idPosts": {
+      "$id": "#/properties/idPosts",
+      "type": "array",
+      "title": "The idPosts schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": [],
+      "examples": [
+        [
+          "617b06caf391fd4d4cf703c3"
+        ]
+      ],
+      "additionalItems": true,
+      "items": {
+        "$id": "#/properties/idPosts/items",
+        "anyOf": [
+          {
+            "$id": "#/properties/idPosts/items/anyOf/0",
+            "type": "string",
+            "title": "The first anyOf schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+              "617b06caf391fd4d4cf703c3"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "additionalProperties": true
+}

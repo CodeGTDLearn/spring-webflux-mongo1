@@ -3,13 +3,15 @@ package com.mongo.api.core.exceptions;
 import com.github.javafaker.Faker;
 import com.mongo.api.core.exceptions.customExceptions.CustomExceptionsProperties;
 import com.mongo.api.core.exceptions.globalException.GlobalExceptionProperties;
-import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.user.IUserRepo;
 import com.mongo.api.modules.user.User;
+import config.annotations.MergedResource;
+import config.testcontainer.TcComposeConfig;
 import io.restassured.http.ContentType;
 import io.restassured.module.webtestclient.RestAssuredWebTestClient;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.junit.jupiter.EnabledIf;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -17,11 +19,8 @@ import reactor.blockhound.BlockingOperationError;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
-import config.annotations.MergedResource;
-import config.testcontainer.TcComposeConfig;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
@@ -30,17 +29,17 @@ import java.util.concurrent.TimeoutException;
 
 import static com.mongo.api.core.routes.RoutesError.ERROR_PATH;
 import static com.mongo.api.core.routes.RoutesUser.*;
-import static org.hamcrest.Matchers.equalTo;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static config.databuilders.UserBuilder.userFull_IdNull_ListIdPostsEmpty;
 import static config.databuilders.UserBuilder.userWithID_IdPostsEmpty;
 import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE;
 import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE_PORT;
 import static config.utils.TestUtils.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
-@DisplayName("UserExceptionsTest")
+@DisplayName("UserResourceExcTest")
 @MergedResource
-public class UserExceptionsTest {
+public class UserResourceExcTest {
+
 
   // STATIC-@Container: one service for ALL tests
   // NON-STATIC-@Container: one service for EACH test
@@ -49,14 +48,14 @@ public class UserExceptionsTest {
 
   final ContentType ANY = ContentType.ANY;
   final ContentType JSON = ContentType.JSON;
-
+  final String enabledTest = "true";
   // MOCKED-SERVER: WEB-TEST-CLIENT(non-blocking client)'
   // SHOULD BE USED WITH 'TEST-CONTAINERS'
   // BECAUSE THERE IS NO 'REAL-SERVER' CREATED VIA DOCKER-COMPOSE
   @Autowired
   WebTestClient mockedWebClient;
-  private User user1, user3, userPostsOwner, userItemTest;
-  private Post post1, post2;
+
+  private User userItemTest;
 
   @Autowired
   private IUserRepo userRepo;
@@ -89,23 +88,13 @@ public class UserExceptionsTest {
   @BeforeEach
   public void beforeEach() {
     RestAssuredWebTestClient.reset();
-    //REAL-SERVER INJECTED IN WEB-TEST-CLIENT(non-blocking client)'
-    //SHOULD BE USED WHEN 'DOCKER-COMPOSE' UP A REAL-WEB-SERVER
-    //BECAUSE THERE IS 'REAL-SERVER' CREATED VIA DOCKER-COMPOSE
-    // realWebClient = WebTestClient.bindToServer()
-    //                      .baseUrl("http://localhost:8080/customer")
-    //                      .build();
-
-    user1 = userWithID_IdPostsEmpty().createTestUser();
-    user3 = userFull_IdNull_ListIdPostsEmpty().createTestUser();
-    userPostsOwner = userWithID_IdPostsEmpty().createTestUser();
     userItemTest = userWithID_IdPostsEmpty().createTestUser();
-    List<User> userList = Arrays.asList(user1,user3);
   }
 
 
   @Test
   @DisplayName("findById: UserNotFound")
+  @EnabledIf(expression = enabledTest, loadContext = true)
   public void findById() {
     RestAssuredWebTestClient
          .given()
@@ -131,6 +120,7 @@ public class UserExceptionsTest {
 
   @Test
   @DisplayName("findAll: Empty")
+  @EnabledIf(expression = enabledTest, loadContext = true)
   public void findAllEmpty() {
     List<User> emptyList = new ArrayList<>();
 
@@ -165,6 +155,7 @@ public class UserExceptionsTest {
 
   @Test
   @DisplayName("findShowAll: Empty")
+  @EnabledIf(expression = enabledTest, loadContext = true)
   public void findShowAllEmpty() {
     List<User> emptyList = new ArrayList<>();
 
@@ -199,6 +190,7 @@ public class UserExceptionsTest {
 
   @Test
   @DisplayName("findAllDto: Empty")
+  @EnabledIf(expression = enabledTest, loadContext = true)
   public void findAllDtoEmpty() {
     List<User> emptyList = new ArrayList<>();
 
@@ -233,6 +225,7 @@ public class UserExceptionsTest {
 
   @Test
   @DisplayName("delete: UserNotFound")
+  @EnabledIf(expression = enabledTest, loadContext = true)
   public void delete() {
     RestAssuredWebTestClient
          .given()
@@ -257,6 +250,7 @@ public class UserExceptionsTest {
 
   @Test
   @DisplayName("update: UserNotFound")
+  @EnabledIf(expression = enabledTest, loadContext = true)
   public void update() {
     RestAssuredWebTestClient
          .given()
@@ -283,6 +277,7 @@ public class UserExceptionsTest {
 
   @Test
   @DisplayName("Global-Exception Error")
+  @EnabledIf(expression = enabledTest, loadContext = true)
   public void globalExceptionError() {
     RestAssuredWebTestClient
          .given()
@@ -309,6 +304,7 @@ public class UserExceptionsTest {
 
   @Test
   @DisplayName("BHWorks")
+  @EnabledIf(expression = enabledTest, loadContext = true)
   public void bHWorks() {
     try {
       FutureTask<?> task = new FutureTask<>(() -> {
