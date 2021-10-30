@@ -1,16 +1,19 @@
 package com.mongo.api.core.exceptions;
 
 import com.github.javafaker.Faker;
+import com.mongo.api.core.config.TestDbConfig;
 import com.mongo.api.core.exceptions.customExceptions.CustomExceptionsProperties;
 import com.mongo.api.core.exceptions.globalException.GlobalExceptionProperties;
 import com.mongo.api.modules.user.IUserRepo;
 import com.mongo.api.modules.user.User;
 import config.annotations.MergedResource;
 import config.testcontainer.TcComposeConfig;
+import config.utils.TestDbUtils;
 import io.restassured.http.ContentType;
 import io.restassured.module.webtestclient.RestAssuredWebTestClient;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.EnabledIf;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.testcontainers.containers.DockerComposeContainer;
@@ -36,6 +39,7 @@ import static config.utils.TestUtils.*;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
+@Import({TestDbConfig.class})
 @DisplayName("UserResourceExcTest")
 @MergedResource
 public class UserResourceExcTest {
@@ -59,6 +63,9 @@ public class UserResourceExcTest {
 
   @Autowired
   private IUserRepo userRepo;
+
+  @Autowired
+  private TestDbUtils dbUtils;
 
   @Autowired
   private CustomExceptionsProperties customExceptions;
@@ -124,7 +131,7 @@ public class UserResourceExcTest {
   public void findAllEmpty() {
     List<User> emptyList = new ArrayList<>();
 
-    Flux<User> userFlux = cleanDb_SavingListUsers_GetThemInAFlux(emptyList);
+    Flux<User> userFlux = dbUtils.saveUserList(emptyList);
 
     StepVerifier
          .create(userFlux)
@@ -159,7 +166,7 @@ public class UserResourceExcTest {
   public void findShowAllEmpty() {
     List<User> emptyList = new ArrayList<>();
 
-    Flux<User> userFlux = cleanDb_SavingListUsers_GetThemInAFlux(emptyList);
+    Flux<User> userFlux = dbUtils.saveUserList(emptyList);
 
     StepVerifier
          .create(userFlux)
@@ -194,7 +201,7 @@ public class UserResourceExcTest {
   public void findAllDtoEmpty() {
     List<User> emptyList = new ArrayList<>();
 
-    Flux<User> userFlux = cleanDb_SavingListUsers_GetThemInAFlux(emptyList);
+    Flux<User> userFlux = dbUtils.saveUserList(emptyList);
 
     StepVerifier
          .create(userFlux)
@@ -322,15 +329,4 @@ public class UserResourceExcTest {
     }
   }
 
-
-  private Flux<User> cleanDb_SavingListUsers_GetThemInAFlux(List<User> userList) {
-    return userRepo.deleteAll()
-                   .thenMany(Flux.fromIterable(userList))
-                   .flatMap(userRepo::save)
-                   .doOnNext(item -> userRepo.findAll())
-                   .doOnNext((item -> System.out.println(
-                        "\n>>>>>>>>>>>>>>>Repo - UserID: " + item.getId() +
-                             "|Name: " + item.getName() +
-                             "|Email: " + item.getEmail())));
-  }
 }

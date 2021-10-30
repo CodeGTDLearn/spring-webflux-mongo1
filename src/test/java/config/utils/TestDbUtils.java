@@ -17,7 +17,7 @@ import reactor.test.StepVerifier;
 import java.util.List;
 
 @Slf4j
-public class DbUtils {
+public class TestDbUtils {
 
   @Autowired
   private IUserService userService;

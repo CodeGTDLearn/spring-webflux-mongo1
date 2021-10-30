@@ -1,6 +1,6 @@
 package com.mongo.api.core.config;
 
-import config.utils.DbUtils;
+import config.utils.TestDbUtils;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 
@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean;
 public class TestDbConfig {
 
   @Bean
-  public DbUtils userDbUtils() {
-    return new DbUtils();
+  public TestDbUtils testDbUtils() {
+    return new TestDbUtils();
   }
 }

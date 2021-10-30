@@ -1,13 +1,20 @@
 package com.mongo.api.modules.user;
 
 import com.github.javafaker.Faker;
+import com.mongo.api.core.config.TestDbConfig;
 import com.mongo.api.core.config.TestUtilsConfig;
+import com.mongo.api.core.exceptions.customExceptions.CustomExceptions;
+import com.mongo.api.core.exceptions.customExceptions.CustomExceptionsProperties;
+import com.mongo.api.modules.comment.CommentService;
 import com.mongo.api.modules.post.IPostRepo;
 import com.mongo.api.modules.post.Post;
+import com.mongo.api.modules.post.PostService;
 import config.annotations.MergedRepo;
 import config.testcontainer.TcComposeConfig;
+import config.utils.TestDbUtils;
 import config.utils.TestUtils;
 import org.junit.jupiter.api.*;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.EnabledIf;
@@ -27,7 +34,16 @@ import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE;
 import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE_PORT;
 import static config.utils.TestUtils.*;
 
-@Import({TestUtilsConfig.class})
+@Import({
+     TestUtilsConfig.class,
+     TestDbConfig.class,
+     UserService.class,
+     PostService.class,
+     CommentService.class,
+     CustomExceptions.class,
+     CustomExceptionsProperties.class,
+     ModelMapper.class,
+})
 @DisplayName("IUserRepoTest")
 @MergedRepo
 public class IUserRepoTest {
@@ -47,6 +63,9 @@ public class IUserRepoTest {
 
   @Autowired
   private IPostRepo postRepo;
+
+  @Autowired
+  private TestDbUtils testDbUtils;
 
   @Autowired
   private TestUtils testUtils;
@@ -78,7 +97,7 @@ public class IUserRepoTest {
     user1 = userFull_IdNull_ListIdPostsEmpty().createTestUser();
     user3 = userFull_IdNull_ListIdPostsEmpty().createTestUser();
     List<User> userList = Arrays.asList(user1,user3);
-    userFlux = cleanDb_SavingListUsers_GetThemInAFlux(userList);
+    userFlux = testDbUtils.saveUserList(userList);
   }
 
 
@@ -100,7 +119,7 @@ public class IUserRepoTest {
     post2 = post_IdNull_CommentsEmpty(user2WithId).createTestPost();
     List<Post> postList = Arrays.asList(post1,post2);
 
-    cleanDbToTest();
+    testDbUtils.cleanTestDb();
 
     StepVerifier
          .create(userRepo.save(user2WithId))
@@ -115,7 +134,7 @@ public class IUserRepoTest {
                                                .equals(user.getId()))
          .verifyComplete();
 
-    Flux<Post> postFlux = cleanDb_Saving02Posts_GetThemInAFlux(postList);
+    Flux<Post> postFlux = testDbUtils.savePostList(postList);
 
     StepVerifier
          .create(postFlux)
@@ -276,39 +295,5 @@ public class IUserRepoTest {
     testUtils.bhWorks();
   }
 
-
-  private void cleanDbToTest() {
-    StepVerifier
-         .create(userRepo.deleteAll())
-         .expectSubscription()
-         .verifyComplete();
-
-    System.out.println("\n\n==================> CLEANING-DB-TO-TEST" +
-                            " <==================\n\n");
-  }
-
-
-  private Flux<User> cleanDb_SavingListUsers_GetThemInAFlux(List<User> userList) {
-    return userRepo.deleteAll()
-                   .thenMany(Flux.fromIterable(userList))
-                   .flatMap(userRepo::save)
-                   .doOnNext(item -> userRepo.findAll())
-                   .doOnNext((item -> System.out.println(
-                        "\n>>>>>>>>>>>>>>>Repo - UserID: " + item.getId() +
-                             "|Name: " + item.getName() +
-                             "|Email: " + item.getEmail())));
-  }
-
-
-  private Flux<Post> cleanDb_Saving02Posts_GetThemInAFlux(List<Post> postList) {
-    return postRepo.deleteAll()
-                   .thenMany(Flux.fromIterable(postList))
-                   .flatMap(postRepo::save)
-                   .doOnNext(item -> postRepo.findAll())
-                   .doOnNext((item -> System.out.println(
-                        "\n>>>>>>>>>>>>>>>>>> Repo post - Post-ID: " + item.getPostId() +
-                             "|Author: " + item.getAuthor()
-                                                        )));
-  }
 
 }

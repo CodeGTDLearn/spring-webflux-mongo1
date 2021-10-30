@@ -8,7 +8,7 @@ import com.mongo.api.modules.comment.Comment;
 import com.mongo.api.modules.post.Post;
 import config.annotations.MergedResource;
 import config.testcontainer.TcComposeConfig;
-import config.utils.DbUtils;
+import config.utils.TestDbUtils;
 import config.utils.TestUtils;
 import io.restassured.http.ContentType;
 import io.restassured.module.webtestclient.RestAssuredWebTestClient;
@@ -64,7 +64,7 @@ public class UserResourceTest {
   private User user1, user3, postsAuthor;
 
   @Autowired
-  private DbUtils dbUtils;
+  private TestDbUtils dbUtils;
 
   @Autowired
   private TestUtils testUtils;

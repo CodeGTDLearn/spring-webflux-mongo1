@@ -13,7 +13,7 @@ import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.post.PostService;
 import config.annotations.MergedRepo;
 import config.testcontainer.TcComposeConfig;
-import config.utils.DbUtils;
+import config.utils.TestDbUtils;
 import config.utils.TestUtils;
 import org.junit.jupiter.api.*;
 import org.modelmapper.ModelMapper;
@@ -75,7 +75,7 @@ public class UserServiceTest {
   private IPostService postService;
 
   @Autowired
-  private DbUtils dbUtils;
+  private TestDbUtils dbUtils;
 
   @Autowired
   private TestUtils testUtils;
