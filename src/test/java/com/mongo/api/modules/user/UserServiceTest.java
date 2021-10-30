@@ -2,7 +2,6 @@ package com.mongo.api.modules.user;
 
 import com.github.javafaker.Faker;
 import com.mongo.api.core.config.TestDbConfig;
-import com.mongo.api.core.config.TestUtilsConfig;
 import com.mongo.api.core.dto.UserAllDto;
 import com.mongo.api.core.exceptions.customExceptions.CustomExceptions;
 import com.mongo.api.core.exceptions.customExceptions.CustomExceptionsProperties;
@@ -14,7 +13,6 @@ import com.mongo.api.modules.post.PostService;
 import config.annotations.MergedRepo;
 import config.testcontainer.TcComposeConfig;
 import config.utils.TestDbUtils;
-import config.utils.TestUtils;
 import org.junit.jupiter.api.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +34,7 @@ import static config.databuilders.PostBuilder.post_IdNull_CommentsEmpty;
 import static config.databuilders.UserBuilder.*;
 import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE;
 import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE_PORT;
+import static config.utils.BlockhoundUtils.bhWorks;
 import static config.utils.TestUtils.*;
 
 
@@ -45,7 +44,6 @@ import static config.utils.TestUtils.*;
 //   * The 'main-class's dependencies' must be imported "AS WELL"
 //     (Ex.: PostService, CommentService, CustomExceptions, CustomExceptionsProperties, ModelMapper)
 @Import({
-     TestUtilsConfig.class,
      TestDbConfig.class,
      UserService.class,
      PostService.class,
@@ -76,9 +74,6 @@ public class UserServiceTest {
 
   @Autowired
   private TestDbUtils dbUtils;
-
-  @Autowired
-  private TestUtils testUtils;
 
 
   @BeforeAll
@@ -253,14 +248,6 @@ public class UserServiceTest {
   }
 
 
-  @Test
-  @EnabledIf(expression = enabledTest, loadContext = true)
-  @DisplayName("BHWorks")
-  public void bHWorks() {
-    testUtils.bhWorks();
-  }
-
-
   @DisplayName("findPostsByUserId")
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
@@ -368,6 +355,14 @@ public class UserServiceTest {
                                                          .get(0)
                                                          .getCommentId()))
          .verifyComplete();
+  }
+
+
+  @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
+  @DisplayName("BHWorks")
+  public void bHWorks() {
+    bhWorks();
   }
 }
 

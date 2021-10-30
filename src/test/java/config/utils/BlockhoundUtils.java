@@ -2,9 +2,17 @@ package config.utils;
 
 import lombok.NoArgsConstructor;
 import org.junit.Ignore;
+import org.junit.jupiter.api.Assertions;
 import org.springframework.test.annotation.DirtiesContext;
 import reactor.blockhound.BlockHound;
+import reactor.blockhound.BlockingOperationError;
 import reactor.blockhound.integration.BlockHoundIntegration;
+import reactor.core.scheduler.Schedulers;
+
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
 @Ignore
@@ -55,6 +63,23 @@ public class BlockhoundUtils {
                                         "write"
                                        );
     BlockHound.install(allowedCalls);
+  }
+
+  public static void bhWorks() {
+    try {
+      FutureTask<?> task = new FutureTask<>(() -> {
+        Thread.sleep(0);
+        return "";
+      });
+
+      Schedulers.parallel()
+                .schedule(task);
+
+      task.get(10,TimeUnit.SECONDS);
+      Assertions.fail("should fail");
+    } catch (ExecutionException | InterruptedException | TimeoutException e) {
+      Assertions.assertTrue(e.getCause() instanceof BlockingOperationError,"detected");
+    }
   }
 
 }

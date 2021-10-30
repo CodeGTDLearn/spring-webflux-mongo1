@@ -2,15 +2,12 @@ package com.mongo.api.modules.user;
 
 import com.github.javafaker.Faker;
 import com.mongo.api.core.config.TestDbConfig;
-import com.mongo.api.core.config.TestUtilsConfig;
 import com.mongo.api.core.dto.UserAllDto;
 import com.mongo.api.modules.comment.Comment;
 import com.mongo.api.modules.post.Post;
 import config.annotations.MergedResource;
 import config.testcontainer.TcComposeConfig;
 import config.utils.TestDbUtils;
-import config.utils.TestUtils;
-import io.restassured.http.ContentType;
 import io.restassured.module.webtestclient.RestAssuredWebTestClient;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.*;
@@ -32,6 +29,7 @@ import static config.databuilders.PostBuilder.postFull_withId_CommentsEmpty;
 import static config.databuilders.UserBuilder.*;
 import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE;
 import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE_PORT;
+import static config.utils.BlockhoundUtils.bhWorks;
 import static config.utils.TestUtils.*;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.hamcrest.CoreMatchers.containsStringIgnoringCase;
@@ -44,7 +42,7 @@ import static org.springframework.http.HttpStatus.*;
 //     - "Como stream pode ser manipulado por diferentes grupos de thread, caso um erro aconteça em
 // uma thread que não é a que operou a controller, o ControllerAdvice não vai ser notificado "
 //     - https://medium.com/nstech/programa%C3%A7%C3%A3o-reativa-com-spring-boot-webflux-e-mongodb-chega-de-sofrer-f92fb64517c3
-@Import({TestUtilsConfig.class,TestDbConfig.class})
+@Import(TestDbConfig.class)
 @DisplayName("UserResourceTest")
 @MergedResource
 public class UserResourceTest {
@@ -53,8 +51,9 @@ public class UserResourceTest {
   @Container
   private static final DockerComposeContainer<?> compose = new TcComposeConfig().getTcCompose();
   final String enabledTest = "true";
-  final ContentType ANY = ContentType.ANY;
-  final ContentType JSON = ContentType.JSON;
+  // final ContentType ANY = ContentType.ANY;
+  // final ContentType JSON = ContentType.JSON;
+
   // MOCKED-SERVER: WEB-TEST-CLIENT(non-blocking client)'
   // SHOULD BE USED WITH 'TEST-CONTAINERS'
   // BECAUSE THERE IS NO 'REAL-SERVER' CREATED VIA DOCKER-COMPOSE
@@ -65,9 +64,6 @@ public class UserResourceTest {
 
   @Autowired
   private TestDbUtils dbUtils;
-
-  @Autowired
-  private TestUtils testUtils;
 
   @Autowired
   private IUserService userService;
@@ -128,8 +124,8 @@ public class UserResourceTest {
 
          .given()
          .webTestClient(mockedWebClient)
-         .header("Accept",ANY)
-         .header("Content-type",JSON)
+//         .header("Accept",ANY)
+
 
          .when()
          .get(REQ_USER + FIND_ALL_USERS)
@@ -138,7 +134,7 @@ public class UserResourceTest {
          .log()
          .everything()
 
-         .contentType(JSON)
+         // .contentType(JSON)
          .statusCode(OK.value())
          .body("size()",is(2))
          .body("id",hasItem(user1.getId()))
@@ -156,8 +152,8 @@ public class UserResourceTest {
 
          .given()
          .webTestClient(mockedWebClient)
-         .header("Accept",ANY)
-         .header("Content-type",JSON)
+//         .header("Accept",ANY)
+
 
          .when()
          .get(REQ_USER + FIND_ALL_USERS_DTO)
@@ -166,7 +162,7 @@ public class UserResourceTest {
          .log()
          .everything()
 
-         .contentType(JSON)
+         // .contentType(JSON)
          .statusCode(OK.value())
          .body("$",hasSize(2))
          .body("[0]",hasKey("id"))
@@ -206,8 +202,8 @@ public class UserResourceTest {
 
          .given()
          .webTestClient(mockedWebClient)
-         .header("Accept",JSON)
-         .header("Content-type",JSON)
+         // .header("Accept",JSON)
+
 
          .when()
          .get(REQ_USER + FIND_ALL_SHOW_ALL_DTO)
@@ -216,7 +212,7 @@ public class UserResourceTest {
          .log()
          .everything()
 
-         .contentType(JSON)
+         // .contentType(JSON)
          .statusCode(OK.value())
          .body("id",hasItem(userShowAll.getId()))
          .body("posts[0].postId",hasItem(post.getPostId()))
@@ -234,8 +230,8 @@ public class UserResourceTest {
 
          .given()
          .webTestClient(mockedWebClient)
-         .header("Accept",ANY)
-         .header("Content-type",JSON)
+//         .header("Accept",ANY)
+
 
          .when()
          .get(REQ_USER + FIND_USER_BY_ID,user3.getId())
@@ -244,7 +240,7 @@ public class UserResourceTest {
          .log()
          .everything()
 
-         .contentType(JSON)
+         // .contentType(JSON)
          .statusCode(OK.value())
          .body("id",equalTo(user3.getId()))
 
@@ -260,11 +256,11 @@ public class UserResourceTest {
 
          .given()
          .webTestClient(mockedWebClient)
-         .header("Accept",ANY)
-         .header("Content-type",JSON)
+//         .header("Accept",ANY)
+
 
          .body(postsAuthor)
-         .contentType(JSON)
+         // .contentType(JSON)
 
          .when()
          .post(REQ_USER)
@@ -273,7 +269,7 @@ public class UserResourceTest {
          .log()
          .everything()
 
-         .contentType(JSON)
+         // .contentType(JSON)
          .statusCode(CREATED.value())
          .body("id",containsStringIgnoringCase(postsAuthor.getId()))
          .body("email",containsStringIgnoringCase(postsAuthor.getEmail()))
@@ -291,11 +287,11 @@ public class UserResourceTest {
 
          .given()
          .webTestClient(mockedWebClient)
-         .header("Accept",ANY)
-         .header("Content-type",JSON)
+//         .header("Accept",ANY)
+
 
          .body(user1)
-         .contentType(JSON)
+         // .contentType(JSON)
 
          .when()
          .delete(REQ_USER)
@@ -326,11 +322,11 @@ public class UserResourceTest {
 
          .given()
          .webTestClient(mockedWebClient)
-         .header("Accept",ANY)
-         .header("Content-type",JSON)
+//         .header("Accept",ANY)
+
 
          .body(user1)
-         .contentType(JSON)
+         // .contentType(JSON)
 
          .when()
          .put(REQ_USER)
@@ -339,7 +335,7 @@ public class UserResourceTest {
          .log()
          .everything()
 
-         .contentType(JSON)
+         // .contentType(JSON)
          .statusCode(OK.value())
          .body("id",equalTo(user1.getId()))
          .body("name",equalTo(user1.getName()))
@@ -355,6 +351,6 @@ public class UserResourceTest {
   @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("BHWorks")
   public void bHWorks() {
-    testUtils.bhWorks();
+    bhWorks();
   }
 }

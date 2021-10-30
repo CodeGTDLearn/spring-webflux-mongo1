@@ -4,12 +4,10 @@ import com.github.javafaker.Faker;
 import com.mongo.api.core.config.TestDbConfig;
 import com.mongo.api.core.exceptions.customExceptions.CustomExceptionsProperties;
 import com.mongo.api.core.exceptions.globalException.GlobalExceptionProperties;
-import com.mongo.api.modules.user.IUserRepo;
 import com.mongo.api.modules.user.User;
 import config.annotations.MergedResource;
 import config.testcontainer.TcComposeConfig;
 import config.utils.TestDbUtils;
-import io.restassured.http.ContentType;
 import io.restassured.module.webtestclient.RestAssuredWebTestClient;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,23 +16,18 @@ import org.springframework.test.context.junit.jupiter.EnabledIf;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
-import reactor.blockhound.BlockingOperationError;
 import reactor.core.publisher.Flux;
-import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import static com.mongo.api.core.routes.RoutesError.ERROR_PATH;
 import static com.mongo.api.core.routes.RoutesUser.*;
 import static config.databuilders.UserBuilder.userWithID_IdPostsEmpty;
 import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE;
 import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE_PORT;
+import static config.utils.BlockhoundUtils.bhWorks;
 import static config.utils.TestUtils.*;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -50,8 +43,8 @@ public class UserResourceExcTest {
   @Container
   private static final DockerComposeContainer<?> compose = new TcComposeConfig().getTcCompose();
 
-  final ContentType ANY = ContentType.ANY;
-  final ContentType JSON = ContentType.JSON;
+  // final ContentType ANY = ContentType.ANY;
+  // final ContentType JSON = ContentType.JSON;
   final String enabledTest = "true";
   // MOCKED-SERVER: WEB-TEST-CLIENT(non-blocking client)'
   // SHOULD BE USED WITH 'TEST-CONTAINERS'
@@ -60,9 +53,6 @@ public class UserResourceExcTest {
   WebTestClient mockedWebClient;
 
   private User userItemTest;
-
-  @Autowired
-  private IUserRepo userRepo;
 
   @Autowired
   private TestDbUtils dbUtils;
@@ -106,8 +96,8 @@ public class UserResourceExcTest {
     RestAssuredWebTestClient
          .given()
          .webTestClient(mockedWebClient)
-         .header("Accept",ANY)
-         .header("Content-type",JSON)
+
+
 
          .when()
          .get(REQ_USER + FIND_USER_BY_ID,Faker.instance()
@@ -118,7 +108,7 @@ public class UserResourceExcTest {
          .log()
          .everything()
 
-         .contentType(JSON)
+         // .contentType(JSON)
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getUserNotFoundMessage()))
     ;
@@ -143,8 +133,8 @@ public class UserResourceExcTest {
 
          .given()
          .webTestClient(mockedWebClient)
-         .header("Accept",ANY)
-         .header("Content-type",JSON)
+
+
 
          .when()
          .get(REQ_USER + FIND_ALL_USERS)
@@ -153,7 +143,7 @@ public class UserResourceExcTest {
          .log()
          .everything()
 
-         .contentType(JSON)
+         // .contentType(JSON)
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getUsersNotFoundMessage()))
     ;
@@ -178,8 +168,8 @@ public class UserResourceExcTest {
 
          .given()
          .webTestClient(mockedWebClient)
-         .header("Accept",JSON)
-         .header("Content-type",JSON)
+         // .header("Accept",JSON)
+
 
          .when()
          .get(REQ_USER + FIND_ALL_SHOW_ALL_DTO)
@@ -188,7 +178,7 @@ public class UserResourceExcTest {
          .log()
          .everything()
 
-         .contentType(JSON)
+         // .contentType(JSON)
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getUsersNotFoundMessage()))
     ;
@@ -213,8 +203,8 @@ public class UserResourceExcTest {
 
          .given()
          .webTestClient(mockedWebClient)
-         .header("Accept",ANY)
-         .header("Content-type",JSON)
+
+
 
          .when()
          .get(REQ_USER + FIND_ALL_USERS_DTO)
@@ -223,7 +213,7 @@ public class UserResourceExcTest {
          .log()
          .everything()
 
-         .contentType(JSON)
+         // .contentType(JSON)
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getUsersNotFoundMessage()))
     ;
@@ -237,11 +227,11 @@ public class UserResourceExcTest {
     RestAssuredWebTestClient
          .given()
          .webTestClient(mockedWebClient)
-         .header("Accept",ANY)
-         .header("Content-type",JSON)
+
+
 
          .body(userItemTest)
-         .contentType(JSON)
+         // .contentType(JSON)
 
          .when()
          .delete(REQ_USER)
@@ -262,11 +252,11 @@ public class UserResourceExcTest {
     RestAssuredWebTestClient
          .given()
          .webTestClient(mockedWebClient)
-         .header("Accept",ANY)
-         .header("Content-type",JSON)
+
+
 
          .body(userItemTest)
-         .contentType(JSON)
+         // .contentType(JSON)
 
          .when()
          .put(REQ_USER)
@@ -275,7 +265,7 @@ public class UserResourceExcTest {
          .log()
          .everything()
 
-         .contentType(JSON)
+         // .contentType(JSON)
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getUserNotFoundMessage()))
     ;
@@ -289,8 +279,8 @@ public class UserResourceExcTest {
     RestAssuredWebTestClient
          .given()
          .webTestClient(mockedWebClient)
-         .header("Accept",ANY)
-         .header("Content-type",JSON)
+
+
 
          .when()
          .get(REQ_USER + ERROR_PATH)
@@ -310,23 +300,10 @@ public class UserResourceExcTest {
 
 
   @Test
-  @DisplayName("BHWorks")
   @EnabledIf(expression = enabledTest, loadContext = true)
+  @DisplayName("BHWorks")
   public void bHWorks() {
-    try {
-      FutureTask<?> task = new FutureTask<>(() -> {
-        Thread.sleep(0);
-        return "";
-      });
-
-      Schedulers.parallel()
-                .schedule(task);
-
-      task.get(10,TimeUnit.SECONDS);
-      Assertions.fail("should fail");
-    } catch (ExecutionException | InterruptedException | TimeoutException e) {
-      Assertions.assertTrue(e.getCause() instanceof BlockingOperationError,"detected");
-    }
+    bhWorks();
   }
 
 }
