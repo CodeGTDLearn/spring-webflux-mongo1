@@ -30,6 +30,7 @@ import static config.databuilders.UserBuilder.userWithID_IdPostsEmpty;
 import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE;
 import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE_PORT;
 import static config.utils.BlockhoundUtils.bhWorks;
+import static config.utils.RestAssureSpecs.*;
 import static config.utils.TestUtils.*;
 import static io.restassured.http.ContentType.JSON;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
@@ -66,10 +67,10 @@ class PostResourceTest {
   private User postsAuthor;
 
   @Autowired
-  private TestDbUtils dbUtils;
+  TestDbUtils testDbUtils;
 
   @Autowired
-  private IUserService userService;
+  IUserService userService;
 
 
   @BeforeAll
@@ -80,6 +81,10 @@ class PostResourceTest {
                                          TC_COMPOSE_SERVICE,
                                          TC_COMPOSE_SERVICE_PORT
                                         );
+
+    RestAssuredWebTestClient.reset();
+    RestAssuredWebTestClient.requestSpecification = requestSpecs();
+    RestAssuredWebTestClient.responseSpecification = responseSpecs();
   }
 
 
@@ -103,7 +108,7 @@ class PostResourceTest {
                               .toString(),"method-start");
 
     postsAuthor = userWithID_IdPostsEmpty().createTestUser();
-    Flux<User> userFlux = dbUtils.saveUserList(singletonList(postsAuthor));
+    Flux<User> userFlux = testDbUtils.saveUserList(singletonList(postsAuthor));
     StepVerifier
          .create(userFlux)
          .expectSubscription()
@@ -113,8 +118,8 @@ class PostResourceTest {
     post1 = post_IdNull_CommentsEmpty(postsAuthor).createTestPost();
     post3 = post_IdNull_CommentsEmpty(postsAuthor).createTestPost();
     List<Post> postList = Arrays.asList(post1,post3);
-    Flux<Post> postFlux = dbUtils.savePostList(postList);
-    dbUtils.countAndExecutePostFlux(postFlux,2);
+    Flux<Post> postFlux = testDbUtils.savePostList(postList);
+    testDbUtils.countAndExecutePostFlux(postFlux,2);
 
   }
 
@@ -134,7 +139,6 @@ class PostResourceTest {
          .given()
          .webTestClient(mockedWebClient)
 
-
          .when()
          .get(REQ_POST + FIND_ALL_POSTS)
 
@@ -142,7 +146,6 @@ class PostResourceTest {
          .log()
          .everything()
 
-         //         .contentType(JSON)
          .statusCode(OK.value())
          .body("size()",is(2))
          .body("body",hasItem(post1.getBody()))
@@ -170,7 +173,6 @@ class PostResourceTest {
          .given()
          .webTestClient(mockedWebClient)
 
-
          .when()
          .get(REQ_POST + FIND_POST_BY_ID,post1.getPostId())
 
@@ -178,7 +180,6 @@ class PostResourceTest {
          .log()
          .everything()
 
-         //         .contentType(JSON)
          .statusCode(OK.value())
          .body("id",equalTo(post1.getPostId()))
          .body("body",equalTo(post1.getBody()))
@@ -196,7 +197,6 @@ class PostResourceTest {
          .given()
          .webTestClient(mockedWebClient)
 
-
          .when()
          .get(REQ_POST + FIND_POSTS_BY_AUTHORID,postsAuthor.getId())
 
@@ -204,7 +204,6 @@ class PostResourceTest {
          .log()
          .everything()
 
-         //         .contentType(JSON)
          .statusCode(OK.value())
          .body("id",hasItems(post1.getPostId(),post3.getPostId()))
          .body("body",hasItems(post1.getBody(),post3.getBody()))
@@ -222,20 +221,13 @@ class PostResourceTest {
          .given()
          .webTestClient(mockedWebClient)
 
-
          .when()
          .get(REQ_POST + FIND_POST_BY_ID_SHOW_COMMENTS,post1.getPostId())
 
          .then()
          .log()
          .everything()
-         .log()
-         .headers()
-         .and()
-         .log()
-         .body()
 
-         // .contentType(JSON)
          .statusCode(OK.value())
          .body("id",containsString(post1.getPostId()))
          .body("body",containsString(post1.getBody()))
@@ -247,14 +239,14 @@ class PostResourceTest {
 
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
-  void saveEmbedObject() {
+  void save() {
     post3 = post_IdNull_CommentsEmpty(postsAuthor).createTestPost();
 
     WebTestClientRequestSpecification requestSpecs;
     requestSpecs =
          new WebTestClientRequestSpecBuilder()
               .setContentType(JSON)
-//              .log(LogDetail.ALL)
+              //              .log(LogDetail.ALL)
               .build();
     requestSpecs.accept(ContentType.ANY);
 
@@ -264,9 +256,7 @@ class PostResourceTest {
          .webTestClient(mockedWebClient)
          .spec(requestSpecs)
 
-
          .body(post3)
-         // .contentType(JSON)
 
          .when()
          .post(REQ_POST + SAVE_EMBED_USER_IN_THE_POST)
@@ -275,7 +265,6 @@ class PostResourceTest {
          .log()
          .everything()
 
-         // .contentType(JSON)
          .statusCode(CREATED.value())
          .body("id",equalTo(post3.getPostId()))
          .body("body",equalTo(post3.getBody()))
@@ -288,12 +277,13 @@ class PostResourceTest {
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
   void delete() {
+    RestAssuredWebTestClient.responseSpecification = responseSpecNoContentType();
+
     RestAssuredWebTestClient
 
          .given()
          .webTestClient(mockedWebClient)
          .body(post1)
-//         .contentType(JSON)
 
          .when()
          .delete(REQ_POST)
@@ -305,7 +295,7 @@ class PostResourceTest {
          .statusCode(NO_CONTENT.value())
     ;
 
-    dbUtils.countAndExecuteUserFlux(userService.findAll(),1);
+    testDbUtils.countAndExecuteUserFlux(userService.findAll(),1);
   }
 
 
@@ -325,9 +315,7 @@ class PostResourceTest {
          .given()
          .webTestClient(mockedWebClient)
 
-
          .body(post1)
-         // .contentType(JSON)
 
          .when()
          .put(REQ_POST)
@@ -336,11 +324,9 @@ class PostResourceTest {
          .log()
          .everything()
 
-         // .contentType(JSON)
          .statusCode(OK.value())
          .body("title",equalTo(updatedTitle))
          .body("title",not(equalTo(previousTitle)))
-
          .body(matchesJsonSchemaInClasspath("contracts/post/update.json"))
     ;
   }
@@ -354,7 +340,6 @@ class PostResourceTest {
          .given()
          .webTestClient(mockedWebClient)
 
-
          .when()
          .get(REQ_POST + FIND_USER_BY_POSTID,post1.getPostId())
 
@@ -362,11 +347,9 @@ class PostResourceTest {
          .log()
          .everything()
 
-         // .contentType(JSON)
          .statusCode(OK.value())
          .body("id",equalTo(post1.getAuthor()
                                  .getId()))
-
          .body(matchesJsonSchemaInClasspath("contracts/post/findUserByPostId.json"))
     ;
   }

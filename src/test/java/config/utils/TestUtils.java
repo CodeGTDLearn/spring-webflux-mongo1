@@ -1,6 +1,5 @@
 package config.utils;
 
-import io.restassured.http.ContentType;
 import io.restassured.module.webtestclient.RestAssuredWebTestClient;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
@@ -9,21 +8,21 @@ import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.containers.MongoDBContainer;
 
 import static config.utils.BlockhoundUtils.blockhoundInstallSimple;
-import static config.utils.RestAssureSpecs.restAssureGlobalRequestSpecificationsConfig;
-import static config.utils.RestAssureSpecs.restAssureGlobalResponseSpecificationsConfig;
+import static config.utils.RestAssureSpecs.requestSpecs;
+import static config.utils.RestAssureSpecs.responseSpecs;
 
 @Slf4j
 public class TestUtils {
 
-  final static Long MAX_TIMEOUT = 15000L;
-  final static ContentType JSON_CONTENT_TYPE = ContentType.JSON;
-  final static ContentType ANY_CONTENT_TYPE = ContentType.ANY;
+//  final static Long MAX_TIMEOUT = 15000L;
+//  final static ContentType JSON_CONTENT_TYPE = ContentType.JSON;
+//  final static ContentType ANY_CONTENT_TYPE = ContentType.ANY;
 
 
   @BeforeAll
   public static void globalBeforeAll() {
-    restAssureGlobalRequestSpecificationsConfig();
-    restAssureGlobalResponseSpecificationsConfig();
+    requestSpecs();
+    responseSpecs();
     blockhoundInstallSimple();
   }
 

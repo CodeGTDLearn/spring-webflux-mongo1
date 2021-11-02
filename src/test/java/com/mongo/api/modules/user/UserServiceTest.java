@@ -73,7 +73,7 @@ public class UserServiceTest {
   private IPostService postService;
 
   @Autowired
-  private TestDbUtils dbUtils;
+  private TestDbUtils testDbUtils;
 
 
   @BeforeAll
@@ -106,7 +106,7 @@ public class UserServiceTest {
   @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("FindAll")
   void findAll() {
-    Flux<User> userFlux = dbUtils.saveUserList(userList);
+    Flux<User> userFlux = testDbUtils.saveUserList(userList);
 
     StepVerifier
          .create(userFlux)
@@ -116,7 +116,7 @@ public class UserServiceTest {
 
     List<User> emptyList = new ArrayList<>();
 
-    userFlux = dbUtils.saveUserList(emptyList);
+    userFlux = testDbUtils.saveUserList(emptyList);
 
     StepVerifier
          .create(userFlux)
@@ -130,7 +130,7 @@ public class UserServiceTest {
   @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("FindById")
   void findById() {
-    final Flux<User> userFlux = dbUtils.saveUserList(userList);
+    final Flux<User> userFlux = testDbUtils.saveUserList(userList);
 
     StepVerifier
          .create(userFlux)
@@ -155,7 +155,7 @@ public class UserServiceTest {
   @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("Save: Object")
   void save() {
-    dbUtils.cleanTestDb();
+    testDbUtils.cleanTestDb();
 
     StepVerifier
          .create(userService.save(user3))
@@ -191,7 +191,7 @@ public class UserServiceTest {
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
   public void deleteById() {
-    final Flux<User> userFlux = dbUtils.saveUserList(userList);
+    final Flux<User> userFlux = testDbUtils.saveUserList(userList);
 
     StepVerifier
          .create(userFlux)
@@ -219,7 +219,7 @@ public class UserServiceTest {
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
   public void update() {
-    final Flux<User> userFlux = dbUtils.saveUserList(userList);
+    final Flux<User> userFlux = testDbUtils.saveUserList(userList);
 
     StepVerifier
          .create(userFlux)
@@ -258,7 +258,7 @@ public class UserServiceTest {
     post2 = post_IdNull_CommentsEmpty(userWithIdForPost1Post2).createTestPost();
     List<Post> postList = Arrays.asList(post1,post2);
 
-    dbUtils.cleanTestDb();
+    testDbUtils.cleanTestDb();
 
     StepVerifier
          .create(userService.save(userWithIdForPost1Post2))
@@ -274,7 +274,7 @@ public class UserServiceTest {
          .verifyComplete();
 
     Flux<Post> postFluxPost1Post2 =
-         dbUtils.savePostList(postList);
+         testDbUtils.savePostList(postList);
 
     StepVerifier
          .create(postFluxPost1Post2)
@@ -316,7 +316,7 @@ public class UserServiceTest {
 
     StepVerifier
          .create(
-              dbUtils.saveUserShowAllFinalInDb(
+              testDbUtils.saveUserShowAllFinalInDb(
                    user,post,comment))
          .expectSubscription()
          .verifyComplete();

@@ -57,13 +57,13 @@ public class IUserRepoTest {
   private Flux<User> userFlux;
 
   @Autowired
-  private IUserRepo userRepo;
+  IUserRepo userRepo;
 
   @Autowired
-  private IPostRepo postRepo;
+  IPostRepo postRepo;
 
   @Autowired
-  private TestDbUtils testDbUtils;
+  TestDbUtils testDbUtils;
 
 
   @BeforeAll

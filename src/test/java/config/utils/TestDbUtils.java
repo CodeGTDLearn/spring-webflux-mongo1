@@ -124,7 +124,7 @@ public class TestDbUtils {
                       .flatMap(post2 -> {
                         comment.setPostId(post2.getPostId());
                         comment.setAuthor(post2.getAuthor());
-                        return commentService.saveLinkedObject(comment);
+                        return commentService.saveLinked(comment);
                       })
                       .flatMap((comment2 -> {
                         System.out.println(

@@ -30,6 +30,7 @@ import static config.databuilders.UserBuilder.*;
 import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE;
 import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE_PORT;
 import static config.utils.BlockhoundUtils.bhWorks;
+import static config.utils.RestAssureSpecs.*;
 import static config.utils.TestUtils.*;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.hamcrest.CoreMatchers.containsStringIgnoringCase;
@@ -51,8 +52,6 @@ public class UserResourceTest {
   @Container
   private static final DockerComposeContainer<?> compose = new TcComposeConfig().getTcCompose();
   final String enabledTest = "true";
-  // final ContentType ANY = ContentType.ANY;
-  // final ContentType JSON = ContentType.JSON;
 
   // MOCKED-SERVER: WEB-TEST-CLIENT(non-blocking client)'
   // SHOULD BE USED WITH 'TEST-CONTAINERS'
@@ -63,10 +62,10 @@ public class UserResourceTest {
   private User user1, user3, postsAuthor;
 
   @Autowired
-  private TestDbUtils dbUtils;
+  TestDbUtils testDbUtils;
 
   @Autowired
-  private IUserService userService;
+  IUserService userService;
 
 
   @BeforeAll
@@ -77,6 +76,9 @@ public class UserResourceTest {
                                          TC_COMPOSE_SERVICE,
                                          TC_COMPOSE_SERVICE_PORT
                                         );
+    RestAssuredWebTestClient.reset();
+    RestAssuredWebTestClient.requestSpecification = requestSpecs();
+    RestAssuredWebTestClient.responseSpecification = responseSpecs();
   }
 
 
@@ -89,7 +91,7 @@ public class UserResourceTest {
 
   @BeforeEach
   public void beforeEach(TestInfo testInfo) {
-    RestAssuredWebTestClient.reset();
+
     //REAL-SERVER INJECTED IN WEB-TEST-CLIENT(non-blocking client)'
     //SHOULD BE USED WHEN 'DOCKER-COMPOSE' UP A REAL-WEB-SERVER
     //BECAUSE THERE IS 'REAL-SERVER' CREATED VIA DOCKER-COMPOSE
@@ -97,6 +99,7 @@ public class UserResourceTest {
     //                      .baseUrl("http://localhost:8080/customer")
     //                      .build();
 
+    // RestAssuredWebTestClient.reset();
     globalTestMessage(testInfo.getTestMethod()
                               .toString(),"method-start");
 
@@ -105,8 +108,8 @@ public class UserResourceTest {
     postsAuthor = userWithID_IdPostsEmpty().createTestUser();
 
     List<User> userList = Arrays.asList(user1,user3);
-    Flux<User> flux = dbUtils.saveUserList(userList);
-    dbUtils.countAndExecuteUserFlux(flux,2);
+    Flux<User> flux = testDbUtils.saveUserList(userList);
+    testDbUtils.countAndExecuteUserFlux(flux,2);
   }
 
 
@@ -124,24 +127,21 @@ public class UserResourceTest {
 
          .given()
          .webTestClient(mockedWebClient)
-//         .header("Accept",ANY)
-
 
          .when()
          .get(REQ_USER + FIND_ALL_USERS)
 
          .then()
-         .log()
-         .everything()
 
-         // .contentType(JSON)
          .statusCode(OK.value())
+         .header("Content-Type",equalTo("application/json"))
          .body("size()",is(2))
          .body("id",hasItem(user1.getId()))
          .body("id",hasItem(user3.getId()))
-
          .body(matchesJsonSchemaInClasspath("contracts/user/findAll.json"))
     ;
+//         .log()
+//         .everything()
   }
 
 
@@ -152,8 +152,6 @@ public class UserResourceTest {
 
          .given()
          .webTestClient(mockedWebClient)
-//         .header("Accept",ANY)
-
 
          .when()
          .get(REQ_USER + FIND_ALL_USERS_DTO)
@@ -162,7 +160,6 @@ public class UserResourceTest {
          .log()
          .everything()
 
-         // .contentType(JSON)
          .statusCode(OK.value())
          .body("$",hasSize(2))
          .body("[0]",hasKey("id"))
@@ -176,7 +173,6 @@ public class UserResourceTest {
          .body("id",hasItems(user1.getId(),user3.getId()))
          .body("name",hasItems(user1.getName(),user3.getName()))
          .body("email",hasItems(user1.getEmail(),user3.getEmail()))
-
          .body(matchesJsonSchemaInClasspath("contracts/user/findAllDto.json"))
     ;
   }
@@ -190,11 +186,11 @@ public class UserResourceTest {
     Comment comment = comment_simple(post).create();
     UserAllDto userShowAll = userShowAll_Test(user,post,comment).createTestUserShowAll();
 
-    dbUtils.cleanTestDb();
+    testDbUtils.cleanTestDb();
 
     StepVerifier
          .create(
-              dbUtils.saveUserShowAllFinalInDb(user,post,comment))
+              testDbUtils.saveUserShowAllFinalInDb(user,post,comment))
          .expectSubscription()
          .verifyComplete();
 
@@ -202,8 +198,6 @@ public class UserResourceTest {
 
          .given()
          .webTestClient(mockedWebClient)
-         // .header("Accept",JSON)
-
 
          .when()
          .get(REQ_USER + FIND_ALL_SHOW_ALL_DTO)
@@ -212,12 +206,10 @@ public class UserResourceTest {
          .log()
          .everything()
 
-         // .contentType(JSON)
          .statusCode(OK.value())
          .body("id",hasItem(userShowAll.getId()))
          .body("posts[0].postId",hasItem(post.getPostId()))
          .body("posts[0].listComments[0].commentId",hasItem(comment.getCommentId()))
-
          .body(matchesJsonSchemaInClasspath("contracts/user/findShowAll.json"))
     ;
   }
@@ -230,8 +222,6 @@ public class UserResourceTest {
 
          .given()
          .webTestClient(mockedWebClient)
-//         .header("Accept",ANY)
-
 
          .when()
          .get(REQ_USER + FIND_USER_BY_ID,user3.getId())
@@ -240,10 +230,8 @@ public class UserResourceTest {
          .log()
          .everything()
 
-         // .contentType(JSON)
          .statusCode(OK.value())
          .body("id",equalTo(user3.getId()))
-
          .body(matchesJsonSchemaInClasspath("contracts/user/findById.json"))
     ;
   }
@@ -253,28 +241,26 @@ public class UserResourceTest {
   @EnabledIf(expression = enabledTest, loadContext = true)
   public void save() {
     RestAssuredWebTestClient
-
          .given()
          .webTestClient(mockedWebClient)
-//         .header("Accept",ANY)
-
 
          .body(postsAuthor)
-         // .contentType(JSON)
+         // .contentType(ContentType.JSON)
+         // .spec(restAssureRequestSpecs())
 
          .when()
          .post(REQ_USER)
 
          .then()
-         .log()
-         .everything()
+//         .log()
+//         .everything()
 
-         // .contentType(JSON)
+         // .contentType(ContentType.JSON)
+         // .spec(restAssureResponseSpecs())
          .statusCode(CREATED.value())
          .body("id",containsStringIgnoringCase(postsAuthor.getId()))
          .body("email",containsStringIgnoringCase(postsAuthor.getEmail()))
          .body("name",containsStringIgnoringCase(postsAuthor.getName()))
-
          .body(matchesJsonSchemaInClasspath("contracts/user/save.json"))
     ;
   }
@@ -283,15 +269,14 @@ public class UserResourceTest {
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
   public void delete() {
+    RestAssuredWebTestClient.responseSpecification = responseSpecNoContentType();
+
     RestAssuredWebTestClient
 
          .given()
          .webTestClient(mockedWebClient)
-//         .header("Accept",ANY)
-
 
          .body(user1)
-         // .contentType(JSON)
 
          .when()
          .delete(REQ_USER)
@@ -303,7 +288,7 @@ public class UserResourceTest {
          .statusCode(NO_CONTENT.value())
     ;
 
-    dbUtils.countAndExecuteUserFlux(userService.findAll(),1);
+    testDbUtils.countAndExecuteUserFlux(userService.findAll(),1);
   }
 
 
@@ -322,11 +307,8 @@ public class UserResourceTest {
 
          .given()
          .webTestClient(mockedWebClient)
-//         .header("Accept",ANY)
-
 
          .body(user1)
-         // .contentType(JSON)
 
          .when()
          .put(REQ_USER)
@@ -335,13 +317,11 @@ public class UserResourceTest {
          .log()
          .everything()
 
-         // .contentType(JSON)
          .statusCode(OK.value())
          .body("id",equalTo(user1.getId()))
          .body("name",equalTo(user1.getName()))
          .body("email",equalTo(newEmail))
          .body("email",not(equalTo(previousEmail)))
-
          .body(matchesJsonSchemaInClasspath("contracts/user/update.json"))
     ;
   }

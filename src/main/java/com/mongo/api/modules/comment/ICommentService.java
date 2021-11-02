@@ -13,11 +13,11 @@ public interface ICommentService {
 
   Mono<User> findUserByCommentId(String id);
 
-  Mono<Comment> saveLinkedObject(Comment comment);
+  Mono<Comment> saveLinked(Comment comment);
 
-  Mono<Post> saveEmbedObjectSubst(Comment comment);
+  Mono<Post> saveEmbedSubst(Comment comment);
 
-  Mono<Post> saveEmbedObjectList(Comment comment);
+  Mono<Post> saveEmbedList(Comment comment);
 
   Mono<Void> delete(Comment comment);
 

@@ -1,55 +1,59 @@
 package config.utils;
 
 import io.restassured.builder.ResponseSpecBuilder;
+import io.restassured.filter.log.LogDetail;
 import io.restassured.http.ContentType;
-import io.restassured.module.webtestclient.RestAssuredWebTestClient;
 import io.restassured.module.webtestclient.specification.WebTestClientRequestSpecBuilder;
 import io.restassured.module.webtestclient.specification.WebTestClientRequestSpecification;
 import io.restassured.specification.ResponseSpecification;
-import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
+
 @Slf4j
-@Getter
+@NoArgsConstructor
 public class RestAssureSpecs {
 
   final private static Long MAX_TIMEOUT = 15000L;
   final private static ContentType JSON_CONTENT_TYPE = ContentType.JSON;
   final private static ContentType ANY_CONTENT_TYPE = ContentType.ANY;
 
-  private static WebTestClientRequestSpecification globalRequestSpecs;
-  private static ResponseSpecification globalResponseSpecs;
 
-
-  public static void restAssureGlobalRequestSpecificationsConfig() {
-    globalRequestSpecs =
+  public static WebTestClientRequestSpecification requestSpecs() {
+    WebTestClientRequestSpecification requestSpecs =
          new WebTestClientRequestSpecBuilder()
               .setContentType(JSON_CONTENT_TYPE)
+              .addHeader("Accept",String.valueOf(ContentType.ANY))
+              .log(LogDetail.ALL)
               .build();
-    globalRequestSpecs.accept(ANY_CONTENT_TYPE);
 
-    RestAssuredWebTestClient.requestSpecification = globalRequestSpecs;
+    requestSpecs
+         .accept(ANY_CONTENT_TYPE);
+
+    return requestSpecs;
   }
 
 
-  public static void restAssureGlobalResponseSpecificationsConfig() {
-    globalResponseSpecs =
-         new ResponseSpecBuilder()
-//              .expectResponseTime(lessThanOrEqualTo(MAX_TIMEOUT))
-//              .expectContentType(JSON_CONTENT_TYPE)
-              .expectStatusCode(500)
-              .build();
+  public static ResponseSpecification responseSpecs() {
 
-    RestAssuredWebTestClient.responseSpecification = globalResponseSpecs;
+    ResponseSpecBuilder responseSpecBuilder = new ResponseSpecBuilder();
+
+    responseSpecBuilder
+         .expectResponseTime(lessThanOrEqualTo(MAX_TIMEOUT))
+         .expectContentType(JSON_CONTENT_TYPE)
+         .expectHeader("Content-Type",String.valueOf(JSON_CONTENT_TYPE))
+         .log(LogDetail.BODY)
+         ;
+
+    return responseSpecBuilder.build();
+  }
+
+
+  public static ResponseSpecification responseSpecNoContentType() {
+
+    return new ResponseSpecBuilder()
+         .expectResponseTime(lessThanOrEqualTo(MAX_TIMEOUT))
+         .build();
   }
 }
-//    given()
-//         .when()
-//         .spec(requestEspecificado)
-//         .get("/users")
-//         .then()
-//         .spec(responseEsperado)
-
-
-
-

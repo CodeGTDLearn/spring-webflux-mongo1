@@ -65,8 +65,7 @@ public class CommentService implements ICommentService {
 
   @Override
   public Mono<Comment> findById(String id) {
-    return commentRepo.findById(id)
-                      .switchIfEmpty(customExceptions.commentNotFoundException());
+    return commentRepo.findById(id);
   }
 
 
@@ -74,7 +73,6 @@ public class CommentService implements ICommentService {
   public Mono<User> findUserByCommentId(String id) {
     return commentRepo
          .findById(id)
-         .switchIfEmpty(customExceptions.commentNotFoundException())
          .flatMap(comment -> {
            String idUser = comment.getAuthor()
                                   .getId();
@@ -84,17 +82,28 @@ public class CommentService implements ICommentService {
 
 
   @Override
-  public Mono<Comment> saveLinkedObject(Comment comment) {
-    return userService
-         .findById(comment.getAuthor()
-                          .getId())
-         .switchIfEmpty(customExceptions.userNotFoundException())
+  public Flux<Comment> findCommentsByAuthorId(String authorId) {
+    return commentRepo
+         .findAll()
+         .filter(comment -> comment.getAuthor()
+                                   .getId()
+                                   .equals(authorId));
+  }
 
-         .then(postRepo.findById(comment.getPostId())
-                       .switchIfEmpty(customExceptions.postNotFoundException()))
 
-         .then(commentRepo.save(comment))
+  @Override
+  public Flux<Comment> findCommentsByPostId(String postId) {
+    return commentRepo
+         .findAll()
+         .filter(comment -> comment.getPostId()
+                                   .equals(postId));
+  }
 
+
+  @Override
+  public Mono<Comment> saveLinked(Comment comment) {
+    return commentRepo
+         .save(comment)
          .flatMap(comment1 ->
                        postRepo
                             .findById(comment1.getPostId())
@@ -111,21 +120,12 @@ public class CommentService implements ICommentService {
 
 
   @Override
-  public Mono<Post> saveEmbedObjectSubst(Comment comment) {
-    return userService
-         .findById(comment.getAuthor()
-                          .getId())
-         .switchIfEmpty(customExceptions.userNotFoundException())
-
-         .then(postRepo.findById(comment.getPostId()))
-         .switchIfEmpty(customExceptions.postNotFoundException())
-
-         .then(commentRepo.save(comment))
-
+  public Mono<Post> saveEmbedSubst(Comment comment) {
+    return commentRepo
+         .save(comment)
          .flatMap(commentSaved ->
                        postRepo
                             .findById(commentSaved.getPostId())
-                            .switchIfEmpty(customExceptions.postNotFoundException())
                             .flatMap(postFound ->
                                      {
                                        postFound.setComment(commentSaved);
@@ -136,18 +136,11 @@ public class CommentService implements ICommentService {
 
 
   @Override
-  public Mono<Post> saveEmbedObjectList(Comment comment) {
-    return userService
-         .findById(comment.getAuthor()
-                          .getId())
-         .switchIfEmpty(customExceptions.userNotFoundException())
-         .then(postRepo.findById(comment.getPostId())
-                       .switchIfEmpty(customExceptions.postNotFoundException()))
-         .then(commentRepo.save(comment))
+  public Mono<Post> saveEmbedList(Comment comment) {
+    return commentRepo.save(comment)
          .flatMap(commentSaved ->
                        postRepo
                             .findById(commentSaved.getPostId())
-                            .switchIfEmpty(customExceptions.postNotFoundException())
                             .flatMap(postFound ->
                                      {
                                        postFound.getListComments()
@@ -162,27 +155,28 @@ public class CommentService implements ICommentService {
   public Mono<Void> delete(Comment comment) {
     return commentRepo
          .findById(comment.getCommentId())
-         .switchIfEmpty(customExceptions.commentNotFoundException())
          .flatMap(comment1 -> postRepo
               .findById(comment1.getPostId())
               .flatMap(post -> {
-                post.getIdComments().remove(comment1.getCommentId());
+                post.getIdComments()
+                    .remove(comment1.getCommentId());
                 return Mono.just(post);
               })
               .flatMap(postService::update)
               .then(commentRepo.delete(comment)));
   }
 
+
   @Override
   public Mono<Void> deleteAll() {
     return commentRepo.deleteAll();
   }
 
+
   @Override
   public Mono<Comment> update(Comment newComment) {
     return commentRepo
          .findById(newComment.getCommentId())
-         .switchIfEmpty(customExceptions.commentNotFoundException())
          .flatMap(comment -> {
            Comment updatedComment = modelMapper.map(newComment,Comment.class);
            return commentRepo.save(updatedComment);
@@ -190,26 +184,4 @@ public class CommentService implements ICommentService {
   }
 
 
-  @Override
-  public Flux<Comment> findCommentsByPostId(String postId) {
-    return postRepo
-         .findById(postId)
-         .switchIfEmpty(customExceptions.postNotFoundException())
-         .thenMany(commentRepo.findAll())
-         .filter(commentsOfThePost -> commentsOfThePost.getPostId()
-                                                       .equals(postId));
-
-  }
-
-
-  @Override
-  public Flux<Comment> findCommentsByAuthorId(String authorId) {
-    return userService
-         .findById(authorId)
-         .switchIfEmpty(customExceptions.userNotFoundException())
-         .thenMany(commentRepo.findAll())
-         .filter(comment -> comment.getAuthor()
-                                   .getId()
-                                   .equals(authorId));
-  }
 }

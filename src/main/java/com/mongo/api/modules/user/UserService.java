@@ -59,7 +59,7 @@ public class UserService implements IUserService {
   public Mono<User> update(User user) {
     return userRepo
          .findById(user.getId())
-         .switchIfEmpty(Mono.empty())
+//         .switchIfEmpty(Mono.empty())
 
          .thenMany(postService.findPostsByAuthorId(user.getId()))
          .flatMap(post -> Mono.just(post.getPostId()))
@@ -92,7 +92,7 @@ public class UserService implements IUserService {
   public Mono<Void> delete(String id) {
     return userRepo
          .findById(id)
-         .switchIfEmpty(Mono.empty())
+//         .switchIfEmpty(Mono.empty())
 
          .flatMap(
               user -> postService
@@ -117,7 +117,7 @@ public class UserService implements IUserService {
 
     return userRepo
          .findAll()
-         .switchIfEmpty(Flux.empty())
+//         .switchIfEmpty(Flux.empty())
          .flatMap(user -> {
            UserAllDto userDto = modelMapper.map(user,UserAllDto.class);
 

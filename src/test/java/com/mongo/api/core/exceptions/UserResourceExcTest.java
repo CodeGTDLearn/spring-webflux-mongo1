@@ -28,6 +28,7 @@ import static config.databuilders.UserBuilder.userWithID_IdPostsEmpty;
 import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE;
 import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE_PORT;
 import static config.utils.BlockhoundUtils.bhWorks;
+import static config.utils.RestAssureSpecs.*;
 import static config.utils.TestUtils.*;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -36,7 +37,6 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @DisplayName("UserResourceExcTest")
 @MergedResource
 public class UserResourceExcTest {
-
 
   // STATIC-@Container: one service for ALL tests
   // NON-STATIC-@Container: one service for EACH test
@@ -55,13 +55,13 @@ public class UserResourceExcTest {
   private User userItemTest;
 
   @Autowired
-  private TestDbUtils dbUtils;
+  TestDbUtils testDbUtils;
 
   @Autowired
-  private CustomExceptionsProperties customExceptions;
+  CustomExceptionsProperties customExceptions;
 
   @Autowired
-  private GlobalExceptionProperties globalException;
+  GlobalExceptionProperties globalException;
 
 
   @BeforeAll
@@ -72,6 +72,10 @@ public class UserResourceExcTest {
                                          TC_COMPOSE_SERVICE,
                                          TC_COMPOSE_SERVICE_PORT
                                         );
+
+    RestAssuredWebTestClient.reset();
+    RestAssuredWebTestClient.requestSpecification = requestSpecs();
+    RestAssuredWebTestClient.responseSpecification = responseSpecs();
   }
 
 
@@ -84,7 +88,6 @@ public class UserResourceExcTest {
 
   @BeforeEach
   public void beforeEach() {
-    RestAssuredWebTestClient.reset();
     userItemTest = userWithID_IdPostsEmpty().createTestUser();
   }
 
@@ -97,8 +100,6 @@ public class UserResourceExcTest {
          .given()
          .webTestClient(mockedWebClient)
 
-
-
          .when()
          .get(REQ_USER + FIND_USER_BY_ID,Faker.instance()
                                               .idNumber()
@@ -108,7 +109,6 @@ public class UserResourceExcTest {
          .log()
          .everything()
 
-         // .contentType(JSON)
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getUserNotFoundMessage()))
     ;
@@ -121,7 +121,7 @@ public class UserResourceExcTest {
   public void findAllEmpty() {
     List<User> emptyList = new ArrayList<>();
 
-    Flux<User> userFlux = dbUtils.saveUserList(emptyList);
+    Flux<User> userFlux = testDbUtils.saveUserList(emptyList);
 
     StepVerifier
          .create(userFlux)
@@ -134,8 +134,6 @@ public class UserResourceExcTest {
          .given()
          .webTestClient(mockedWebClient)
 
-
-
          .when()
          .get(REQ_USER + FIND_ALL_USERS)
 
@@ -143,7 +141,6 @@ public class UserResourceExcTest {
          .log()
          .everything()
 
-         // .contentType(JSON)
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getUsersNotFoundMessage()))
     ;
@@ -156,7 +153,7 @@ public class UserResourceExcTest {
   public void findShowAllEmpty() {
     List<User> emptyList = new ArrayList<>();
 
-    Flux<User> userFlux = dbUtils.saveUserList(emptyList);
+    Flux<User> userFlux = testDbUtils.saveUserList(emptyList);
 
     StepVerifier
          .create(userFlux)
@@ -168,8 +165,6 @@ public class UserResourceExcTest {
 
          .given()
          .webTestClient(mockedWebClient)
-         // .header("Accept",JSON)
-
 
          .when()
          .get(REQ_USER + FIND_ALL_SHOW_ALL_DTO)
@@ -178,7 +173,6 @@ public class UserResourceExcTest {
          .log()
          .everything()
 
-         // .contentType(JSON)
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getUsersNotFoundMessage()))
     ;
@@ -191,7 +185,7 @@ public class UserResourceExcTest {
   public void findAllDtoEmpty() {
     List<User> emptyList = new ArrayList<>();
 
-    Flux<User> userFlux = dbUtils.saveUserList(emptyList);
+    Flux<User> userFlux = testDbUtils.saveUserList(emptyList);
 
     StepVerifier
          .create(userFlux)
@@ -204,8 +198,6 @@ public class UserResourceExcTest {
          .given()
          .webTestClient(mockedWebClient)
 
-
-
          .when()
          .get(REQ_USER + FIND_ALL_USERS_DTO)
 
@@ -213,7 +205,6 @@ public class UserResourceExcTest {
          .log()
          .everything()
 
-         // .contentType(JSON)
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getUsersNotFoundMessage()))
     ;
@@ -228,10 +219,7 @@ public class UserResourceExcTest {
          .given()
          .webTestClient(mockedWebClient)
 
-
-
          .body(userItemTest)
-         // .contentType(JSON)
 
          .when()
          .delete(REQ_USER)
@@ -253,10 +241,7 @@ public class UserResourceExcTest {
          .given()
          .webTestClient(mockedWebClient)
 
-
-
          .body(userItemTest)
-         // .contentType(JSON)
 
          .when()
          .put(REQ_USER)
@@ -265,7 +250,6 @@ public class UserResourceExcTest {
          .log()
          .everything()
 
-         // .contentType(JSON)
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getUserNotFoundMessage()))
     ;
@@ -280,18 +264,18 @@ public class UserResourceExcTest {
          .given()
          .webTestClient(mockedWebClient)
 
-
-
          .when()
          .get(REQ_USER + ERROR_PATH)
 
          .then()
          .statusCode(NOT_FOUND.value())
 
-         .body(globalException.getGlobalAttribute(),
+         .body(
+              globalException.getGlobalAttribute(),
                equalTo("404 NOT_FOUND \"" + globalException.getGlobalMessage() + "\"")
               )
-         .body(globalException.getDeveloperAttribute(),
+         .body(
+              globalException.getDeveloperAttribute(),
                equalTo(globalException.getDeveloperMessage())
               )
          .log()
