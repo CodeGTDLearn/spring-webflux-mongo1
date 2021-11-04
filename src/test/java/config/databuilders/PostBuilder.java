@@ -98,7 +98,7 @@ public class PostBuilder {
   }
 
 
-  public Post createTestPost() {
+  public Post create() {
     return this.post;
   }
 }

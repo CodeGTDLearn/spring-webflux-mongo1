@@ -4,7 +4,6 @@ import com.github.javafaker.Faker;
 import com.mongo.api.core.config.TestDbConfig;
 import com.mongo.api.core.exceptions.customExceptions.CustomExceptionsProperties;
 import com.mongo.api.modules.post.Post;
-import com.mongo.api.modules.user.IUserService;
 import com.mongo.api.modules.user.User;
 import config.annotations.MergedResource;
 import config.testcontainer.TcComposeConfig;
@@ -78,8 +77,8 @@ class PostResourceExcTest {
                                         );
 
     User invalidAuthor = userWithID_IdPostsEmpty().createTestUser();
-    invalidPostWithoutId = post_IdNull_CommentsEmpty(invalidAuthor).createTestPost();
-    invalidPostWithId = postFull_withId_CommentsEmpty(invalidAuthor).createTestPost();
+    invalidPostWithoutId = post_IdNull_CommentsEmpty(invalidAuthor).create();
+    invalidPostWithId = postFull_withId_CommentsEmpty(invalidAuthor).create();
 
     RestAssuredWebTestClient.reset();
     RestAssuredWebTestClient.requestSpecification = requestSpecs();
@@ -113,8 +112,8 @@ class PostResourceExcTest {
          .expectNextCount(1L)
          .verifyComplete();
 
-    Post post1 = post_IdNull_CommentsEmpty(author).createTestPost();
-    Post post3 = post_IdNull_CommentsEmpty(author).createTestPost();
+    Post post1 = post_IdNull_CommentsEmpty(author).create();
+    Post post3 = post_IdNull_CommentsEmpty(author).create();
     List<Post> postList = Arrays.asList(post1,post3);
     Flux<Post> postFlux = testDbUtils.savePostList(postList);
     testDbUtils.countAndExecutePostFlux(postFlux,2);

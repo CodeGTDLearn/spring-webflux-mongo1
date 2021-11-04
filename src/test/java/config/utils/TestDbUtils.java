@@ -46,6 +46,14 @@ public class TestDbUtils {
          .verifyComplete();
   }
 
+  public void countAndExecuteCommentFlux(Flux<Comment> flux,int totalElements) {
+    StepVerifier
+         .create(flux)
+         .expectSubscription()
+         .expectNextCount(totalElements)
+         .verifyComplete();
+  }
+
 
   public Flux<User> saveUserList(List<User> userList) {
     return userService.deleteAll()
@@ -54,6 +62,33 @@ public class TestDbUtils {
                       .doOnNext(item -> userService.findAll())
                       .doOnNext(item -> System.out.println(
                            "\n--> Saved 'User' in DB: \n    --> " + item.toString() + "\n"));
+  }
+
+  public Flux<Comment> saveLinked(List<Comment> commentList) {
+    return commentService.deleteAll()
+                      .thenMany(Flux.fromIterable(commentList))
+                      .flatMap(commentService::saveLinked)
+                      .doOnNext(item -> commentService.findAll())
+                      .doOnNext(item -> System.out.println(
+                           "\n--> Saved 'Comment' in DB: \n    --> " + item.toString() + "\n"));
+  }
+
+  public Flux<Post> saveList(List<Comment> commentList) {
+    return commentService.deleteAll()
+                      .thenMany(Flux.fromIterable(commentList))
+                      .flatMap(commentService::saveList)
+                      .doOnNext(item -> commentService.findAll())
+                      .doOnNext(item -> System.out.println(
+                           "\n--> Saved 'Comment' in DB: \n    --> " + item.toString() + "\n"));
+  }
+
+  public Flux<Post> saveSubst(List<Comment> commentList) {
+    return commentService.deleteAll()
+                      .thenMany(Flux.fromIterable(commentList))
+                      .flatMap(commentService::saveSubst)
+                      .doOnNext(item -> commentService.findAll())
+                      .doOnNext(item -> System.out.println(
+                           "\n--> Saved 'Comment' in DB: \n    --> " + item.toString() + "\n"));
   }
 
 

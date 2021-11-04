@@ -110,8 +110,8 @@ class IUserRepoTest {
 
     user2WithId = userWithID_IdPostsEmpty().createTestUser();
 
-    post1 = post_IdNull_CommentsEmpty(user2WithId).createTestPost();
-    post2 = post_IdNull_CommentsEmpty(user2WithId).createTestPost();
+    post1 = post_IdNull_CommentsEmpty(user2WithId).create();
+    post2 = post_IdNull_CommentsEmpty(user2WithId).create();
     List<Post> postList = Arrays.asList(post1,post2);
 
     testDbUtils.cleanTestDb();

@@ -120,7 +120,7 @@ public class CommentService implements ICommentService {
 
 
   @Override
-  public Mono<Post> saveEmbedSubst(Comment comment) {
+  public Mono<Post> saveSubst(Comment comment) {
     return commentRepo
          .save(comment)
          .flatMap(commentSaved ->
@@ -136,7 +136,7 @@ public class CommentService implements ICommentService {
 
 
   @Override
-  public Mono<Post> saveEmbedList(Comment comment) {
+  public Mono<Post> saveList(Comment comment) {
     return commentRepo.save(comment)
          .flatMap(commentSaved ->
                        postRepo

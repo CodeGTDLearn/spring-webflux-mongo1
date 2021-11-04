@@ -182,9 +182,9 @@ class UserResourceTest {
   @EnabledIf(expression = enabledTest, loadContext = true)
   public void findShowAll() {
     User user = userWithID_IdPostsEmpty().createTestUser();
-    Post post = postFull_withId_CommentsEmpty(user).createTestPost();
+    Post post = postFull_withId_CommentsEmpty(user).create();
     Comment comment = comment_simple(post).create();
-    UserAllDto userShowAll = userShowAll_Test(user,post,comment).createTestUserShowAll();
+    UserAllDto userShowAll = userShowAll_Test(user,post,comment).create();
 
     testDbUtils.cleanTestDb();
 

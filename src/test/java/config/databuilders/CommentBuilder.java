@@ -1,11 +1,13 @@
 package config.databuilders;
 
 import com.github.javafaker.Faker;
+import com.mongo.api.core.dto.UserAuthorDto;
 import com.mongo.api.modules.comment.Comment;
 import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.user.User;
 import lombok.Builder;
 import lombok.Getter;
+import org.modelmapper.ModelMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +17,8 @@ import java.util.Locale;
 @Getter
 public class CommentBuilder {
 
+    private static final ModelMapper conv = new ModelMapper();
+
     private final Comment comment;
 
     private static final Faker faker = new Faker(new Locale("en-CA.yml"));
@@ -23,7 +27,7 @@ public class CommentBuilder {
     //    private static String FAKER_REGEX_TEL = "[0-9]{9}";
 
 
-    public static CommentBuilder commentFull(User commentUserAuthorDTO,
+    public static CommentBuilder commentFull(User commentAuthor,
                                              Post commentedPost) {
 
         List<String> idCommentsList = new ArrayList<>();
@@ -35,24 +39,25 @@ public class CommentBuilder {
                                  .birthday());
         commentFull.setText("Comment-Text: " + faker.lorem()
                                                     .sentence(25));
-//        commentFull.setAuthor(new UserAuthorDto(commentUserAuthorDTO));
+        commentFull.setAuthor(conv.map(commentAuthor,UserAuthorDto.class));
         return CommentBuilder.builder()
                              .comment(commentFull)
                              .build();
     }
 
-    public static CommentBuilder comment_NoID(Post commentedPostWithUserAuthorDTO) {
+    public static CommentBuilder commentNoId(User commentAuthor,
+                                             Post commentedPost) {
 
         List<String> idCommentsList = new ArrayList<>();
 
         Comment commentFull = new Comment();
-//        commentFull.setId(faker.regexify("/^[a-f\\d]{24}$/i"));
-        commentFull.setPostId(commentedPostWithUserAuthorDTO.getPostId());
+//        commentFull.setCommentId(faker.regexify("/^[a-f\\d]{24}$/i"));
+        commentFull.setPostId(commentedPost.getPostId());
         commentFull.setDate(faker.date()
                                  .birthday());
         commentFull.setText("Comment-Text: " + faker.lorem()
                                                     .sentence(25));
-        commentFull.setAuthor(commentedPostWithUserAuthorDTO.getAuthor());
+        commentFull.setAuthor(conv.map(commentAuthor,UserAuthorDto.class));
         return CommentBuilder.builder()
                              .comment(commentFull)
                              .build();

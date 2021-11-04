@@ -114,7 +114,7 @@ public class CommentResource {
          .then(postService.findById(comment.getPostId()))
          .switchIfEmpty(customExceptions.postNotFoundException())
 
-         .then(commentService.saveEmbedSubst(comment));
+         .then(commentService.saveSubst(comment));
   }
 
 
@@ -129,7 +129,7 @@ public class CommentResource {
          .then(postService.findById(comment.getPostId())
                        .switchIfEmpty(customExceptions.postNotFoundException()))
 
-         .then(commentService.saveEmbedList(comment));
+         .then(commentService.saveList(comment));
   }
 
 

@@ -254,8 +254,8 @@ class UserServiceTest {
   public void findPostsByUserId() {
     userWithIdForPost1Post2 = userWithID_IdPostsEmpty().createTestUser();
 
-    post1 = post_IdNull_CommentsEmpty(userWithIdForPost1Post2).createTestPost();
-    post2 = post_IdNull_CommentsEmpty(userWithIdForPost1Post2).createTestPost();
+    post1 = post_IdNull_CommentsEmpty(userWithIdForPost1Post2).create();
+    post2 = post_IdNull_CommentsEmpty(userWithIdForPost1Post2).create();
     List<Post> postList = Arrays.asList(post1,post2);
 
     testDbUtils.cleanTestDb();
@@ -307,12 +307,12 @@ class UserServiceTest {
   public void findShowAllDto() {
 
     User user = userWithID_IdPostsEmpty().createTestUser();
-    Post post = postFull_withId_CommentsEmpty(user).createTestPost();
+    Post post = postFull_withId_CommentsEmpty(user).create();
     Comment comment = comment_simple(post).create();
     UserAllDto userShowAll = userShowAll_Test(user,
                                               post,
                                               comment
-                                             ).createTestUserShowAll();
+                                             ).create();
 
     StepVerifier
          .create(

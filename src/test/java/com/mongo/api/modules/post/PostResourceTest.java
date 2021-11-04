@@ -112,8 +112,8 @@ class PostResourceTest {
          .expectNextCount(1L)
          .verifyComplete();
 
-    post1 = post_IdNull_CommentsEmpty(author).createTestPost();
-    post3 = post_IdNull_CommentsEmpty(author).createTestPost();
+    post1 = post_IdNull_CommentsEmpty(author).create();
+    post3 = post_IdNull_CommentsEmpty(author).create();
     List<Post> postList = Arrays.asList(post1,post3);
     Flux<Post> postFlux = testDbUtils.savePostList(postList);
     testDbUtils.countAndExecutePostFlux(postFlux,2);
@@ -231,7 +231,7 @@ class PostResourceTest {
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
   public void save() {
-    post3 = post_IdNull_CommentsEmpty(author).createTestPost();
+    post3 = post_IdNull_CommentsEmpty(author).create();
 
     WebTestClientRequestSpecification requestSpecs;
     requestSpecs =

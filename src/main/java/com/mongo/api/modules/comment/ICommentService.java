@@ -15,9 +15,9 @@ public interface ICommentService {
 
   Mono<Comment> saveLinked(Comment comment);
 
-  Mono<Post> saveEmbedSubst(Comment comment);
+  Mono<Post> saveSubst(Comment comment);
 
-  Mono<Post> saveEmbedList(Comment comment);
+  Mono<Post> saveList(Comment comment);
 
   Mono<Void> delete(Comment comment);
 
