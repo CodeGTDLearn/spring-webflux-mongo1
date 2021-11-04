@@ -1,15 +1,15 @@
-package com.mongo.api.modules.post;
+package com.mongo.api.core.exceptions;
 
+import com.github.javafaker.Faker;
 import com.mongo.api.core.config.TestDbConfig;
+import com.mongo.api.core.exceptions.customExceptions.CustomExceptionsProperties;
+import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.user.IUserService;
 import com.mongo.api.modules.user.User;
 import config.annotations.MergedResource;
 import config.testcontainer.TcComposeConfig;
 import config.utils.TestDbUtils;
-import io.restassured.http.ContentType;
 import io.restassured.module.webtestclient.RestAssuredWebTestClient;
-import io.restassured.module.webtestclient.specification.WebTestClientRequestSpecBuilder;
-import io.restassured.module.webtestclient.specification.WebTestClientRequestSpecification;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
@@ -24,28 +24,22 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.mongo.api.core.routes.RoutesPost.*;
+import static config.databuilders.PostBuilder.postFull_withId_CommentsEmpty;
 import static config.databuilders.PostBuilder.post_IdNull_CommentsEmpty;
 import static config.databuilders.UserBuilder.userWithID_IdPostsEmpty;
 import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE;
 import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE_PORT;
-import static config.utils.BlockhoundUtils.bhWorks;
 import static config.utils.RestAssureSpecs.*;
 import static config.utils.TestUtils.*;
-import static io.restassured.http.ContentType.JSON;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static java.util.Collections.singletonList;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.not;
-import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Import(TestDbConfig.class)
-@DisplayName("PostResourceTest")
+@DisplayName("PostResourceExcTest")
 @MergedResource
-class PostResourceTest {
+class PostResourceExcTest {
 
   // STATIC-@Container: one service for ALL tests -> SUPER FASTER
   // NON-STATIC-@Container: one service for EACH test
@@ -55,20 +49,23 @@ class PostResourceTest {
 
   final String enabledTest = "true";
 
+  @Autowired
+  CustomExceptionsProperties customExceptions;
+
   // MOCKED-SERVER: WEB-TEST-CLIENT(non-blocking client)'
   // SHOULD BE USED WITH 'TEST-CONTAINERS'
   // BECAUSE THERE IS NO 'REAL-SERVER' CREATED VIA DOCKER-COMPOSE
   @Autowired
   WebTestClient mockedWebClient;
 
-  private Post post1, post3;
-  private User author;
+  private static Post invalidPostWithoutId;
+  private static Post invalidPostWithId;
+  private final String invalidId = Faker.instance()
+                                        .idNumber()
+                                        .valid();
 
   @Autowired
   TestDbUtils testDbUtils;
-
-  @Autowired
-  IUserService userService;
 
 
   @BeforeAll
@@ -79,6 +76,10 @@ class PostResourceTest {
                                          TC_COMPOSE_SERVICE,
                                          TC_COMPOSE_SERVICE_PORT
                                         );
+
+    User invalidAuthor = userWithID_IdPostsEmpty().createTestUser();
+    invalidPostWithoutId = post_IdNull_CommentsEmpty(invalidAuthor).createTestPost();
+    invalidPostWithId = postFull_withId_CommentsEmpty(invalidAuthor).createTestPost();
 
     RestAssuredWebTestClient.reset();
     RestAssuredWebTestClient.requestSpecification = requestSpecs();
@@ -104,7 +105,7 @@ class PostResourceTest {
     globalTestMessage(testInfo.getTestMethod()
                               .toString(),"method-start");
 
-    author = userWithID_IdPostsEmpty().createTestUser();
+    User author = userWithID_IdPostsEmpty().createTestUser();
     Flux<User> userFlux = testDbUtils.saveUserList(singletonList(author));
     StepVerifier
          .create(userFlux)
@@ -112,8 +113,8 @@ class PostResourceTest {
          .expectNextCount(1L)
          .verifyComplete();
 
-    post1 = post_IdNull_CommentsEmpty(author).createTestPost();
-    post3 = post_IdNull_CommentsEmpty(author).createTestPost();
+    Post post1 = post_IdNull_CommentsEmpty(author).createTestPost();
+    Post post3 = post_IdNull_CommentsEmpty(author).createTestPost();
     List<Post> postList = Arrays.asList(post1,post3);
     Flux<Post> postFlux = testDbUtils.savePostList(postList);
     testDbUtils.countAndExecutePostFlux(postFlux,2);
@@ -130,7 +131,8 @@ class PostResourceTest {
 
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
-  public void findAll() {
+  @DisplayName("FindById")
+  void FindById() {
 
     RestAssuredWebTestClient
 
@@ -138,115 +140,74 @@ class PostResourceTest {
          .webTestClient(mockedWebClient)
 
          .when()
-         .get(REQ_POST + FIND_ALL_POSTS)
+         .get(REQ_POST + FIND_POST_BY_ID,invalidId)
 
          .then()
          .log()
          .everything()
 
-         .statusCode(OK.value())
-         .body("size()",is(2))
-         .body("body",hasItem(post1.getBody()))
-         .body("body",hasItem(post3.getBody()))
-         .body("title",hasItems(post1.getTitle(),post3.getTitle()))
-         .body("author.id",hasItems(author.getId(),author.getId()))
-         .body(matchesJsonSchemaInClasspath("contracts/post/findAll.json"))
-
+         .statusCode(NOT_FOUND.value())
+         .body("detail",equalTo(customExceptions.getPostNotFoundMessage()))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/postNotFound.json"))
     ;
   }
 
 
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
-  public void findById() {
+  @DisplayName("FindPostsByAuthorId")
+  void FindPostsByAuthorId() {
     RestAssuredWebTestClient
 
          .given()
          .webTestClient(mockedWebClient)
 
          .when()
-         .get(REQ_POST + FIND_POST_BY_ID,post1.getPostId())
+         .get(REQ_POST + FIND_POSTS_BY_AUTHORID,invalidId)
 
          .then()
          .log()
          .everything()
 
-         .statusCode(OK.value())
-         .body("id",equalTo(post1.getPostId()))
-         .body("body",equalTo(post1.getBody()))
-
-         .body(matchesJsonSchemaInClasspath("contracts/post/findById.json"))
+         .statusCode(NOT_FOUND.value())
+         .body("detail",equalTo(customExceptions.getAuthorNotFoundMessage()))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/authorNotFound.json"))
     ;
   }
 
 
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
-  public void findPostsByAuthorId() {
-    RestAssuredWebTestClient
-
-         .given()
-         .webTestClient(mockedWebClient)
-
-         .when()
-         .get(REQ_POST + FIND_POSTS_BY_AUTHORID,author.getId())
-
-         .then()
-         .log()
-         .everything()
-
-         .statusCode(OK.value())
-         .body("id",hasItems(post1.getPostId(),post3.getPostId()))
-         .body("body",hasItems(post1.getBody(),post3.getBody()))
-
-         .body(matchesJsonSchemaInClasspath("contracts/post/findPostsByAuthorId.json"))
-    ;
-  }
-
-
-  @Test
-  @EnabledIf(expression = enabledTest, loadContext = true)
-  public void findPostByIdShowComments() {
-
+  @DisplayName("FindPostByIdShowComments")
+  void FindPostByIdShowComments() {
     RestAssuredWebTestClient
          .given()
          .webTestClient(mockedWebClient)
 
          .when()
-         .get(REQ_POST + FIND_POST_BY_ID_SHOW_COMMENTS,post1.getPostId())
+         .get(REQ_POST + FIND_POST_BY_ID_SHOW_COMMENTS,invalidId)
 
          .then()
          .log()
          .everything()
 
-         .statusCode(OK.value())
-         .body("id",containsString(post1.getPostId()))
-         .body("body",containsString(post1.getBody()))
-
-         .body(matchesJsonSchemaInClasspath("contracts/post/findPostByIdShowComments.json"))
+         .statusCode(NOT_FOUND.value())
+         .body("detail",equalTo(customExceptions.getPostNotFoundMessage()))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/postNotFound.json"))
     ;
   }
 
 
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
-  public void save() {
-    post3 = post_IdNull_CommentsEmpty(author).createTestPost();
-
-    WebTestClientRequestSpecification requestSpecs;
-    requestSpecs =
-         new WebTestClientRequestSpecBuilder()
-              .setContentType(JSON)
-              .build();
-    requestSpecs.accept(ContentType.ANY);
-
+  @DisplayName("Save")
+  void Save() {
     RestAssuredWebTestClient
 
          .given()
          .webTestClient(mockedWebClient)
-         .spec(requestSpecs)
 
-         .body(post3)
+         .body(invalidPostWithoutId)
 
          .when()
          .post(REQ_POST + SAVE_EMBED_USER_IN_THE_POST)
@@ -255,25 +216,25 @@ class PostResourceTest {
          .log()
          .everything()
 
-         .statusCode(CREATED.value())
-         .body("id",equalTo(post3.getPostId()))
-         .body("body",equalTo(post3.getBody()))
-
-         .body(matchesJsonSchemaInClasspath("contracts/post/saveObject.json"))
+         .statusCode(NOT_FOUND.value())
+         .body("detail",equalTo(customExceptions.getAuthorNotFoundMessage()))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/authorNotFound.json"))
     ;
   }
 
 
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
-  public void delete() {
+  @DisplayName("Delete")
+  void Delete() {
+
     RestAssuredWebTestClient.responseSpecification = responseSpecNoContentType();
 
     RestAssuredWebTestClient
 
          .given()
          .webTestClient(mockedWebClient)
-         .body(post3)
+         .body(invalidPostWithId)
 
          .when()
          .delete(REQ_POST)
@@ -282,28 +243,24 @@ class PostResourceTest {
          .log()
          .everything()
 
-         .statusCode(NO_CONTENT.value())
+         .statusCode(NOT_FOUND.value())
+         .body("detail",equalTo(customExceptions.getPostNotFoundMessage()))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/postNotFound.json"))
     ;
 
-    testDbUtils.countAndExecuteUserFlux(userService.findAll(),1);
   }
 
 
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
-  public void update() {
-    var previousTitle = post1.getTitle();
-
-    var newTitle = "novo";
-
-    post1.setTitle(newTitle);
-
+  @DisplayName("Update")
+  void Update() {
     RestAssuredWebTestClient
 
          .given()
          .webTestClient(mockedWebClient)
 
-         .body(post1)
+         .body(invalidPostWithId)
 
          .when()
          .put(REQ_POST)
@@ -312,42 +269,32 @@ class PostResourceTest {
          .log()
          .everything()
 
-         .statusCode(OK.value())
-         .body("title",equalTo(newTitle))
-         .body("title",not(equalTo(previousTitle)))
-         .body(matchesJsonSchemaInClasspath("contracts/post/update.json"))
+         .statusCode(NOT_FOUND.value())
+         .body("detail",equalTo(customExceptions.getPostNotFoundMessage()))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/postNotFound.json"))
     ;
   }
 
 
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
-  public void findUserByPostId() {
+  @DisplayName("FindUserByPostId")
+  void FindUserByPostId() {
     RestAssuredWebTestClient
 
          .given()
          .webTestClient(mockedWebClient)
 
          .when()
-         .get(REQ_POST + FIND_USER_BY_POSTID,post1.getPostId())
+         .get(REQ_POST + FIND_USER_BY_POSTID,invalidId)
 
          .then()
          .log()
          .everything()
 
-         .statusCode(OK.value())
-         .body("id",equalTo(post1.getAuthor()
-                                 .getId()))
-         .body(matchesJsonSchemaInClasspath("contracts/post/findUserByPostId.json"))
+         .statusCode(NOT_FOUND.value())
+         .body("detail",equalTo(customExceptions.getPostNotFoundMessage()))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/postNotFound.json"))
     ;
   }
-
-
-  @Test
-  @EnabledIf(expression = enabledTest, loadContext = true)
-  @DisplayName("BHWorks")
-  void bHWorks() {
-    bhWorks();
-  }
-
 }

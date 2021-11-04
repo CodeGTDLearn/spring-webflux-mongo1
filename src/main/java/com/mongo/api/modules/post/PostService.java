@@ -46,7 +46,8 @@ public class PostService implements IPostService {
   @Override
   public Mono<Post> findById(String id) {
     return postRepo.findById(id)
-                   .switchIfEmpty(Mono.empty());
+
+         ;
   }
 
 
@@ -54,7 +55,7 @@ public class PostService implements IPostService {
   public Flux<Post> findPostsByAuthorId(String userId) {
     return userService
          .findById(userId)
-         .switchIfEmpty(Mono.empty())
+
          .flatMapMany((userFound) -> {
            var id = userFound.getId();
            return postRepo.findPostsByAuthor_Id(id);
@@ -66,7 +67,7 @@ public class PostService implements IPostService {
   public Mono<Post> findPostByIdShowComments(String id) {
     return postRepo
          .findById(id)
-         .switchIfEmpty(Mono.empty())
+
          .flatMap(postFound -> commentService
                        .findCommentsByPostId(postFound.getPostId())
                        .collectList()
@@ -100,7 +101,7 @@ public class PostService implements IPostService {
   public Mono<Void> delete(Post post) {
     return postRepo
          .findById(post.getPostId())
-         .switchIfEmpty(Mono.empty())
+
          .flatMap(post1 -> commentService
                        .findCommentsByPostId(post1.getPostId())
                        .flatMap(commentService::delete)
@@ -110,7 +111,7 @@ public class PostService implements IPostService {
                              .remove(post1.getPostId());
                          return userService.save(user);
                        })
-                       .then(findById(post1.getPostId()))
+                       .then(postRepo.findById(post1.getPostId()))
                        .flatMap(postRepo::delete)
                  );
   }
@@ -120,7 +121,7 @@ public class PostService implements IPostService {
   public Mono<Post> update(Post newPost) {
     return postRepo
          .findById(newPost.getPostId())
-         .switchIfEmpty(Mono.empty())
+
          .flatMap(post -> {
            Post updatedPost = modelMapper.map(newPost,Post.class);
            return postRepo.save(updatedPost);
@@ -138,13 +139,12 @@ public class PostService implements IPostService {
   public Mono<User> findUserByPostId(String id) {
     return postRepo
          .findById(id)
-         .switchIfEmpty(Mono.empty())
+
          .flatMap(item -> {
            String idUser = item.getAuthor()
                                .getId();
            return userService
-                .findById(idUser)
-                .switchIfEmpty(Mono.empty());
+                .findById(idUser);
          });
   }
 }

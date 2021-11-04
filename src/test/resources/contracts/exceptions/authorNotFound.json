@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "title": "The root schema",
+  "description": "The root schema comprises the entire JSON document.",
+  "default": {},
+  "examples": [
+    {
+      "detail": "Author not found",
+      "classType": "com.mongo.api.core.exceptions.customExceptions.customExceptionTypes.PostAuthorNotFoundException",
+      "status": 404,
+      "timeStamp": 1636056193946
+    }
+  ],
+  "required": [
+    "detail",
+    "classType",
+    "status",
+    "timeStamp"
+  ],
+  "properties": {
+    "detail": {
+      "$id": "#/properties/detail",
+      "type": "string",
+      "title": "The detail schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "Author not found"
+      ]
+    },
+    "classType": {
+      "$id": "#/properties/classType",
+      "type": "string",
+      "title": "The classType schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "com.mongo.api.core.exceptions.customExceptions.customExceptionTypes.PostAuthorNotFoundException"
+      ]
+    },
+    "status": {
+      "$id": "#/properties/status",
+      "type": "integer",
+      "title": "The status schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": 0,
+      "examples": [
+        404
+      ]
+    },
+    "timeStamp": {
+      "$id": "#/properties/timeStamp",
+      "type": "integer",
+      "title": "The timeStamp schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": 0,
+      "examples": [
+        1636056193946
+      ]
+    }
+  },
+  "additionalProperties": true
+}

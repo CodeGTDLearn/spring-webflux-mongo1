@@ -54,7 +54,7 @@ import static config.utils.TestUtils.*;
 })
 @DisplayName("UserServiceTest")
 @MergedRepo
-public class UserServiceTest {
+class UserServiceTest {
 
   // STATIC-@Container: one service for ALL tests -> SUPER FASTER
   // NON-STATIC-@Container: one service for EACH test
@@ -77,7 +77,7 @@ public class UserServiceTest {
 
 
   @BeforeAll
-  public static void beforeAll(TestInfo testInfo) {
+  static void beforeAll(TestInfo testInfo) {
     globalBeforeAll();
     globalTestMessage(testInfo.getDisplayName(),"class-start");
     globalComposeServiceContainerMessage(compose,
@@ -88,7 +88,7 @@ public class UserServiceTest {
 
 
   @AfterAll
-  public static void afterAll(TestInfo testInfo) {
+  static void afterAll(TestInfo testInfo) {
     globalAfterAll();
     globalTestMessage(testInfo.getDisplayName(),"class-end");
   }
@@ -105,7 +105,7 @@ public class UserServiceTest {
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("FindAll")
-  void findAll() {
+  public void findAll() {
     Flux<User> userFlux = testDbUtils.saveUserList(userList);
 
     StepVerifier
@@ -129,7 +129,7 @@ public class UserServiceTest {
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("FindById")
-  void findById() {
+  public void findById() {
     final Flux<User> userFlux = testDbUtils.saveUserList(userList);
 
     StepVerifier
@@ -154,7 +154,7 @@ public class UserServiceTest {
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("Save: Object")
-  void save() {
+  public void save() {
     testDbUtils.cleanTestDb();
 
     StepVerifier
@@ -361,8 +361,7 @@ public class UserServiceTest {
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("BHWorks")
-  public void bHWorks() {
+  void bHWorks() {
     bhWorks();
   }
 }
-

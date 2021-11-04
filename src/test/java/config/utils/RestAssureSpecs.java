@@ -21,6 +21,7 @@ public class RestAssureSpecs {
 
 
   public static WebTestClientRequestSpecification requestSpecs() {
+
     WebTestClientRequestSpecification requestSpecs =
          new WebTestClientRequestSpecBuilder()
               .setContentType(JSON_CONTENT_TYPE)
@@ -28,8 +29,7 @@ public class RestAssureSpecs {
               .log(LogDetail.ALL)
               .build();
 
-    requestSpecs
-         .accept(ANY_CONTENT_TYPE);
+    requestSpecs.accept(ANY_CONTENT_TYPE);
 
     return requestSpecs;
   }
@@ -43,9 +43,7 @@ public class RestAssureSpecs {
          .expectResponseTime(lessThanOrEqualTo(MAX_TIMEOUT))
          .expectContentType(JSON_CONTENT_TYPE)
          .expectHeader("Content-Type",String.valueOf(JSON_CONTENT_TYPE))
-         .log(LogDetail.BODY)
-         ;
-
+    ;
     return responseSpecBuilder.build();
   }
 
@@ -56,4 +54,15 @@ public class RestAssureSpecs {
          .expectResponseTime(lessThanOrEqualTo(MAX_TIMEOUT))
          .build();
   }
-}
+}//    WebTestClientRequestSpecification requestSpecs;
+//    requestSpecs =
+//         new WebTestClientRequestSpecBuilder()
+//              .setContentType(JSON)
+//              .build();
+//    requestSpecs.accept(ContentType.ANY);
+//
+//    ResponseSpecBuilder respBuilder = new ResponseSpecBuilder();
+//    final ResponseSpecification responseEsperado =
+//         respBuilder
+//              .expectStatusCode(OK.value())
+//              .build();

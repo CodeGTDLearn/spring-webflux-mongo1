@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class RoutesPost {
 
-    public static final String REQ_POST = "/post";
+    public static final String REQ_POST = "/postsss";
     public static final String FIND_ALL_POSTS = "/findAllPosts";
     public static final String FIND_POST_BY_ID = "/{id}";
     public static final String FIND_POST_BY_ID_SHOW_COMMENTS = "/showcomments/{id}";

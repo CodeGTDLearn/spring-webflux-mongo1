@@ -44,7 +44,7 @@ import static config.utils.TestUtils.*;
 })
 @DisplayName("IUserRepoTest")
 @MergedRepo
-public class IUserRepoTest {
+class IUserRepoTest {
 
   // STATIC-@Container: one service for ALL tests -> SUPER FASTER
   // NON-STATIC-@Container: one service for EACH test
@@ -67,7 +67,7 @@ public class IUserRepoTest {
 
 
   @BeforeAll
-  public static void beforeAll(TestInfo testInfo) {
+  static void beforeAll(TestInfo testInfo) {
     globalBeforeAll();
     globalTestMessage(testInfo.getDisplayName(),"class-start");
     globalComposeServiceContainerMessage(compose,
@@ -78,7 +78,7 @@ public class IUserRepoTest {
 
 
   @AfterAll
-  public static void afterAll(TestInfo testInfo) {
+  static void afterAll(TestInfo testInfo) {
     globalAfterAll();
     globalTestMessage(testInfo.getDisplayName(),"class-end");
   }
@@ -286,7 +286,7 @@ public class IUserRepoTest {
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("BHWorks")
-  public void bHWorks() {
+  void bHWorks() {
     bhWorks();
   }
 

@@ -20,13 +20,13 @@ import java.util.List;
 public class TestDbUtils {
 
   @Autowired
-  private IUserService userService;
+  IUserService userService;
 
   @Autowired
-  private IPostService postService;
+  IPostService postService;
 
   @Autowired
-  private ICommentService commentService;
+  ICommentService commentService;
 
 
   public void countAndExecuteUserFlux(Flux<User> flux,int totalElements) {
@@ -63,7 +63,8 @@ public class TestDbUtils {
                       .flatMap(postService::save)
                       .doOnNext(item -> postService.findAll())
                       .doOnNext(item -> System.out.println(
-                           "\n--> Saved 'Post' in DB: \n    --> " + item.toString() + "\n"));
+                           "\n--> Saved 'Post' in DB: \n    --> " + item.toString() + "\n"))
+         ;
   }
 
 
@@ -139,7 +140,3 @@ public class TestDbUtils {
          ;
   }
 }
-
-
-
-

@@ -88,8 +88,9 @@ public class PostResource {
   public Mono<Void> delete(@RequestBody Post post) {
 
     return postService
-         .delete(post)
-         .switchIfEmpty(customExceptions.postNotFoundException());
+         .findById(post.getPostId())
+         .switchIfEmpty(customExceptions.postNotFoundException())
+         .then(postService.delete(post));
   }
 
 
@@ -99,9 +100,7 @@ public class PostResource {
     return postService
          .findById(newPost.getPostId())
          .switchIfEmpty(customExceptions.postNotFoundException())
-         .flatMap(updatedPost -> {
-           return postService.save(updatedPost);
-         });
+         .then(postService.update(newPost));
   }
 
 

@@ -30,13 +30,14 @@ import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE_PORT;
 import static config.utils.BlockhoundUtils.bhWorks;
 import static config.utils.RestAssureSpecs.*;
 import static config.utils.TestUtils.*;
+import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Import({TestDbConfig.class})
 @DisplayName("UserResourceExcTest")
 @MergedResource
-public class UserResourceExcTest {
+class UserResourceExcTest {
 
   // STATIC-@Container: one service for ALL tests
   // NON-STATIC-@Container: one service for EACH test
@@ -65,7 +66,7 @@ public class UserResourceExcTest {
 
 
   @BeforeAll
-  public static void beforeAll(TestInfo testInfo) {
+  static void beforeAll(TestInfo testInfo) {
     globalBeforeAll();
     globalTestMessage(testInfo.getDisplayName(),"class-start");
     globalComposeServiceContainerMessage(compose,
@@ -80,14 +81,14 @@ public class UserResourceExcTest {
 
 
   @AfterAll
-  public static void afterAll(TestInfo testInfo) {
+  static void afterAll(TestInfo testInfo) {
     globalAfterAll();
     globalTestMessage(testInfo.getDisplayName(),"class-end");
   }
 
 
   @BeforeEach
-  public void beforeEach() {
+  void beforeEach() {
     userItemTest = userWithID_IdPostsEmpty().createTestUser();
   }
 
@@ -111,6 +112,7 @@ public class UserResourceExcTest {
 
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getUserNotFoundMessage()))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/userNotFound.json"))
     ;
   }
 
@@ -143,6 +145,7 @@ public class UserResourceExcTest {
 
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getUsersNotFoundMessage()))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/userNotFound.json"))
     ;
   }
 
@@ -175,6 +178,7 @@ public class UserResourceExcTest {
 
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getUsersNotFoundMessage()))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/userNotFound.json"))
     ;
   }
 
@@ -207,6 +211,7 @@ public class UserResourceExcTest {
 
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getUsersNotFoundMessage()))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/userNotFound.json"))
     ;
   }
 
@@ -226,9 +231,11 @@ public class UserResourceExcTest {
 
          .then()
          .statusCode(NOT_FOUND.value())
+         .log()
+         .everything()
 
          .body("detail",equalTo(customExceptions.getUserNotFoundMessage()))
-         .log()
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/userNotFound.json"))
     ;
   }
 
@@ -252,6 +259,7 @@ public class UserResourceExcTest {
 
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getUserNotFoundMessage()))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/userNotFound.json"))
     ;
   }
 
@@ -269,6 +277,8 @@ public class UserResourceExcTest {
 
          .then()
          .statusCode(NOT_FOUND.value())
+         .log()
+         .everything()
 
          .body(
               globalException.getGlobalAttribute(),
@@ -278,7 +288,7 @@ public class UserResourceExcTest {
               globalException.getDeveloperAttribute(),
                equalTo(globalException.getDeveloperMessage())
               )
-         .log()
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/globalException.json"))
     ;
   }
 
@@ -286,7 +296,7 @@ public class UserResourceExcTest {
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("BHWorks")
-  public void bHWorks() {
+  void bHWorks() {
     bhWorks();
   }
 

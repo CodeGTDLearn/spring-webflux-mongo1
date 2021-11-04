@@ -46,7 +46,7 @@ import static org.springframework.http.HttpStatus.*;
 @Import(TestDbConfig.class)
 @DisplayName("UserResourceTest")
 @MergedResource
-public class UserResourceTest {
+class UserResourceTest {
   // STATIC-@Container: one service for ALL tests -> SUPER FASTER
   // NON-STATIC-@Container: one service for EACH test
   @Container
@@ -69,7 +69,7 @@ public class UserResourceTest {
 
 
   @BeforeAll
-  public static void beforeAll(TestInfo testInfo) {
+  static void beforeAll(TestInfo testInfo) {
     globalBeforeAll();
     globalTestMessage(testInfo.getDisplayName(),"class-start");
     globalComposeServiceContainerMessage(compose,
@@ -83,14 +83,14 @@ public class UserResourceTest {
 
 
   @AfterAll
-  public static void afterAll(TestInfo testInfo) {
+  static void afterAll(TestInfo testInfo) {
     globalAfterAll();
     globalTestMessage(testInfo.getDisplayName(),"class-end");
   }
 
 
   @BeforeEach
-  public void beforeEach(TestInfo testInfo) {
+  void beforeEach(TestInfo testInfo) {
 
     //REAL-SERVER INJECTED IN WEB-TEST-CLIENT(non-blocking client)'
     //SHOULD BE USED WHEN 'DOCKER-COMPOSE' UP A REAL-WEB-SERVER
@@ -330,7 +330,7 @@ public class UserResourceTest {
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("BHWorks")
-  public void bHWorks() {
+  void bHWorks() {
     bhWorks();
   }
 }
