@@ -65,7 +65,7 @@ class PostResourceTest {
   private User author;
 
   @Autowired
-  TestDbUtils testDbUtils;
+  TestDbUtils dbUtils;
 
   @Autowired
   IUserService userService;
@@ -81,7 +81,8 @@ class PostResourceTest {
                                         );
 
     RestAssuredWebTestClient.reset();
-    RestAssuredWebTestClient.requestSpecification = requestSpecs();
+    RestAssuredWebTestClient.requestSpecification =
+         requestSpecsSetPath("http://localhost:8080/" + REQ_POST);
     RestAssuredWebTestClient.responseSpecification = responseSpecs();
   }
 
@@ -104,8 +105,8 @@ class PostResourceTest {
     globalTestMessage(testInfo.getTestMethod()
                               .toString(),"method-start");
 
-    author = userWithID_IdPostsEmpty().createTestUser();
-    Flux<User> userFlux = testDbUtils.saveUserList(singletonList(author));
+    author = userWithID_IdPostsEmpty().create();
+    Flux<User> userFlux = dbUtils.saveUserList(singletonList(author));
     StepVerifier
          .create(userFlux)
          .expectSubscription()
@@ -115,8 +116,8 @@ class PostResourceTest {
     post1 = post_IdNull_CommentsEmpty(author).create();
     post3 = post_IdNull_CommentsEmpty(author).create();
     List<Post> postList = Arrays.asList(post1,post3);
-    Flux<Post> postFlux = testDbUtils.savePostList(postList);
-    testDbUtils.countAndExecutePostFlux(postFlux,2);
+    Flux<Post> postFlux = dbUtils.savePostList(postList);
+    dbUtils.countAndExecutePostFlux(postFlux,2);
 
   }
 
@@ -138,7 +139,7 @@ class PostResourceTest {
          .webTestClient(mockedWebClient)
 
          .when()
-         .get(REQ_POST + FIND_ALL_POSTS)
+         .get(FIND_ALL_POSTS)
 
          .then()
          .log()
@@ -165,7 +166,7 @@ class PostResourceTest {
          .webTestClient(mockedWebClient)
 
          .when()
-         .get(REQ_POST + FIND_POST_BY_ID,post1.getPostId())
+         .get(FIND_POST_BY_ID,post1.getPostId())
 
          .then()
          .log()
@@ -189,7 +190,7 @@ class PostResourceTest {
          .webTestClient(mockedWebClient)
 
          .when()
-         .get(REQ_POST + FIND_POSTS_BY_AUTHORID,author.getId())
+         .get(FIND_POSTS_BY_AUTHORID,author.getId())
 
          .then()
          .log()
@@ -213,7 +214,7 @@ class PostResourceTest {
          .webTestClient(mockedWebClient)
 
          .when()
-         .get(REQ_POST + FIND_POST_BY_ID_SHOW_COMMENTS,post1.getPostId())
+         .get(FIND_POST_BY_ID_SHOW_COMMENTS,post1.getPostId())
 
          .then()
          .log()
@@ -249,7 +250,7 @@ class PostResourceTest {
          .body(post3)
 
          .when()
-         .post(REQ_POST + SAVE_EMBED_USER_IN_THE_POST)
+         .post(SAVE_EMBED_USER_IN_THE_POST)
 
          .then()
          .log()
@@ -276,7 +277,7 @@ class PostResourceTest {
          .body(post3)
 
          .when()
-         .delete(REQ_POST)
+         .delete()
 
          .then()
          .log()
@@ -285,7 +286,7 @@ class PostResourceTest {
          .statusCode(NO_CONTENT.value())
     ;
 
-    testDbUtils.countAndExecuteUserFlux(userService.findAll(),1);
+    dbUtils.countAndExecuteUserFlux(userService.findAll(),1);
   }
 
 
@@ -306,7 +307,7 @@ class PostResourceTest {
          .body(post1)
 
          .when()
-         .put(REQ_POST)
+         .put()
 
          .then()
          .log()
@@ -329,7 +330,7 @@ class PostResourceTest {
          .webTestClient(mockedWebClient)
 
          .when()
-         .get(REQ_POST + FIND_USER_BY_POSTID,post1.getPostId())
+         .get(FIND_USER_BY_POSTID,post1.getPostId())
 
          .then()
          .log()

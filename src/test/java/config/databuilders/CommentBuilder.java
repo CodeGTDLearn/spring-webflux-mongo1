@@ -33,7 +33,7 @@ public class CommentBuilder {
         List<String> idCommentsList = new ArrayList<>();
 
         Comment commentFull = new Comment();
-        commentFull.setCommentId(faker.regexify("/^[a-f\\d]{24}$/i"));
+        commentFull.setCommentId(faker.regexify("[a-f]{24}"));
         commentFull.setPostId(commentedPost.getPostId());
         commentFull.setDate(faker.date()
                                  .birthday());
@@ -63,7 +63,7 @@ public class CommentBuilder {
                              .build();
     }
 
-    public static CommentBuilder comment_simple(Post post) {
+    public static CommentBuilder commentSimple(Post post) {
 
         Comment commentFull = new Comment();
 

@@ -1,0 +1,303 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "title": "The root schema",
+  "description": "The root schema comprises the entire JSON document.",
+  "default": {},
+  "examples": [
+    {
+      "postId": "ebfebbbadcceffeafebebadc",
+      "date": "2001-12-18T03:40:43.676+00:00",
+      "title": "Orbital",
+      "body": "Facilis quam et hic iusto explicabo libero odit consequuntur provident quo ipsum quos harum provident ab beatae dicta qui a numquam et aut dicta amet dignissimos ipsam voluptatibus enim facere.",
+      "author": {
+        "id": "PPf96mt212o12i6bq3pa7e78y3",
+        "name": "Jaclyn Macejkovic"
+      },
+      "comment": null,
+      "listComments": [
+        {
+          "commentId": "618ae896c4b60d3ccde0a904",
+          "postId": "ebfebbbadcceffeafebebadc",
+          "date": "1968-05-01T20:58:15.348+00:00",
+          "text": "Comment-Text: Natus harum dignissimos doloribus quia est consequuntur repellendus ad ut ut quod distinctio delectus quis officiis cupiditate dolore nihil quia occaecati est doloribus totam repudiandae iste rerum molestiae dicta magnam.",
+          "author": {
+            "id": "PP0sc8uphbema25158969n131s",
+            "name": "Ervin Mertz"
+          }
+        }
+      ],
+      "idComments": [
+        "618ae895c4b60d3ccde0a903"
+      ]
+    }
+  ],
+  "required": [
+    "postId",
+    "date",
+    "title",
+    "body",
+    "author",
+    "comment",
+    "listComments",
+    "idComments"
+  ],
+  "properties": {
+    "postId": {
+      "$id": "#/properties/postId",
+      "type": "string",
+      "title": "The postId schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "ebfebbbadcceffeafebebadc"
+      ]
+    },
+    "date": {
+      "$id": "#/properties/date",
+      "type": "string",
+      "title": "The date schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "2001-12-18T03:40:43.676+00:00"
+      ]
+    },
+    "title": {
+      "$id": "#/properties/title",
+      "type": "string",
+      "title": "The title schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "Orbital"
+      ]
+    },
+    "body": {
+      "$id": "#/properties/body",
+      "type": "string",
+      "title": "The body schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "Facilis quam et hic iusto explicabo libero odit consequuntur provident quo ipsum quos harum provident ab beatae dicta qui a numquam et aut dicta amet dignissimos ipsam voluptatibus enim facere."
+      ]
+    },
+    "author": {
+      "$id": "#/properties/author",
+      "type": "object",
+      "title": "The author schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": {},
+      "examples": [
+        {
+          "id": "PPf96mt212o12i6bq3pa7e78y3",
+          "name": "Jaclyn Macejkovic"
+        }
+      ],
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "$id": "#/properties/author/properties/id",
+          "type": "string",
+          "title": "The id schema",
+          "description": "An explanation about the purpose of this instance.",
+          "default": "",
+          "examples": [
+            "PPf96mt212o12i6bq3pa7e78y3"
+          ]
+        },
+        "name": {
+          "$id": "#/properties/author/properties/name",
+          "type": "string",
+          "title": "The name schema",
+          "description": "An explanation about the purpose of this instance.",
+          "default": "",
+          "examples": [
+            "Jaclyn Macejkovic"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "comment": {
+      "$id": "#/properties/comment",
+      "type": "null",
+      "title": "The comment schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": null,
+      "examples": [
+        null
+      ]
+    },
+    "listComments": {
+      "$id": "#/properties/listComments",
+      "type": "array",
+      "title": "The listComments schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": [],
+      "examples": [
+        [
+          {
+            "commentId": "618ae896c4b60d3ccde0a904",
+            "postId": "ebfebbbadcceffeafebebadc",
+            "date": "1968-05-01T20:58:15.348+00:00",
+            "text": "Comment-Text: Natus harum dignissimos doloribus quia est consequuntur repellendus ad ut ut quod distinctio delectus quis officiis cupiditate dolore nihil quia occaecati est doloribus totam repudiandae iste rerum molestiae dicta magnam.",
+            "author": {
+              "id": "PP0sc8uphbema25158969n131s",
+              "name": "Ervin Mertz"
+            }
+          }
+        ]
+      ],
+      "additionalItems": true,
+      "items": {
+        "$id": "#/properties/listComments/items",
+        "anyOf": [
+          {
+            "$id": "#/properties/listComments/items/anyOf/0",
+            "type": "object",
+            "title": "The first anyOf schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": {},
+            "examples": [
+              {
+                "commentId": "618ae896c4b60d3ccde0a904",
+                "postId": "ebfebbbadcceffeafebebadc",
+                "date": "1968-05-01T20:58:15.348+00:00",
+                "text": "Comment-Text: Natus harum dignissimos doloribus quia est consequuntur repellendus ad ut ut quod distinctio delectus quis officiis cupiditate dolore nihil quia occaecati est doloribus totam repudiandae iste rerum molestiae dicta magnam.",
+                "author": {
+                  "id": "PP0sc8uphbema25158969n131s",
+                  "name": "Ervin Mertz"
+                }
+              }
+            ],
+            "required": [
+              "commentId",
+              "postId",
+              "date",
+              "text",
+              "author"
+            ],
+            "properties": {
+              "commentId": {
+                "$id": "#/properties/listComments/items/anyOf/0/properties/commentId",
+                "type": "string",
+                "title": "The commentId schema",
+                "description": "An explanation about the purpose of this instance.",
+                "default": "",
+                "examples": [
+                  "618ae896c4b60d3ccde0a904"
+                ]
+              },
+              "postId": {
+                "$id": "#/properties/listComments/items/anyOf/0/properties/postId",
+                "type": "string",
+                "title": "The postId schema",
+                "description": "An explanation about the purpose of this instance.",
+                "default": "",
+                "examples": [
+                  "ebfebbbadcceffeafebebadc"
+                ]
+              },
+              "date": {
+                "$id": "#/properties/listComments/items/anyOf/0/properties/date",
+                "type": "string",
+                "title": "The date schema",
+                "description": "An explanation about the purpose of this instance.",
+                "default": "",
+                "examples": [
+                  "1968-05-01T20:58:15.348+00:00"
+                ]
+              },
+              "text": {
+                "$id": "#/properties/listComments/items/anyOf/0/properties/text",
+                "type": "string",
+                "title": "The text schema",
+                "description": "An explanation about the purpose of this instance.",
+                "default": "",
+                "examples": [
+                  "Comment-Text: Natus harum dignissimos doloribus quia est consequuntur repellendus ad ut ut quod distinctio delectus quis officiis cupiditate dolore nihil quia occaecati est doloribus totam repudiandae iste rerum molestiae dicta magnam."
+                ]
+              },
+              "author": {
+                "$id": "#/properties/listComments/items/anyOf/0/properties/author",
+                "type": "object",
+                "title": "The author schema",
+                "description": "An explanation about the purpose of this instance.",
+                "default": {},
+                "examples": [
+                  {
+                    "id": "PP0sc8uphbema25158969n131s",
+                    "name": "Ervin Mertz"
+                  }
+                ],
+                "required": [
+                  "id",
+                  "name"
+                ],
+                "properties": {
+                  "id": {
+                    "$id": "#/properties/listComments/items/anyOf/0/properties/author/properties/id",
+                    "type": "string",
+                    "title": "The id schema",
+                    "description": "An explanation about the purpose of this instance.",
+                    "default": "",
+                    "examples": [
+                      "PP0sc8uphbema25158969n131s"
+                    ]
+                  },
+                  "name": {
+                    "$id": "#/properties/listComments/items/anyOf/0/properties/author/properties/name",
+                    "type": "string",
+                    "title": "The name schema",
+                    "description": "An explanation about the purpose of this instance.",
+                    "default": "",
+                    "examples": [
+                      "Ervin Mertz"
+                    ]
+                  }
+                },
+                "additionalProperties": true
+              }
+            },
+            "additionalProperties": true
+          }
+        ]
+      }
+    },
+    "idComments": {
+      "$id": "#/properties/idComments",
+      "type": "array",
+      "title": "The idComments schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": [],
+      "examples": [
+        [
+          "618ae895c4b60d3ccde0a903"
+        ]
+      ],
+      "additionalItems": true,
+      "items": {
+        "$id": "#/properties/idComments/items",
+        "anyOf": [
+          {
+            "$id": "#/properties/idComments/items/anyOf/0",
+            "type": "string",
+            "title": "The first anyOf schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+              "618ae895c4b60d3ccde0a903"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "additionalProperties": true
+}

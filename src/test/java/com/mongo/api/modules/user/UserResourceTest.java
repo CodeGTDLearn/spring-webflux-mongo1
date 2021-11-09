@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.mongo.api.core.routes.RoutesUser.*;
-import static config.databuilders.CommentBuilder.comment_simple;
+import static config.databuilders.CommentBuilder.commentSimple;
 import static config.databuilders.PostBuilder.postFull_withId_CommentsEmpty;
 import static config.databuilders.UserBuilder.*;
 import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE;
@@ -62,7 +62,7 @@ class UserResourceTest {
   private User user1, user3, postsAuthor;
 
   @Autowired
-  TestDbUtils testDbUtils;
+  TestDbUtils dbUtils;
 
   @Autowired
   IUserService userService;
@@ -77,7 +77,8 @@ class UserResourceTest {
                                          TC_COMPOSE_SERVICE_PORT
                                         );
     RestAssuredWebTestClient.reset();
-    RestAssuredWebTestClient.requestSpecification = requestSpecs();
+    RestAssuredWebTestClient.requestSpecification =
+         requestSpecsSetPath("http://localhost:8080/" + REQ_USER);
     RestAssuredWebTestClient.responseSpecification = responseSpecs();
   }
 
@@ -103,13 +104,13 @@ class UserResourceTest {
     globalTestMessage(testInfo.getTestMethod()
                               .toString(),"method-start");
 
-    user1 = userWithID_IdPostsEmpty().createTestUser();
-    user3 = userFull_IdNull_ListIdPostsEmpty().createTestUser();
-    postsAuthor = userWithID_IdPostsEmpty().createTestUser();
+    user1 = userWithID_IdPostsEmpty().create();
+    user3 = userFull_IdNull_ListIdPostsEmpty().create();
+    postsAuthor = userWithID_IdPostsEmpty().create();
 
     List<User> userList = Arrays.asList(user1,user3);
-    Flux<User> flux = testDbUtils.saveUserList(userList);
-    testDbUtils.countAndExecuteUserFlux(flux,2);
+    Flux<User> flux = dbUtils.saveUserList(userList);
+    dbUtils.countAndExecuteUserFlux(flux,2);
   }
 
 
@@ -129,7 +130,7 @@ class UserResourceTest {
          .webTestClient(mockedWebClient)
 
          .when()
-         .get(REQ_USER + FIND_ALL_USERS)
+         .get(FIND_ALL_USERS)
 
          .then()
 
@@ -154,7 +155,7 @@ class UserResourceTest {
          .webTestClient(mockedWebClient)
 
          .when()
-         .get(REQ_USER + FIND_ALL_USERS_DTO)
+         .get(FIND_ALL_USERS_DTO)
 
          .then()
          .log()
@@ -181,16 +182,16 @@ class UserResourceTest {
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
   public void findShowAll() {
-    User user = userWithID_IdPostsEmpty().createTestUser();
+    User user = userWithID_IdPostsEmpty().create();
     Post post = postFull_withId_CommentsEmpty(user).create();
-    Comment comment = comment_simple(post).create();
-    UserAllDto userShowAll = userShowAll_Test(user,post,comment).create();
+    Comment comment = commentSimple(post).create();
+    UserAllDto userShowAll = userShowAll_Test(user,post,comment).createDto();
 
-    testDbUtils.cleanTestDb();
+    dbUtils.cleanTestDb();
 
     StepVerifier
          .create(
-              testDbUtils.saveUserShowAllFinalInDb(user,post,comment))
+              dbUtils.saveUserShowAllFinalInDb(user,post,comment))
          .expectSubscription()
          .verifyComplete();
 
@@ -200,7 +201,7 @@ class UserResourceTest {
          .webTestClient(mockedWebClient)
 
          .when()
-         .get(REQ_USER + FIND_ALL_SHOW_ALL_DTO)
+         .get(FIND_ALL_SHOW_ALL_DTO)
 
          .then()
          .log()
@@ -224,7 +225,7 @@ class UserResourceTest {
          .webTestClient(mockedWebClient)
 
          .when()
-         .get(REQ_USER + FIND_USER_BY_ID,user3.getId())
+         .get(FIND_USER_BY_ID,user3.getId())
 
          .then()
          .log()
@@ -249,7 +250,7 @@ class UserResourceTest {
          // .spec(restAssureRequestSpecs())
 
          .when()
-         .post(REQ_USER)
+         .post()
 
          .then()
 //         .log()
@@ -279,7 +280,7 @@ class UserResourceTest {
          .body(user1)
 
          .when()
-         .delete(REQ_USER)
+         .delete()
 
          .then()
          .log()
@@ -288,7 +289,7 @@ class UserResourceTest {
          .statusCode(NO_CONTENT.value())
     ;
 
-    testDbUtils.countAndExecuteUserFlux(userService.findAll(),1);
+    dbUtils.countAndExecuteUserFlux(userService.findAll(),1);
   }
 
 
@@ -311,7 +312,7 @@ class UserResourceTest {
          .body(user1)
 
          .when()
-         .put(REQ_USER)
+         .put()
 
          .then()
          .log()

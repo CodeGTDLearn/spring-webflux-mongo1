@@ -1,6 +1,5 @@
 package com.mongo.api.modules.post;
 
-import com.mongo.api.core.exceptions.customExceptions.CustomExceptions;
 import com.mongo.api.modules.comment.ICommentService;
 import com.mongo.api.modules.user.IUserService;
 import com.mongo.api.modules.user.User;
@@ -21,8 +20,6 @@ public class PostService implements IPostService {
   private final IUserService userService;
 
   private final ICommentService commentService;
-
-  private final CustomExceptions customExceptions;
 
   private final ModelMapper modelMapper;
 
@@ -45,9 +42,7 @@ public class PostService implements IPostService {
 
   @Override
   public Mono<Post> findById(String id) {
-    return postRepo.findById(id)
-
-         ;
+    return postRepo.findById(id);
   }
 
 

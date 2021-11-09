@@ -28,7 +28,8 @@ import static config.databuilders.UserBuilder.userWithID_IdPostsEmpty;
 import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE;
 import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE_PORT;
 import static config.utils.BlockhoundUtils.bhWorks;
-import static config.utils.RestAssureSpecs.*;
+import static config.utils.RestAssureSpecs.requestSpecsSetPath;
+import static config.utils.RestAssureSpecs.responseSpecs;
 import static config.utils.TestUtils.*;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.hamcrest.Matchers.equalTo;
@@ -56,7 +57,7 @@ class UserResourceExcTest {
   private User userItemTest;
 
   @Autowired
-  TestDbUtils testDbUtils;
+  TestDbUtils dbUtils;
 
   @Autowired
   CustomExceptionsProperties customExceptions;
@@ -75,7 +76,8 @@ class UserResourceExcTest {
                                         );
 
     RestAssuredWebTestClient.reset();
-    RestAssuredWebTestClient.requestSpecification = requestSpecs();
+    RestAssuredWebTestClient.requestSpecification =
+         requestSpecsSetPath("http://localhost:8080/" + REQ_USER);
     RestAssuredWebTestClient.responseSpecification = responseSpecs();
   }
 
@@ -89,7 +91,7 @@ class UserResourceExcTest {
 
   @BeforeEach
   void beforeEach() {
-    userItemTest = userWithID_IdPostsEmpty().createTestUser();
+    userItemTest = userWithID_IdPostsEmpty().create();
   }
 
 
@@ -102,9 +104,9 @@ class UserResourceExcTest {
          .webTestClient(mockedWebClient)
 
          .when()
-         .get(REQ_USER + FIND_USER_BY_ID,Faker.instance()
-                                              .idNumber()
-                                              .valid())
+         .get(FIND_USER_BY_ID,Faker.instance()
+                                   .idNumber()
+                                   .valid())
 
          .then()
          .log()
@@ -123,7 +125,7 @@ class UserResourceExcTest {
   public void findAllEmpty() {
     List<User> emptyList = new ArrayList<>();
 
-    Flux<User> userFlux = testDbUtils.saveUserList(emptyList);
+    Flux<User> userFlux = dbUtils.saveUserList(emptyList);
 
     StepVerifier
          .create(userFlux)
@@ -137,7 +139,7 @@ class UserResourceExcTest {
          .webTestClient(mockedWebClient)
 
          .when()
-         .get(REQ_USER + FIND_ALL_USERS)
+         .get(FIND_ALL_USERS)
 
          .then()
          .log()
@@ -156,7 +158,7 @@ class UserResourceExcTest {
   public void findShowAllEmpty() {
     List<User> emptyList = new ArrayList<>();
 
-    Flux<User> userFlux = testDbUtils.saveUserList(emptyList);
+    Flux<User> userFlux = dbUtils.saveUserList(emptyList);
 
     StepVerifier
          .create(userFlux)
@@ -170,7 +172,7 @@ class UserResourceExcTest {
          .webTestClient(mockedWebClient)
 
          .when()
-         .get(REQ_USER + FIND_ALL_SHOW_ALL_DTO)
+         .get(FIND_ALL_SHOW_ALL_DTO)
 
          .then()
          .log()
@@ -189,7 +191,7 @@ class UserResourceExcTest {
   public void findAllDtoEmpty() {
     List<User> emptyList = new ArrayList<>();
 
-    Flux<User> userFlux = testDbUtils.saveUserList(emptyList);
+    Flux<User> userFlux = dbUtils.saveUserList(emptyList);
 
     StepVerifier
          .create(userFlux)
@@ -203,7 +205,7 @@ class UserResourceExcTest {
          .webTestClient(mockedWebClient)
 
          .when()
-         .get(REQ_USER + FIND_ALL_USERS_DTO)
+         .get(FIND_ALL_USERS_DTO)
 
          .then()
          .log()
@@ -227,7 +229,7 @@ class UserResourceExcTest {
          .body(userItemTest)
 
          .when()
-         .delete(REQ_USER)
+         .delete()
 
          .then()
          .statusCode(NOT_FOUND.value())
@@ -251,7 +253,7 @@ class UserResourceExcTest {
          .body(userItemTest)
 
          .when()
-         .put(REQ_USER)
+         .put()
 
          .then()
          .log()
@@ -273,7 +275,7 @@ class UserResourceExcTest {
          .webTestClient(mockedWebClient)
 
          .when()
-         .get(REQ_USER + ERROR_PATH)
+         .get(ERROR_PATH)
 
          .then()
          .statusCode(NOT_FOUND.value())
@@ -282,11 +284,11 @@ class UserResourceExcTest {
 
          .body(
               globalException.getGlobalAttribute(),
-               equalTo("404 NOT_FOUND \"" + globalException.getGlobalMessage() + "\"")
+              equalTo("404 NOT_FOUND \"" + globalException.getGlobalMessage() + "\"")
               )
          .body(
               globalException.getDeveloperAttribute(),
-               equalTo(globalException.getDeveloperMessage())
+              equalTo(globalException.getDeveloperMessage())
               )
          .body(matchesJsonSchemaInClasspath("contracts/exceptions/globalException.json"))
     ;

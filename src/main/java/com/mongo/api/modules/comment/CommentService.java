@@ -2,12 +2,11 @@ package com.mongo.api.modules.comment;
 
 import com.mongo.api.core.dto.CommentAllDtoFull;
 import com.mongo.api.core.dto.PostDtoSlim;
-import com.mongo.api.core.exceptions.customExceptions.CustomExceptions;
-import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.post.IPostRepo;
 import com.mongo.api.modules.post.IPostService;
-import com.mongo.api.modules.user.User;
+import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.user.IUserService;
+import com.mongo.api.modules.user.User;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Lazy;
@@ -33,9 +32,6 @@ public class CommentService implements ICommentService {
 
   @Lazy
   private final ModelMapper modelMapper;
-
-  @Lazy
-  private final CustomExceptions customExceptions;
 
 
   @Override
@@ -120,7 +116,7 @@ public class CommentService implements ICommentService {
 
 
   @Override
-  public Mono<Post> saveSubst(Comment comment) {
+  public Mono<Post> saveEmbedSubst(Comment comment) {
     return commentRepo
          .save(comment)
          .flatMap(commentSaved ->
@@ -136,8 +132,9 @@ public class CommentService implements ICommentService {
 
 
   @Override
-  public Mono<Post> saveList(Comment comment) {
-    return commentRepo.save(comment)
+  public Mono<Post> saveEmbedList(Comment comment) {
+    return commentRepo
+         .save(comment)
          .flatMap(commentSaved ->
                        postRepo
                             .findById(commentSaved.getPostId())

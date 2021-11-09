@@ -1,0 +1,137 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://example.com/example.json",
+  "type": "array",
+  "title": "The root schema",
+  "description": "The root schema comprises the entire JSON document.",
+  "default": [],
+  "examples": [
+    [
+      {
+        "commentId": "618aa5786f0d066485d9ca03",
+        "postId": "fcdecdedcbdacfbcbabbecff",
+        "date": "1996-05-15T15:29:54.680+00:00",
+        "text": "Comment-Text: Velit quis nihil est est quia mollitia aperiam ad voluptas iure excepturi sunt sunt necessitatibus nisi blanditiis quibusdam iure ipsam et voluptatem quia eum tempora quisquam repellat.",
+        "author": {
+          "id": "PPuchizi57p4k7djt07871k523",
+          "name": "Romeo Jast"
+        }
+      }
+    ]
+  ],
+  "additionalItems": true,
+  "items": {
+    "$id": "#/items",
+    "anyOf": [
+      {
+        "$id": "#/items/anyOf/0",
+        "type": "object",
+        "title": "The first anyOf schema",
+        "description": "An explanation about the purpose of this instance.",
+        "default": {},
+        "examples": [
+          {
+            "commentId": "618aa5786f0d066485d9ca03",
+            "postId": "fcdecdedcbdacfbcbabbecff",
+            "date": "1996-05-15T15:29:54.680+00:00",
+            "text": "Comment-Text: Velit quis nihil est est quia mollitia aperiam ad voluptas iure excepturi sunt sunt necessitatibus nisi blanditiis quibusdam iure ipsam et voluptatem quia eum tempora quisquam repellat.",
+            "author": {
+              "id": "PPuchizi57p4k7djt07871k523",
+              "name": "Romeo Jast"
+            }
+          }
+        ],
+        "required": [
+          "commentId",
+          "postId",
+          "date",
+          "text",
+          "author"
+        ],
+        "properties": {
+          "commentId": {
+            "$id": "#/items/anyOf/0/properties/commentId",
+            "type": "string",
+            "title": "The commentId schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+              "618aa5786f0d066485d9ca03"
+            ]
+          },
+          "postId": {
+            "$id": "#/items/anyOf/0/properties/postId",
+            "type": "string",
+            "title": "The postId schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+              "fcdecdedcbdacfbcbabbecff"
+            ]
+          },
+          "date": {
+            "$id": "#/items/anyOf/0/properties/date",
+            "type": "string",
+            "title": "The date schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+              "1996-05-15T15:29:54.680+00:00"
+            ]
+          },
+          "text": {
+            "$id": "#/items/anyOf/0/properties/text",
+            "type": "string",
+            "title": "The text schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+              "Comment-Text: Velit quis nihil est est quia mollitia aperiam ad voluptas iure excepturi sunt sunt necessitatibus nisi blanditiis quibusdam iure ipsam et voluptatem quia eum tempora quisquam repellat."
+            ]
+          },
+          "author": {
+            "$id": "#/items/anyOf/0/properties/author",
+            "type": "object",
+            "title": "The author schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": {},
+            "examples": [
+              {
+                "id": "PPuchizi57p4k7djt07871k523",
+                "name": "Romeo Jast"
+              }
+            ],
+            "required": [
+              "id",
+              "name"
+            ],
+            "properties": {
+              "id": {
+                "$id": "#/items/anyOf/0/properties/author/properties/id",
+                "type": "string",
+                "title": "The id schema",
+                "description": "An explanation about the purpose of this instance.",
+                "default": "",
+                "examples": [
+                  "PPuchizi57p4k7djt07871k523"
+                ]
+              },
+              "name": {
+                "$id": "#/items/anyOf/0/properties/author/properties/name",
+                "type": "string",
+                "title": "The name schema",
+                "description": "An explanation about the purpose of this instance.",
+                "default": "",
+                "examples": [
+                  "Romeo Jast"
+                ]
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "additionalProperties": true
+      }
+    ]
+  }
+}

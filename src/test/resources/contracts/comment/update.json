@@ -1,0 +1,110 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "title": "The root schema",
+  "description": "The root schema comprises the entire JSON document.",
+  "default": {},
+  "examples": [
+    {
+      "commentId": "618b0331da22e54eb915009d",
+      "postId": "cfbfdfdcaecadaecabacdebd",
+      "date": "1984-01-03T17:35:46.293+00:00",
+      "text": "Magnam et odio possimus adipisci. Ratione ullam odio praesentium excepturi voluptatem aut voluptates.",
+      "author": {
+        "id": "PPcmt37jfo8i45y7josk6zxk6l",
+        "name": "Mrs. Abel Bogisich"
+      }
+    }
+  ],
+  "required": [
+    "commentId",
+    "postId",
+    "date",
+    "text",
+    "author"
+  ],
+  "properties": {
+    "commentId": {
+      "$id": "#/properties/commentId",
+      "type": "string",
+      "title": "The commentId schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "618b0331da22e54eb915009d"
+      ]
+    },
+    "postId": {
+      "$id": "#/properties/postId",
+      "type": "string",
+      "title": "The postId schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "cfbfdfdcaecadaecabacdebd"
+      ]
+    },
+    "date": {
+      "$id": "#/properties/date",
+      "type": "string",
+      "title": "The date schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "1984-01-03T17:35:46.293+00:00"
+      ]
+    },
+    "text": {
+      "$id": "#/properties/text",
+      "type": "string",
+      "title": "The text schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "Magnam et odio possimus adipisci. Ratione ullam odio praesentium excepturi voluptatem aut voluptates."
+      ]
+    },
+    "author": {
+      "$id": "#/properties/author",
+      "type": "object",
+      "title": "The author schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": {},
+      "examples": [
+        {
+          "id": "PPcmt37jfo8i45y7josk6zxk6l",
+          "name": "Mrs. Abel Bogisich"
+        }
+      ],
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "$id": "#/properties/author/properties/id",
+          "type": "string",
+          "title": "The id schema",
+          "description": "An explanation about the purpose of this instance.",
+          "default": "",
+          "examples": [
+            "PPcmt37jfo8i45y7josk6zxk6l"
+          ]
+        },
+        "name": {
+          "$id": "#/properties/author/properties/name",
+          "type": "string",
+          "title": "The name schema",
+          "description": "An explanation about the purpose of this instance.",
+          "default": "",
+          "examples": [
+            "Mrs. Abel Bogisich"
+          ]
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

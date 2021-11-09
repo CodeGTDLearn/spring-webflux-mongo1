@@ -46,6 +46,7 @@ public class TestDbUtils {
          .verifyComplete();
   }
 
+
   public void countAndExecuteCommentFlux(Flux<Comment> flux,int totalElements) {
     StepVerifier
          .create(flux)
@@ -64,31 +65,34 @@ public class TestDbUtils {
                            "\n--> Saved 'User' in DB: \n    --> " + item.toString() + "\n"));
   }
 
+
   public Flux<Comment> saveLinked(List<Comment> commentList) {
     return commentService.deleteAll()
-                      .thenMany(Flux.fromIterable(commentList))
-                      .flatMap(commentService::saveLinked)
-                      .doOnNext(item -> commentService.findAll())
-                      .doOnNext(item -> System.out.println(
-                           "\n--> Saved 'Comment' in DB: \n    --> " + item.toString() + "\n"));
+                         .thenMany(Flux.fromIterable(commentList))
+                         .flatMap(commentService::saveLinked)
+                         .doOnNext(item -> commentService.findAll())
+                         .doOnNext(item -> System.out.println(
+                              "\n--> Saved 'Comment' in DB: \n    --> " + item.toString() + "\n"));
   }
 
-  public Flux<Post> saveList(List<Comment> commentList) {
+
+  public Flux<Post> saveCommentList(List<Comment> commentList) {
     return commentService.deleteAll()
-                      .thenMany(Flux.fromIterable(commentList))
-                      .flatMap(commentService::saveList)
-                      .doOnNext(item -> commentService.findAll())
-                      .doOnNext(item -> System.out.println(
-                           "\n--> Saved 'Comment' in DB: \n    --> " + item.toString() + "\n"));
+                         .thenMany(Flux.fromIterable(commentList))
+                         .flatMap(commentService::saveEmbedList)
+                         .doOnNext(item -> commentService.findAll())
+                         .doOnNext(item -> System.out.println(
+                              "\n--> Saved 'Comment' in DB: \n    --> " + item.toString() + "\n"));
   }
 
-  public Flux<Post> saveSubst(List<Comment> commentList) {
+
+  public Flux<Post> saveCommentSubstList(List<Comment> commentList) {
     return commentService.deleteAll()
-                      .thenMany(Flux.fromIterable(commentList))
-                      .flatMap(commentService::saveSubst)
-                      .doOnNext(item -> commentService.findAll())
-                      .doOnNext(item -> System.out.println(
-                           "\n--> Saved 'Comment' in DB: \n    --> " + item.toString() + "\n"));
+                         .thenMany(Flux.fromIterable(commentList))
+                         .flatMap(commentService::saveEmbedSubst)
+                         .doOnNext(item -> commentService.findAll())
+                         .doOnNext(item -> System.out.println(
+                              "\n--> Saved 'Comment' in DB: \n    --> " + item.toString() + "\n"));
   }
 
 

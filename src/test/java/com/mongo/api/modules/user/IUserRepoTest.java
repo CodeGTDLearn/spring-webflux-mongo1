@@ -63,7 +63,7 @@ class IUserRepoTest {
   IPostRepo postRepo;
 
   @Autowired
-  TestDbUtils testDbUtils;
+  TestDbUtils dbUtils;
 
 
   @BeforeAll
@@ -89,10 +89,10 @@ class IUserRepoTest {
     globalTestMessage(testInfo.getTestMethod()
                               .toString(),"method-start");
 
-    user1 = userFull_IdNull_ListIdPostsEmpty().createTestUser();
-    user3 = userFull_IdNull_ListIdPostsEmpty().createTestUser();
+    user1 = userFull_IdNull_ListIdPostsEmpty().create();
+    user3 = userFull_IdNull_ListIdPostsEmpty().create();
     List<User> userList = Arrays.asList(user1,user3);
-    userFlux = testDbUtils.saveUserList(userList);
+    userFlux = dbUtils.saveUserList(userList);
   }
 
 
@@ -108,13 +108,13 @@ class IUserRepoTest {
   @DisplayName("Find: PostsByUserId")
   public void findPostByUserId() {
 
-    user2WithId = userWithID_IdPostsEmpty().createTestUser();
+    user2WithId = userWithID_IdPostsEmpty().create();
 
     post1 = post_IdNull_CommentsEmpty(user2WithId).create();
     post2 = post_IdNull_CommentsEmpty(user2WithId).create();
     List<Post> postList = Arrays.asList(post1,post2);
 
-    testDbUtils.cleanTestDb();
+    dbUtils.cleanTestDb();
 
     StepVerifier
          .create(userRepo.save(user2WithId))
@@ -129,7 +129,7 @@ class IUserRepoTest {
                                                .equals(user.getId()))
          .verifyComplete();
 
-    Flux<Post> postFlux = testDbUtils.savePostList(postList);
+    Flux<Post> postFlux = dbUtils.savePostList(postList);
 
     StepVerifier
          .create(postFlux)

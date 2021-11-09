@@ -119,12 +119,12 @@ public class UserBuilder {
   }
 
 
-  public User createTestUser() {
+  public User create() {
     return this.user;
   }
 
 
-  public UserAllDto create() {
+  public UserAllDto createDto() {
     return this.userShowAll;
   }
 }

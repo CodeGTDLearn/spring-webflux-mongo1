@@ -1,0 +1,137 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://example.com/example.json",
+  "type": "array",
+  "title": "The root schema",
+  "description": "The root schema comprises the entire JSON document.",
+  "default": [],
+  "examples": [
+    [
+      {
+        "commentId": "618ad7ba133e8602085ed1e5",
+        "postId": "fecadedbcadbfaaedbdaadae",
+        "date": "1985-01-15T22:56:03.734+00:00",
+        "text": "Comment-Text: Sit non sed rerum voluptatum recusandae ut perspiciatis dolore dolores quia cumque eos adipisci officiis odit nulla nemo culpa saepe in nemo pariatur est vel.",
+        "author": {
+          "id": "PP2kg7yxd74jg91n3ojkp59c58",
+          "name": "Mrs. Jaime Donnelly"
+        }
+      }
+    ]
+  ],
+  "additionalItems": true,
+  "items": {
+    "$id": "#/items",
+    "anyOf": [
+      {
+        "$id": "#/items/anyOf/0",
+        "type": "object",
+        "title": "The first anyOf schema",
+        "description": "An explanation about the purpose of this instance.",
+        "default": {},
+        "examples": [
+          {
+            "commentId": "618ad7ba133e8602085ed1e5",
+            "postId": "fecadedbcadbfaaedbdaadae",
+            "date": "1985-01-15T22:56:03.734+00:00",
+            "text": "Comment-Text: Sit non sed rerum voluptatum recusandae ut perspiciatis dolore dolores quia cumque eos adipisci officiis odit nulla nemo culpa saepe in nemo pariatur est vel.",
+            "author": {
+              "id": "PP2kg7yxd74jg91n3ojkp59c58",
+              "name": "Mrs. Jaime Donnelly"
+            }
+          }
+        ],
+        "required": [
+          "commentId",
+          "postId",
+          "date",
+          "text",
+          "author"
+        ],
+        "properties": {
+          "commentId": {
+            "$id": "#/items/anyOf/0/properties/commentId",
+            "type": "string",
+            "title": "The commentId schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+              "618ad7ba133e8602085ed1e5"
+            ]
+          },
+          "postId": {
+            "$id": "#/items/anyOf/0/properties/postId",
+            "type": "string",
+            "title": "The postId schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+              "fecadedbcadbfaaedbdaadae"
+            ]
+          },
+          "date": {
+            "$id": "#/items/anyOf/0/properties/date",
+            "type": "string",
+            "title": "The date schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+              "1985-01-15T22:56:03.734+00:00"
+            ]
+          },
+          "text": {
+            "$id": "#/items/anyOf/0/properties/text",
+            "type": "string",
+            "title": "The text schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+              "Comment-Text: Sit non sed rerum voluptatum recusandae ut perspiciatis dolore dolores quia cumque eos adipisci officiis odit nulla nemo culpa saepe in nemo pariatur est vel."
+            ]
+          },
+          "author": {
+            "$id": "#/items/anyOf/0/properties/author",
+            "type": "object",
+            "title": "The author schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": {},
+            "examples": [
+              {
+                "id": "PP2kg7yxd74jg91n3ojkp59c58",
+                "name": "Mrs. Jaime Donnelly"
+              }
+            ],
+            "required": [
+              "id",
+              "name"
+            ],
+            "properties": {
+              "id": {
+                "$id": "#/items/anyOf/0/properties/author/properties/id",
+                "type": "string",
+                "title": "The id schema",
+                "description": "An explanation about the purpose of this instance.",
+                "default": "",
+                "examples": [
+                  "PP2kg7yxd74jg91n3ojkp59c58"
+                ]
+              },
+              "name": {
+                "$id": "#/items/anyOf/0/properties/author/properties/name",
+                "type": "string",
+                "title": "The name schema",
+                "description": "An explanation about the purpose of this instance.",
+                "default": "",
+                "examples": [
+                  "Mrs. Jaime Donnelly"
+                ]
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "additionalProperties": true
+      }
+    ]
+  }
+}

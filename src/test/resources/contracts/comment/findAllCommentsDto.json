@@ -1,0 +1,138 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://example.com/example.json",
+  "type": "array",
+  "title": "The root schema",
+  "description": "The root schema comprises the entire JSON document.",
+  "default": [],
+  "examples": [
+    [
+      {
+        "commentId": "618aa738b86e8e42505b82ae",
+        "postId": "dcacedafbabacfacdfefeeab",
+        "text": "Comment-Text: Nihil sed nisi vel et perspiciatis reprehenderit alias facere doloribus non voluptatibus vero et exercitationem eligendi quisquam eos qui consequatur quibusdam sunt ut quae et aliquam doloremque repudiandae et quo.",
+        "post": {
+          "id": "dcacedafbabacfacdfefeeab",
+          "title": "Coldplay",
+          "authorName": "Kermit Dooley"
+        }
+      }
+    ]
+  ],
+  "additionalItems": true,
+  "items": {
+    "$id": "#/items",
+    "anyOf": [
+      {
+        "$id": "#/items/anyOf/0",
+        "type": "object",
+        "title": "The first anyOf schema",
+        "description": "An explanation about the purpose of this instance.",
+        "default": {},
+        "examples": [
+          {
+            "commentId": "618aa738b86e8e42505b82ae",
+            "postId": "dcacedafbabacfacdfefeeab",
+            "text": "Comment-Text: Nihil sed nisi vel et perspiciatis reprehenderit alias facere doloribus non voluptatibus vero et exercitationem eligendi quisquam eos qui consequatur quibusdam sunt ut quae et aliquam doloremque repudiandae et quo.",
+            "post": {
+              "id": "dcacedafbabacfacdfefeeab",
+              "title": "Coldplay",
+              "authorName": "Kermit Dooley"
+            }
+          }
+        ],
+        "required": [
+          "commentId",
+          "postId",
+          "text",
+          "post"
+        ],
+        "properties": {
+          "commentId": {
+            "$id": "#/items/anyOf/0/properties/commentId",
+            "type": "string",
+            "title": "The commentId schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+              "618aa738b86e8e42505b82ae"
+            ]
+          },
+          "postId": {
+            "$id": "#/items/anyOf/0/properties/postId",
+            "type": "string",
+            "title": "The postId schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+              "dcacedafbabacfacdfefeeab"
+            ]
+          },
+          "text": {
+            "$id": "#/items/anyOf/0/properties/text",
+            "type": "string",
+            "title": "The text schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+              "Comment-Text: Nihil sed nisi vel et perspiciatis reprehenderit alias facere doloribus non voluptatibus vero et exercitationem eligendi quisquam eos qui consequatur quibusdam sunt ut quae et aliquam doloremque repudiandae et quo."
+            ]
+          },
+          "post": {
+            "$id": "#/items/anyOf/0/properties/post",
+            "type": "object",
+            "title": "The post schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": {},
+            "examples": [
+              {
+                "id": "dcacedafbabacfacdfefeeab",
+                "title": "Coldplay",
+                "authorName": "Kermit Dooley"
+              }
+            ],
+            "required": [
+              "id",
+              "title",
+              "authorName"
+            ],
+            "properties": {
+              "id": {
+                "$id": "#/items/anyOf/0/properties/post/properties/id",
+                "type": "string",
+                "title": "The id schema",
+                "description": "An explanation about the purpose of this instance.",
+                "default": "",
+                "examples": [
+                  "dcacedafbabacfacdfefeeab"
+                ]
+              },
+              "title": {
+                "$id": "#/items/anyOf/0/properties/post/properties/title",
+                "type": "string",
+                "title": "The title schema",
+                "description": "An explanation about the purpose of this instance.",
+                "default": "",
+                "examples": [
+                  "Coldplay"
+                ]
+              },
+              "authorName": {
+                "$id": "#/items/anyOf/0/properties/post/properties/authorName",
+                "type": "string",
+                "title": "The authorName schema",
+                "description": "An explanation about the purpose of this instance.",
+                "default": "",
+                "examples": [
+                  "Kermit Dooley"
+                ]
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "additionalProperties": true
+      }
+    ]
+  }
+}

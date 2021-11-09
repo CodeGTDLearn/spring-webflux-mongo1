@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static config.databuilders.CommentBuilder.comment_simple;
+import static config.databuilders.CommentBuilder.commentSimple;
 import static config.databuilders.PostBuilder.postFull_withId_CommentsEmpty;
 import static config.databuilders.PostBuilder.post_IdNull_CommentsEmpty;
 import static config.databuilders.UserBuilder.*;
@@ -73,7 +73,7 @@ class UserServiceTest {
   private IPostService postService;
 
   @Autowired
-  private TestDbUtils testDbUtils;
+  private TestDbUtils dbUtils;
 
 
   @BeforeAll
@@ -96,8 +96,8 @@ class UserServiceTest {
 
   @BeforeEach
   void beforeEach() {
-    user1 = userFull_IdNull_ListIdPostsEmpty().createTestUser();
-    user3 = userFull_IdNull_ListIdPostsEmpty().createTestUser();
+    user1 = userFull_IdNull_ListIdPostsEmpty().create();
+    user3 = userFull_IdNull_ListIdPostsEmpty().create();
     userList = Arrays.asList(user1,user3);
   }
 
@@ -106,7 +106,7 @@ class UserServiceTest {
   @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("FindAll")
   public void findAll() {
-    Flux<User> userFlux = testDbUtils.saveUserList(userList);
+    Flux<User> userFlux = dbUtils.saveUserList(userList);
 
     StepVerifier
          .create(userFlux)
@@ -116,7 +116,7 @@ class UserServiceTest {
 
     List<User> emptyList = new ArrayList<>();
 
-    userFlux = testDbUtils.saveUserList(emptyList);
+    userFlux = dbUtils.saveUserList(emptyList);
 
     StepVerifier
          .create(userFlux)
@@ -130,7 +130,7 @@ class UserServiceTest {
   @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("FindById")
   public void findById() {
-    final Flux<User> userFlux = testDbUtils.saveUserList(userList);
+    final Flux<User> userFlux = dbUtils.saveUserList(userList);
 
     StepVerifier
          .create(userFlux)
@@ -155,7 +155,7 @@ class UserServiceTest {
   @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("Save: Object")
   public void save() {
-    testDbUtils.cleanTestDb();
+    dbUtils.cleanTestDb();
 
     StepVerifier
          .create(userService.save(user3))
@@ -191,7 +191,7 @@ class UserServiceTest {
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
   public void deleteById() {
-    final Flux<User> userFlux = testDbUtils.saveUserList(userList);
+    final Flux<User> userFlux = dbUtils.saveUserList(userList);
 
     StepVerifier
          .create(userFlux)
@@ -219,7 +219,7 @@ class UserServiceTest {
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
   public void update() {
-    final Flux<User> userFlux = testDbUtils.saveUserList(userList);
+    final Flux<User> userFlux = dbUtils.saveUserList(userList);
 
     StepVerifier
          .create(userFlux)
@@ -252,13 +252,13 @@ class UserServiceTest {
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
   public void findPostsByUserId() {
-    userWithIdForPost1Post2 = userWithID_IdPostsEmpty().createTestUser();
+    userWithIdForPost1Post2 = userWithID_IdPostsEmpty().create();
 
     post1 = post_IdNull_CommentsEmpty(userWithIdForPost1Post2).create();
     post2 = post_IdNull_CommentsEmpty(userWithIdForPost1Post2).create();
     List<Post> postList = Arrays.asList(post1,post2);
 
-    testDbUtils.cleanTestDb();
+    dbUtils.cleanTestDb();
 
     StepVerifier
          .create(userService.save(userWithIdForPost1Post2))
@@ -274,7 +274,7 @@ class UserServiceTest {
          .verifyComplete();
 
     Flux<Post> postFluxPost1Post2 =
-         testDbUtils.savePostList(postList);
+         dbUtils.savePostList(postList);
 
     StepVerifier
          .create(postFluxPost1Post2)
@@ -306,17 +306,17 @@ class UserServiceTest {
   @EnabledIf(expression = enabledTest, loadContext = true)
   public void findShowAllDto() {
 
-    User user = userWithID_IdPostsEmpty().createTestUser();
+    User user = userWithID_IdPostsEmpty().create();
     Post post = postFull_withId_CommentsEmpty(user).create();
-    Comment comment = comment_simple(post).create();
+    Comment comment = commentSimple(post).create();
     UserAllDto userShowAll = userShowAll_Test(user,
                                               post,
                                               comment
-                                             ).create();
+                                             ).createDto();
 
     StepVerifier
          .create(
-              testDbUtils.saveUserShowAllFinalInDb(
+              dbUtils.saveUserShowAllFinalInDb(
                    user,post,comment))
          .expectSubscription()
          .verifyComplete();

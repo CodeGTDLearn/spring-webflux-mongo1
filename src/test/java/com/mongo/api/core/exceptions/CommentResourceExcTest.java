@@ -1,8 +1,10 @@
-package com.mongo.api.modules.comment;//package com.mongo.api.modules.comment;
+package com.mongo.api.core.exceptions;//package com.mongo.api.modules.comment;
 
 import com.github.javafaker.Faker;
 import com.mongo.api.core.config.TestDbConfig;
 import com.mongo.api.core.exceptions.customExceptions.CustomExceptionsProperties;
+import com.mongo.api.modules.comment.Comment;
+import com.mongo.api.modules.comment.ICommentService;
 import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.user.User;
 import config.annotations.MergedResource;
@@ -29,9 +31,8 @@ import static config.utils.TestUtils.*;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.Matchers.equalTo;
-import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Import({
      TestDbConfig.class,
@@ -44,7 +45,7 @@ import static org.springframework.http.HttpStatus.*;
 })
 @DisplayName("CommentResourceTest")
 @MergedResource
-class CommentResourceTest {
+class CommentResourceExcTest {
 
   // STATIC-@Container: one service for ALL tests -> SUPER FASTER
   // NON-STATIC-@Container: one service for EACH test
@@ -133,159 +134,103 @@ class CommentResourceTest {
 
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
-  @DisplayName("FindAll")
-  void FindAll() {
+  @DisplayName("FindByIdExc")
+  void FindByIdExc() {
     RestAssuredWebTestClient
 
          .given()
          .webTestClient(mockedWebClient)
 
          .when()
-         .get(FIND_ALL_COMMENTS)
+         .get(FIND_COMMENT_BY_ID,invalidId)
 
          .then()
          .log()
          .everything()
 
-         .statusCode(OK.value())
-         .body("size()",is(1))
-         .body("commentId",hasItem(comment1.getCommentId()))
-         .body("postId",hasItem(comment1.getPostId()))
-         .body("author.id",hasItem(userCommentAuthor.getId()))
-         .body(matchesJsonSchemaInClasspath("contracts/comment/findAll.json"))
+         .statusCode(NOT_FOUND.value())
+         .body("detail",equalTo(customExceptions.getCommentNotFoundMessage()))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/commentNotFound.json"))
     ;
   }
 
 
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
-  @DisplayName("FindAllCommentsDto")
-  void FindAllCommentsDto() {
+  @DisplayName("FindUserByCommentIdExc")
+  void FindUserByCommentIdExc() {
     RestAssuredWebTestClient
 
          .given()
          .webTestClient(mockedWebClient)
 
          .when()
-         .get(FIND_ALL_COMMENTS_DTO)
+         .get(FIND_USER_BY_COMMENTID,invalidId)
 
          .then()
          .log()
          .everything()
 
-         .statusCode(OK.value())
-         .body("size()",is(1))
-         .body("commentId",hasItem(comment1.getCommentId()))
-         .body("postId",hasItem(comment1.getPostId()))
-         .body("text",hasItem(comment1.getText()))
-         .body("post.id",hasItem(commentedPost.getPostId()))
-         .body(matchesJsonSchemaInClasspath("contracts/comment/findAllCommentsDto.json"))
+         .statusCode(NOT_FOUND.value())
+         .body("detail",equalTo(customExceptions.getCommentNotFoundMessage()))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/commentNotFound.json"))
     ;
   }
 
 
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
-  @DisplayName("FindById")
-  void FindById() {
+  @DisplayName("FindCommentsByAuthorIdExc")
+  void FindCommentsByAuthorIdExc() {
     RestAssuredWebTestClient
 
          .given()
          .webTestClient(mockedWebClient)
 
          .when()
-         .get(FIND_COMMENT_BY_ID,comment1.getCommentId())
+         .get(FIND_COMMENTS_BY_AUTHORID,invalidId)
 
          .then()
          .log()
          .everything()
 
-         .statusCode(OK.value())
-         .body("commentId",containsString(comment1.getCommentId()))
-         .body("postId",containsString(commentedPost.getPostId()))
-         .body("author.id",containsString(userCommentAuthor.getId()))
-         .body(matchesJsonSchemaInClasspath("contracts/comment/findById.json"))
+         .statusCode(NOT_FOUND.value())
+         .body("detail",equalTo(customExceptions.getUserNotFoundMessage()))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/userNotFound.json"))
     ;
   }
 
 
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
-  @DisplayName("FindUserByCommentId")
-  void FindUserByCommentId() {
+  @DisplayName("FindCommentsByPostIdExc")
+  void FindCommentsByPostIdExc() {
     RestAssuredWebTestClient
 
          .given()
          .webTestClient(mockedWebClient)
 
          .when()
-         .get(FIND_USER_BY_COMMENTID,comment1.getCommentId())
+         .get(FIND_COMMENTS_BY_POSTID,invalidId)
 
          .then()
          .log()
          .everything()
 
-         .statusCode(OK.value())
-         .body("id",containsString(userCommentAuthor.getId()))
-         .body("name",containsString(userCommentAuthor.getName()))
-         .body(matchesJsonSchemaInClasspath("contracts/comment/findUserByCommentId.json"))
+         .statusCode(NOT_FOUND.value())
+         .body("detail",equalTo(customExceptions.getPostNotFoundMessage()))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/postNotFound.json"))
     ;
   }
 
 
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
-  @DisplayName("FindCommentsByAuthorId")
-  void FindCommentsByAuthorId() {
-    RestAssuredWebTestClient
-
-         .given()
-         .webTestClient(mockedWebClient)
-
-         .when()
-         .get(FIND_COMMENTS_BY_AUTHORID,userCommentAuthor.getId())
-
-         .then()
-         .log()
-         .everything()
-
-         .statusCode(OK.value())
-         .body("commentId",hasItem(comment1.getCommentId()))
-         .body("postId",hasItem(commentedPost.getPostId()))
-         .body(matchesJsonSchemaInClasspath("contracts/comment/findCommentsByAuthorId.json"))
-    ;
-  }
-
-
-  @Test
-  @EnabledIf(expression = enabledTest, loadContext = true)
-  @DisplayName("FindCommentsByPostId")
-  void FindCommentsByPostId() {
-    RestAssuredWebTestClient
-
-         .given()
-         .webTestClient(mockedWebClient)
-
-         .when()
-         .get(FIND_COMMENTS_BY_POSTID,commentedPost.getPostId())
-
-         .then()
-         .log()
-         .everything()
-
-         .statusCode(OK.value())
-         .body("commentId",hasItem(comment1.getCommentId()))
-         .body("postId",hasItem(commentedPost.getPostId()))
-         .body(matchesJsonSchemaInClasspath("contracts/comment/findCommentsByPostId.json"))
-    ;
-  }
-
-
-  @Test
-  @EnabledIf(expression = enabledTest, loadContext = true)
-  @DisplayName("SaveLinked")
-  void SaveLinked() {
-    Comment comment2 = commentNoId(userCommentAuthor,commentedPost).create();
+  @DisplayName("SaveLinkedExcUserNotFound")
+  void SaveLinkedExcUserNotFound() {
+    User userUnknown = userWithID_IdPostsEmpty().create();
+    Post postUnknown = postFull_withId_CommentsEmpty(userUnknown).create();
+    Comment comment2 = commentNoId(userUnknown,postUnknown).create();
 
     RestAssuredWebTestClient
 
@@ -300,20 +245,48 @@ class CommentResourceTest {
          .log()
          .everything()
 
-         .statusCode(CREATED.value())
-         .body("text",containsStringIgnoringCase(comment2.getText()))
-         .body("postId",containsStringIgnoringCase(commentedPost.getPostId()))
-         .body("author.id",containsString(userCommentAuthor.getId()))
-         .body(matchesJsonSchemaInClasspath("contracts/comment/saveLinked.json"))
+         .statusCode(NOT_FOUND.value())
+         .body("detail",equalTo(customExceptions.getUserNotFoundMessage()))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/userNotFound.json"))
     ;
   }
 
 
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
-  @DisplayName("saveEmbedSubst")
-  void saveEmbedSubst() {
-    Comment comment2 = commentNoId(userCommentAuthor,commentedPost).create();
+  @DisplayName("SaveLinkedExcPostNotFound")
+  void SaveLinkedExcPostNotFound() {
+    User userUnknown = userWithID_IdPostsEmpty().create();
+    Post postUnknown = postFull_withId_CommentsEmpty(userUnknown).create();
+    Comment comment2 = commentNoId(userCommentAuthor,postUnknown).create();
+
+    RestAssuredWebTestClient
+
+         .given()
+         .webTestClient(mockedWebClient)
+         .body(comment2)
+
+         .when()
+         .post(SAVE_COMMENT_LINKED_OBJECT)
+
+         .then()
+         .log()
+         .everything()
+
+         .statusCode(NOT_FOUND.value())
+         .body("detail",equalTo(customExceptions.getPostNotFoundMessage()))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/postNotFound.json"))
+    ;
+  }
+
+
+  @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
+  @DisplayName("saveEmbedSubstExcUserNotFound")
+  void saveEmbedSubstExcUserNotFound() {
+    User userUnknown = userWithID_IdPostsEmpty().create();
+    //    Post postUnknown = postFull_withId_CommentsEmpty(userUnknown).create();
+    Comment comment2 = commentNoId(userUnknown,commentedPost).create();
 
     RestAssuredWebTestClient
 
@@ -328,22 +301,48 @@ class CommentResourceTest {
          .log()
          .everything()
 
-         .statusCode(CREATED.value())
-         .body("postId",containsStringIgnoringCase(commentedPost.getPostId()))
-         .body("author.id",containsStringIgnoringCase(userPostAuthor.getId()))
-         .body("comment.text",containsStringIgnoringCase(comment2.getText()))
-         .body("comment.author.id",containsStringIgnoringCase(comment2.getAuthor()
-                                                                      .getId()))
-         .body(matchesJsonSchemaInClasspath("contracts/comment/saveEmbedSubst.json"))
+         .statusCode(NOT_FOUND.value())
+         .body("detail",equalTo(customExceptions.getUserNotFoundMessage()))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/userNotFound.json"))
     ;
   }
 
 
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
-  @DisplayName("SaveEmbedList")
-  void SaveEmbedList() {
-    Comment comment2 = commentNoId(userCommentAuthor,commentedPost).create();
+  @DisplayName("saveEmbedSubstExcPostNotFound")
+  void saveEmbedSubstExcPostNotFound() {
+    User userUnknown = userWithID_IdPostsEmpty().create();
+    Post postUnknown = postFull_withId_CommentsEmpty(userUnknown).create();
+    Comment comment2 = commentNoId(userCommentAuthor,postUnknown).create();
+
+    RestAssuredWebTestClient
+
+         .given()
+         .webTestClient(mockedWebClient)
+         .body(comment2)
+
+         .when()
+         .post(SAVE_COMMENT_EMBED_OBJECT_SUBST)
+
+         .then()
+         .log()
+         .everything()
+
+         .statusCode(NOT_FOUND.value())
+         .body("detail",equalTo(customExceptions.getPostNotFoundMessage()))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/postNotFound.json"))
+    ;
+  }
+
+
+  @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
+  @DisplayName("SaveEmbedListExcUserNotFound")
+  void SaveEmbedListExcUserNotFound() {
+    User userUnknown = userWithID_IdPostsEmpty().create();
+    //    Post postUnknown = postFull_withId_CommentsEmpty(userUnknown).create();
+    Comment comment2 = commentNoId(userUnknown,commentedPost).create();
 
     RestAssuredWebTestClient
 
@@ -358,22 +357,48 @@ class CommentResourceTest {
          .log()
          .everything()
 
-         .statusCode(CREATED.value())
-         .body("postId",containsStringIgnoringCase(commentedPost.getPostId()))
-         .body("author.id",containsStringIgnoringCase(userPostAuthor.getId()))
-         .body("listComments.text",hasItem(comment2.getText()))
-         .body("listComments.author.id",hasItem(comment2.getAuthor()
-                                                        .getId()))
-         .body(matchesJsonSchemaInClasspath("contracts/comment/SaveEmbedList.json"))
+         .statusCode(NOT_FOUND.value())
+         .body("detail",equalTo(customExceptions.getUserNotFoundMessage()))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/userNotFound.json"))
     ;
   }
 
 
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
-  @DisplayName("delete")
-  void delete() {
+  @DisplayName("SaveEmbedListExcPostNotFound")
+  void SaveEmbedListExcPostNotFound() {
+    User userUnknown = userWithID_IdPostsEmpty().create();
+    Post postUnknown = postFull_withId_CommentsEmpty(userUnknown).create();
+    Comment comment2 = commentNoId(userCommentAuthor,postUnknown).create();
+
+    RestAssuredWebTestClient
+
+         .given()
+         .webTestClient(mockedWebClient)
+         .body(comment2)
+
+         .when()
+         .post(SAVE_COMMENT_EMBED_OBJECT_LIST)
+
+         .then()
+         .log()
+         .everything()
+
+         .statusCode(NOT_FOUND.value())
+         .body("detail",equalTo(customExceptions.getPostNotFoundMessage()))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/postNotFound.json"))
+    ;
+  }
+
+
+  @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
+  @DisplayName("deleteExc")
+  void deleteExc() {
     RestAssuredWebTestClient.responseSpecification = responseSpecNoContentType();
+
+    comment1.setCommentId(invalidId);
 
     RestAssuredWebTestClient
 
@@ -388,24 +413,20 @@ class CommentResourceTest {
          .log()
          .everything()
 
-         .statusCode(NO_CONTENT.value())
+         .statusCode(NOT_FOUND.value())
+         .body("detail",equalTo(customExceptions.getCommentNotFoundMessage()))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/commentNotFound.json"))
     ;
 
-    dbUtils.countAndExecuteCommentFlux(commentService.findAll(),0);
+    dbUtils.countAndExecuteCommentFlux(commentService.findAll(),1);
   }
 
 
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
-  @DisplayName("Update")
-  void Update() {
-    var previousText = comment1.getText();
-
-    var newText = Faker.instance()
-                       .lorem()
-                       .paragraph(2);
-
-    comment1.setText(newText);
+  @DisplayName("updateExc")
+  void updateExc() {
+    comment1.setCommentId(invalidId);
 
     RestAssuredWebTestClient
 
@@ -420,12 +441,9 @@ class CommentResourceTest {
          .log()
          .everything()
 
-         .statusCode(OK.value())
-         .body("text",equalTo(newText))
-         .body("text",not(equalTo(previousText)))
-         .body(matchesJsonSchemaInClasspath("contracts/comment/update.json"))
+         .statusCode(NOT_FOUND.value())
+         .body("detail",equalTo(customExceptions.getCommentNotFoundMessage()))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/commentNotFound.json"))
     ;
   }
-
-
 }

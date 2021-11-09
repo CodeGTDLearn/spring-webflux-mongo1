@@ -64,21 +64,19 @@ public class CommentResource {
 
   @GetMapping(FIND_COMMENTS_BY_AUTHORID)
   @ResponseStatus(OK)
-  public Flux<Comment> findCommentsByAuthorId(@PathVariable String authorId) {
+  public Flux<Comment> findCommentsByAuthorId(@PathVariable String id) {
     return userService
-         .findById(authorId)
+         .findById(id)
          .switchIfEmpty(customExceptions.userNotFoundException())
-         .flatMapMany(user1 -> {
-           return commentService.findCommentsByAuthorId(user1.getId());
-         });
+         .flatMapMany(user1 -> commentService.findCommentsByAuthorId(user1.getId()));
   }
 
 
   @GetMapping(FIND_COMMENTS_BY_POSTID)
   @ResponseStatus(OK)
-  public Flux<Comment> findCommentsByPostId(@PathVariable String postId) {
+  public Flux<Comment> findCommentsByPostId(@PathVariable String id) {
     return postService
-         .findById(postId)
+         .findById(id)
          .switchIfEmpty(customExceptions.postNotFoundException())
          .flatMapMany(postFound -> {
            return commentService.findCommentsByPostId(postFound.getPostId());
@@ -114,7 +112,7 @@ public class CommentResource {
          .then(postService.findById(comment.getPostId()))
          .switchIfEmpty(customExceptions.postNotFoundException())
 
-         .then(commentService.saveSubst(comment));
+         .then(commentService.saveEmbedSubst(comment));
   }
 
 
@@ -129,7 +127,7 @@ public class CommentResource {
          .then(postService.findById(comment.getPostId())
                        .switchIfEmpty(customExceptions.postNotFoundException()))
 
-         .then(commentService.saveList(comment));
+         .then(commentService.saveEmbedList(comment));
   }
 
 
@@ -137,8 +135,9 @@ public class CommentResource {
   @ResponseStatus(NO_CONTENT)
   public Mono<Void> delete(@RequestBody Comment comment) {
     return commentService
-         .delete(comment)
-         .switchIfEmpty(customExceptions.commentNotFoundException());
+         .findById(comment.getCommentId())
+         .switchIfEmpty(customExceptions.commentNotFoundException())
+         .then(commentService.delete(comment));
   }
 
 
@@ -146,8 +145,9 @@ public class CommentResource {
   @ResponseStatus(OK)
   public Mono<Comment> update(@RequestBody Comment comment) {
     return commentService
-         .update(comment)
-         .switchIfEmpty(customExceptions.commentNotFoundException());
+         .findById(comment.getCommentId())
+         .switchIfEmpty(customExceptions.commentNotFoundException())
+         .then(commentService.update(comment));
   }
 
 }

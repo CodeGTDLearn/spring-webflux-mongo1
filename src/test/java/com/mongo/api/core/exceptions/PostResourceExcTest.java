@@ -64,7 +64,7 @@ class PostResourceExcTest {
                                         .valid();
 
   @Autowired
-  TestDbUtils testDbUtils;
+  TestDbUtils dbUtils;
 
 
   @BeforeAll
@@ -76,12 +76,13 @@ class PostResourceExcTest {
                                          TC_COMPOSE_SERVICE_PORT
                                         );
 
-    User invalidAuthor = userWithID_IdPostsEmpty().createTestUser();
+    User invalidAuthor = userWithID_IdPostsEmpty().create();
     invalidPostWithoutId = post_IdNull_CommentsEmpty(invalidAuthor).create();
     invalidPostWithId = postFull_withId_CommentsEmpty(invalidAuthor).create();
 
     RestAssuredWebTestClient.reset();
-    RestAssuredWebTestClient.requestSpecification = requestSpecs();
+    RestAssuredWebTestClient.requestSpecification =
+         requestSpecsSetPath("http://localhost:8080/" + REQ_POST);
     RestAssuredWebTestClient.responseSpecification = responseSpecs();
   }
 
@@ -104,8 +105,8 @@ class PostResourceExcTest {
     globalTestMessage(testInfo.getTestMethod()
                               .toString(),"method-start");
 
-    User author = userWithID_IdPostsEmpty().createTestUser();
-    Flux<User> userFlux = testDbUtils.saveUserList(singletonList(author));
+    User author = userWithID_IdPostsEmpty().create();
+    Flux<User> userFlux = dbUtils.saveUserList(singletonList(author));
     StepVerifier
          .create(userFlux)
          .expectSubscription()
@@ -115,8 +116,8 @@ class PostResourceExcTest {
     Post post1 = post_IdNull_CommentsEmpty(author).create();
     Post post3 = post_IdNull_CommentsEmpty(author).create();
     List<Post> postList = Arrays.asList(post1,post3);
-    Flux<Post> postFlux = testDbUtils.savePostList(postList);
-    testDbUtils.countAndExecutePostFlux(postFlux,2);
+    Flux<Post> postFlux = dbUtils.savePostList(postList);
+    dbUtils.countAndExecutePostFlux(postFlux,2);
 
   }
 
@@ -139,7 +140,7 @@ class PostResourceExcTest {
          .webTestClient(mockedWebClient)
 
          .when()
-         .get(REQ_POST + FIND_POST_BY_ID,invalidId)
+         .get(FIND_POST_BY_ID,invalidId)
 
          .then()
          .log()
@@ -162,7 +163,7 @@ class PostResourceExcTest {
          .webTestClient(mockedWebClient)
 
          .when()
-         .get(REQ_POST + FIND_POSTS_BY_AUTHORID,invalidId)
+         .get(FIND_POSTS_BY_AUTHORID,invalidId)
 
          .then()
          .log()
@@ -184,7 +185,7 @@ class PostResourceExcTest {
          .webTestClient(mockedWebClient)
 
          .when()
-         .get(REQ_POST + FIND_POST_BY_ID_SHOW_COMMENTS,invalidId)
+         .get(FIND_POST_BY_ID_SHOW_COMMENTS,invalidId)
 
          .then()
          .log()
@@ -209,7 +210,7 @@ class PostResourceExcTest {
          .body(invalidPostWithoutId)
 
          .when()
-         .post(REQ_POST + SAVE_EMBED_USER_IN_THE_POST)
+         .post(SAVE_EMBED_USER_IN_THE_POST)
 
          .then()
          .log()
@@ -236,7 +237,7 @@ class PostResourceExcTest {
          .body(invalidPostWithId)
 
          .when()
-         .delete(REQ_POST)
+         .delete()
 
          .then()
          .log()
@@ -262,7 +263,7 @@ class PostResourceExcTest {
          .body(invalidPostWithId)
 
          .when()
-         .put(REQ_POST)
+         .put()
 
          .then()
          .log()
@@ -285,7 +286,7 @@ class PostResourceExcTest {
          .webTestClient(mockedWebClient)
 
          .when()
-         .get(REQ_POST + FIND_USER_BY_POSTID,invalidId)
+         .get(FIND_USER_BY_POSTID,invalidId)
 
          .then()
          .log()

@@ -34,6 +34,21 @@ public class RestAssureSpecs {
     return requestSpecs;
   }
 
+  public static WebTestClientRequestSpecification requestSpecsSetPath(String fullBasePath) {
+
+    WebTestClientRequestSpecification requestSpecs =
+         new WebTestClientRequestSpecBuilder()
+              .setContentType(JSON_CONTENT_TYPE)
+              .addHeader("Accept",String.valueOf(ContentType.ANY))
+              .log(LogDetail.ALL)
+              .setBasePath(fullBasePath)
+              .build();
+
+    requestSpecs.accept(ANY_CONTENT_TYPE);
+
+    return requestSpecs;
+  }
+
 
   public static ResponseSpecification responseSpecs() {
 
@@ -54,7 +69,16 @@ public class RestAssureSpecs {
          .expectResponseTime(lessThanOrEqualTo(MAX_TIMEOUT))
          .build();
   }
-}//    WebTestClientRequestSpecification requestSpecs;
+}
+
+
+//     ╔═════════════════════════════════════════════╗
+//     ║             DO-NOT DELETE/REMOVE            ║
+//     ╠═════════════════════════════════════════════╣
+//     ║             LOCAL SPECIFICATIONS            ║
+//     ║                   EXAMPLE                   ║
+//     ╚═════════════════════════════════════════════╝
+//    WebTestClientRequestSpecification requestSpecs;
 //    requestSpecs =
 //         new WebTestClientRequestSpecBuilder()
 //              .setContentType(JSON)
@@ -66,3 +90,33 @@ public class RestAssureSpecs {
 //         respBuilder
 //              .expectStatusCode(OK.value())
 //              .build();
+
+//  RequestSpecBuilder reqBuilder = new RequestSpecBuilder();
+//  final RequestSpecification requestEspecificado =
+//       reqBuilder
+//            .log(LogDetail.COOKIES)
+//            .log(LogDetail.URI)
+//            .log(LogDetail.HEADERS)
+//            .addHeader("bear" ,"Chave de Acesso")
+//            .addCookie("TestCookie" ,"resultado")
+//            .log(LogDetail.BODY)
+//            .build();
+//
+//  ResponseSpecBuilder respBuilder = new ResponseSpecBuilder();
+//  final ResponseSpecification responseEsperado =
+//       respBuilder
+//            .expectStatusCode(OK.value())
+//            .build();
+//
+//  given()
+//                .when()
+//                     .spec(requestEspecificado)
+//                     .get("/users")
+//
+//                     .then()
+//                     .spec(responseEsperado)
+//
+//                     .statusCode(OK.value())
+//                     .body("$" ,hasSize(3))
+//                     .body("name" ,hasItems("João da Silva" ,"Maria Joaquina" ,"Ana Júlia"))
+//                     ;
