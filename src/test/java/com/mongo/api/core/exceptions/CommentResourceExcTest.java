@@ -50,8 +50,8 @@ class CommentResourceExcTest {
   // STATIC-@Container: one service for ALL tests -> SUPER FASTER
   // NON-STATIC-@Container: one service for EACH test
   @Container
-  private static final DockerComposeContainer<?>
-       compose = new TcComposeConfig().getTcCompose();
+  private static final DockerComposeContainer<?> compose =
+       new TcComposeConfig().getTcCompose();
 
   final String enabledTest = "true";
 
@@ -63,7 +63,7 @@ class CommentResourceExcTest {
 
   private Comment comment1;
   private Post commentedPost;
-  private User userCommentAuthor, userPostAuthor;
+  private User userCommentAuthor;
 
   private final String invalidId = Faker.instance()
                                         .idNumber()
@@ -108,7 +108,7 @@ class CommentResourceExcTest {
                               .toString(),"method-start");
 
     userCommentAuthor = userWithID_IdPostsEmpty().create();
-    userPostAuthor = userWithID_IdPostsEmpty().create();
+    User userPostAuthor = userWithID_IdPostsEmpty().create();
     Flux<User> userFlux =
          dbUtils.saveUserList(asList(userCommentAuthor,userPostAuthor));
     dbUtils.countAndExecuteUserFlux(userFlux,2);
