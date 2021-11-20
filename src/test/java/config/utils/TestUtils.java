@@ -14,11 +14,6 @@ import static config.utils.RestAssureSpecs.responseSpecs;
 @Slf4j
 public class TestUtils {
 
-//  final static Long MAX_TIMEOUT = 15000L;
-//  final static ContentType JSON_CONTENT_TYPE = ContentType.JSON;
-//  final static ContentType ANY_CONTENT_TYPE = ContentType.ANY;
-
-
   @BeforeAll
   public static void globalBeforeAll() {
     requestSpecs();
@@ -138,7 +133,3 @@ public class TestUtils {
                      );
   }
 }
-
-
-
-

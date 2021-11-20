@@ -9,25 +9,39 @@ import reactor.core.publisher.Mono;
 public interface ICommentService {
   Flux<Comment> findAll();
 
+
   Mono<Comment> findById(String id);
+
 
   Mono<User> findUserByCommentId(String id);
 
+
   Mono<Comment> saveLinked(Comment comment);
+
 
   Mono<Post> saveEmbedSubst(Comment comment);
 
+
   Mono<Post> saveEmbedList(Comment comment);
+
 
   Mono<Void> delete(Comment comment);
 
+
   Mono<Void> deleteAll();
+
 
   Mono<Comment> update(Comment comment);
 
+
   Flux<Comment> findCommentsByPostId(String postId);
 
-  Flux<Comment> findCommentsByAuthorId(String authorId);
+
+  Flux<Comment> findCommentsByAuthorIdV1(String authorId);
+
+
+  Flux<Comment> findCommentsByAuthor_IdV2(String authorId);
+
 
   Flux<CommentAllDtoFull> findAllCommentsDto();
 }

@@ -61,7 +61,7 @@ public class UserService implements IUserService {
          .findById(user.getId())
 //         .switchIfEmpty(Mono.empty())
 
-         .thenMany(postService.findPostsByAuthorId(user.getId()))
+         .thenMany(postService.findPostsByAuthor_Id(user.getId()))
          .flatMap(post -> Mono.just(post.getPostId()))
          .collectList()
          .flatMap(listPosts -> {
@@ -69,14 +69,14 @@ public class UserService implements IUserService {
            return userRepo.save(user);
          })
 
-         .thenMany(postService.findPostsByAuthorId(user.getId()))
+         .thenMany(postService.findPostsByAuthor_Id(user.getId()))
          .flatMap(post -> {
            UserAuthorDto authorDto = modelMapper.map(user,UserAuthorDto.class);
            post.setAuthor(authorDto);
            return postService.update(post);
          })
 
-         .thenMany(commentService.findCommentsByAuthorId(user.getId()))
+         .thenMany(commentService.findCommentsByAuthorIdV1(user.getId()))
          .flatMap(comment -> {
            UserAuthorDto authorDto = modelMapper.map(user,UserAuthorDto.class);
            comment.setAuthor(authorDto);
@@ -96,13 +96,13 @@ public class UserService implements IUserService {
 
          .flatMap(
               user -> postService
-                   .findPostsByAuthorId(user.getId())
+                   .findPostsByAuthor_Id(user.getId())
                    .flatMap(
                         post -> commentService.findCommentsByPostId(
                              post.getPostId())
                                               .flatMap(commentService::delete)
                                               .thenMany(
-                                                   postService.findPostsByAuthorId(
+                                                   postService.findPostsByAuthor_Id(
                                                         post.getAuthor()
                                                             .getId()))
                                               .flatMap(postService::delete)
@@ -123,7 +123,7 @@ public class UserService implements IUserService {
 
            final Mono<UserAllDto> userAllDtoMono =
                 postService
-                     .findPostsByAuthorId(userDto.getId())
+                     .findPostsByAuthor_Id(userDto.getId())
                      .flatMap(post -> {
                        PostAllDto postDto = modelMapper.map(post,PostAllDto.class);
 

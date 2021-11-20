@@ -11,7 +11,7 @@ public interface IPostService {
 
     Mono<User> findUserByPostId(String id);
 
-    Flux<Post> findPostsByAuthorId(String id);
+    Flux<Post> findPostsByAuthor_Id(String id);
 
     Flux<Post> findAll();
 

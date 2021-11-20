@@ -282,7 +282,7 @@ class UserServiceTest {
          .expectNextCount(2L)
          .verifyComplete();
 
-    Flux<Post> postFluxPost1Post2ByUserID = postService.findPostsByAuthorId(
+    Flux<Post> postFluxPost1Post2ByUserID = postService.findPostsByAuthor_Id(
          userWithIdForPost1Post2.getId());
 
     StepVerifier

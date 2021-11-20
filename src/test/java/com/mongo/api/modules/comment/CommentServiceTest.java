@@ -14,7 +14,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.EnabledIf;
-import org.springframework.test.web.reactive.server.WebTestClient;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import reactor.core.publisher.Flux;
@@ -179,10 +178,24 @@ class CommentServiceTest {
 
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
-  @DisplayName("FindCommentsByAuthorId")
-  void FindCommentsByAuthorId() {
+  @DisplayName("findCommentsByAuthorIdV1")
+  void findCommentsByAuthorIdV1() {
     StepVerifier
-         .create(commentService.findCommentsByAuthorId(userCommentAuthor.getId()))
+         .create(commentService.findCommentsByAuthorIdV1(userCommentAuthor.getId()))
+         .expectSubscription()
+         .expectNextMatches(comment -> comment.getText()
+                                              .equals(comment1.getText()))
+         .expectNextMatches(comment -> comment.getText()
+                                              .equals(comment2.getText()))
+         .verifyComplete();
+  }
+
+  @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
+  @DisplayName("findCommentsByAuthor_IdV2")
+  void findCommentsByAuthor_IdV2() {
+    StepVerifier
+         .create(commentService.findCommentsByAuthor_IdV2(userCommentAuthor.getId()))
          .expectSubscription()
          .expectNextMatches(comment -> comment.getText()
                                               .equals(comment1.getText()))

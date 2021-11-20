@@ -188,7 +188,7 @@ class CommentResourceExcTest {
          .webTestClient(mockedWebClient)
 
          .when()
-         .get(FIND_COMMENTS_BY_AUTHORID,invalidId)
+         .get(FIND_COMMENTS_BY_AUTHORIDV1, invalidId)
 
          .then()
          .log()

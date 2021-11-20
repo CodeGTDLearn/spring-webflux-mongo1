@@ -47,7 +47,7 @@ public class PostService implements IPostService {
 
 
   @Override
-  public Flux<Post> findPostsByAuthorId(String userId) {
+  public Flux<Post> findPostsByAuthor_Id(String userId) {
     return userService
          .findById(userId)
 

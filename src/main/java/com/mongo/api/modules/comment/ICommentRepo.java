@@ -8,8 +8,4 @@ import reactor.core.publisher.Mono;
 @Repository("commentRepo")
 public interface ICommentRepo extends ReactiveMongoRepository<Comment, String> {
   Flux<Comment> findCommentsByAuthor_Id(String authorId);
-  Mono<Comment> findCommentByPostId(String postId);
-
-
-
 }

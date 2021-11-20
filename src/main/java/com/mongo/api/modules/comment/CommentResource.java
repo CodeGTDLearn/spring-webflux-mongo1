@@ -62,13 +62,22 @@ public class CommentResource {
   }
 
 
-  @GetMapping(FIND_COMMENTS_BY_AUTHORID)
+  @GetMapping(FIND_COMMENTS_BY_AUTHORIDV1)
   @ResponseStatus(OK)
-  public Flux<Comment> findCommentsByAuthorId(@PathVariable String id) {
+  public Flux<Comment> findCommentsByAuthorIdV1(@PathVariable String id) {
     return userService
          .findById(id)
          .switchIfEmpty(customExceptions.userNotFoundException())
-         .flatMapMany(user1 -> commentService.findCommentsByAuthorId(user1.getId()));
+         .flatMapMany(user1 -> commentService.findCommentsByAuthorIdV1(user1.getId()));
+  }
+
+  @GetMapping(FIND_COMMENTS_BY_AUTHORIDV2)
+  @ResponseStatus(OK)
+  public Flux<Comment> findCommentsByAuthor_IdV2(@PathVariable String id) {
+    return userService
+         .findById(id)
+         .switchIfEmpty(customExceptions.userNotFoundException())
+         .flatMapMany(user1 -> commentService.findCommentsByAuthor_IdV2(user1.getId()));
   }
 
 

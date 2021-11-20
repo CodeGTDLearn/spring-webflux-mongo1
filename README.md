@@ -3,6 +3,12 @@
 1. Exceptions:
    1. Global
    2. Custom
+   3. Importation/validation of properties:
+      1. @PropertySource
+      2. @ConfigurationProperties:
+         1. Automatic importation from PropertiesFile to Class-Instances-variables
+            1. Do not need "@Value" annotation
+      3. javax.validation.constraints
    
 
 2. ModelMapper (DTOs)
@@ -60,6 +66,41 @@
 
 7. MongoDB Strategy:
    1. Services:
-      1. Embbed Objects 
-      2. Referenciation
+      1. Embed Objects 
+      2. Referencing
       3. "Assemble" full objects
+
+
+8. Custom Spring Logging
+   1. Pattern.console
+
+
+8. Reactive Queries
+   1. Repository Layer
+      1. Spring Data Queries
+         1. Method-Named:
+            1. Simple
+            2. Relationships
+         2. Ex:
+            1. findPostsByAuthor_Id
+   2. Service Layer
+      1. Chained Filter:
+         1. Ex:
+            1. ... findAll().filter(comment -> ...
+      
+
+9. Architectural Strategy:
+   * SOLID
+   * Screaming Architecture
+   * CDC: Contract driven development
+   * Testability:
+      * TDD/CDC: Controllers
+      * Confirmation: Repo + Service
+
+
+10. Bean Validation + Exceptions:
+    1. Annotations - javax.validation.constraints:
+       1. @NotEmpty
+       2. @NotNull
+       3. @NotBlank
+       4. @Min

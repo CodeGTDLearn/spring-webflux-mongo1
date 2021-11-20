@@ -147,10 +147,10 @@ class PostServiceTest {
 
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
-  @DisplayName("FindPostsByAuthorId")
-  void FindPostsByAuthorId() {
+  @DisplayName("findPostsByAuthor_Id")
+  void findPostsByAuthor_Id() {
     StepVerifier
-         .create(postService.findPostsByAuthorId(author.getId()))
+         .create(postService.findPostsByAuthor_Id(author.getId()))
          .expectSubscription()
          .expectNextCount(2L)
          .verifyComplete();

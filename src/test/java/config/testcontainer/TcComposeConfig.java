@@ -19,7 +19,6 @@ public class TcComposeConfig {
   final static public String TC_COMPOSE_SERVICE = "mongo-db-service";
   final static private String TC_COMPOSE_PATH = "src/test/resources/tc-compose.yml";
 
-  
 
   //format 01: using a variable to create the tcContainerCompose
   private final DockerComposeContainer<?> tcCompose =
@@ -39,7 +38,3 @@ public class TcComposeConfig {
   }
 
 }
-
-
-
-

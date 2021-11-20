@@ -152,7 +152,6 @@ class PostResourceTest {
          .body("title",hasItems(post1.getTitle(),post3.getTitle()))
          .body("author.id",hasItems(author.getId(),author.getId()))
          .body(matchesJsonSchemaInClasspath("contracts/post/findAll.json"))
-
     ;
   }
 
@@ -183,7 +182,7 @@ class PostResourceTest {
 
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
-  public void findPostsByAuthorId() {
+  public void findPostsByAuthor_Id() {
     RestAssuredWebTestClient
 
          .given()

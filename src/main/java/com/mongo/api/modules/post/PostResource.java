@@ -49,13 +49,13 @@ public class PostResource {
 
   @GetMapping(FIND_POSTS_BY_AUTHORID)
   @ResponseStatus(OK)
-  public Flux<PostDto> findPostsByAuthorId(@PathVariable String id) {
+  public Flux<PostDto> findPostsByAuthor_Id(@PathVariable String id) {
     return userService
          .findById(id)
          .switchIfEmpty(customExceptions.authorNotFoundException())
          .flatMapMany((userFound) ->
                            postService
-                                .findPostsByAuthorId(userFound.getId())
+                                .findPostsByAuthor_Id(userFound.getId())
                                 .map(post -> modelMapper.map(post,PostDto.class)));
   }
 

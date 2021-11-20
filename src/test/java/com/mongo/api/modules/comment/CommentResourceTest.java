@@ -235,15 +235,38 @@ class CommentResourceTest {
 
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
-  @DisplayName("FindCommentsByAuthorId")
-  void FindCommentsByAuthorId() {
+  @DisplayName("findCommentsByAuthorIdV1")
+  void findCommentsByAuthorIdV1() {
     RestAssuredWebTestClient
 
          .given()
          .webTestClient(mockedWebClient)
 
          .when()
-         .get(FIND_COMMENTS_BY_AUTHORID,userCommentAuthor.getId())
+         .get(FIND_COMMENTS_BY_AUTHORIDV1, userCommentAuthor.getId())
+
+         .then()
+         .log()
+         .everything()
+
+         .statusCode(OK.value())
+         .body("commentId",hasItem(comment1.getCommentId()))
+         .body("postId",hasItem(commentedPost.getPostId()))
+         .body(matchesJsonSchemaInClasspath("contracts/comment/findCommentsByAuthorId.json"))
+    ;
+  }
+
+  @Test
+  @EnabledIf(expression = enabledTest, loadContext = true)
+  @DisplayName("findCommentsByAuthor_IdV2")
+  void findCommentsByAuthor_IdV2() {
+    RestAssuredWebTestClient
+
+         .given()
+         .webTestClient(mockedWebClient)
+
+         .when()
+         .get(FIND_COMMENTS_BY_AUTHORIDV2, userCommentAuthor.getId())
 
          .then()
          .log()

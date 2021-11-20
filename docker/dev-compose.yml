@@ -1,4 +1,4 @@
-version: "3.4"
+version: "3.5"
 
 x-common-variables:
   &db-env-vars
@@ -23,7 +23,7 @@ services:
     hostname: api-db
     restart: always
     ports:
-      - 27017:27017
+      - "27017:27017"
     command: mongod --smallfiles --logpath=/dev/null # --quiet
     volumes:
       - api_vol:/data/db
@@ -41,8 +41,8 @@ services:
       args:
         JAR_FILE: target/*.jar
     ports:
-      - 8080:8080
-      - 5005:5005
+      - "8080:8080"
+      - "5005:5005"
     volumes:
       - api_vol:/data/db
     depends_on:

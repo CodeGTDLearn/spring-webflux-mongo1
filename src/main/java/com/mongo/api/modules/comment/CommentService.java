@@ -78,12 +78,22 @@ public class CommentService implements ICommentService {
 
 
   @Override
-  public Flux<Comment> findCommentsByAuthorId(String authorId) {
+  public Flux<Comment> findCommentsByAuthorIdV1(String authorId) {
     return commentRepo
          .findAll()
          .filter(comment -> comment.getAuthor()
                                    .getId()
                                    .equals(authorId));
+  }
+
+  public Flux<Comment> findCommentsByAuthor_IdV2(String authorId) {
+    return     userService
+         .findById(authorId)
+
+         .flatMapMany((userFound) -> {
+           var id = userFound.getId();
+           return commentRepo.findCommentsByAuthor_Id(id);
+         });
   }
 
 
