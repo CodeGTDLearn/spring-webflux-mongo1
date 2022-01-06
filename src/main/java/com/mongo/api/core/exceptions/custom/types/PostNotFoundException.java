@@ -1,4 +1,4 @@
-package com.mongo.api.core.exceptions.customExceptions.customExceptionTypes;
+package com.mongo.api.core.exceptions.custom.types;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -6,12 +6,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import java.io.Serializable;
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
-public class UserNotFoundException extends RuntimeException implements Serializable{
-    
+public class PostNotFoundException extends RuntimeException implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
-    public UserNotFoundException(String message)
-    {
+    public PostNotFoundException(String message) {
         super(message);
     }
 }

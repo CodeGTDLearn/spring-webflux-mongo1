@@ -1,0 +1,125 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "title": "The root schema",
+  "description": "The root schema comprises the entire JSON document.",
+  "default": {},
+  "examples": [
+    {
+      "timestamp": "2022-01-06T17:34:03.780+00:00",
+      "path": "/user/error",
+      "status": 404,
+      "error": "Not Found",
+      "message": "",
+      "requestId": "3c4d5d18",
+      "trace": "org.springframework.web.server.ResponseStatusException: 404 NOT_FOUND \"Global-General-Message\"\r\n\tat com.mongo.api.core.exceptions.global.GlobalException.globalErrorException(GlobalException.java:21)\r\n\tSuppressed: reactor.core.publisher.FluxOnAssembly$OnAssemblyException: \nAssembly trace from producer [reactor.core.publisher.MonoError] :\n\treactor.core.publisher.Mono.error\n\tcom.mongo.api.core.exceptions.global.GlobalException.globalErrorException(GlobalException.java:21)\nError has been observed at the following site(s):\n\t|_         Mono.error ⇢ at com.mongo.api.core.exceptions.global.GlobalException.globalErrorException(GlobalException.java:21)\n\t|_    Flux.concatWith ⇢ at com.mongo.api.modules.user.UserResource.globalExceptionError(UserResource.java:118)\n\t|_          Flux.from ⇢ at org.springframework.http.codec.json.AbstractJackson2Encoder.encode(AbstractJackson2Encoder.java:178)\n\t|_   Flux.collectList ⇢ at org.springframework.http.codec.json.AbstractJackson2Encoder.encode(AbstractJackson2Encoder.java:179)\n\t|_           Mono.map ⇢ at org.springframework.http.codec.json.AbstractJackson2Encoder.encode(AbstractJackson2Encoder.java:180)\n\t|_          Mono.flux ⇢ at org.springframework.http.codec.json.AbstractJackson2Encoder.encode(AbstractJackson2Encoder.java:181)\n\t|_          Flux.from ⇢ at org.springframework.http.server.reactive.ChannelSendOperator.<init>(ChannelSendOperator.java:57)\n\t|_                    ⇢ at org.springframework.http.codec.EncoderHttpMessageWriter.write(EncoderHttpMessageWriter.java:203)\n\t|_                    ⇢ at org.springframework.web.reactive.result.method.annotation.AbstractMessageWriterResultHandler.writeBody(AbstractMessageWriterResultHandler.java:104)\n\t|_                    ⇢ at org.springframework.web.reactive.result.method.annotation.ResponseBodyResultHandler.handleResult(ResponseBodyResultHandler.java:86)\n\t|_         checkpoint ⇢ Handler com.mongo.api.modules.user.UserResource#globalExceptionError() [DispatcherHandler]\n\t|_                    ⇢ at org.springframework.web.server.handler.DefaultWebFilterChain.lambda$filter$0(DefaultWebFilterChain.java:120)\n\t|_         Mono.defer ⇢ at org.springframework.web.server.handler.DefaultWebFilterChain.filter(DefaultWebFilterChain.java:119)\n\t|_                    ⇢ at org.springframework.web.server.handler.FilteringWebHandler.handle(FilteringWebHandler.java:59)\n\t|_                    ⇢ at org.springframework.web.server.handler.WebHandlerDecorator.handle(WebHandlerDecorator.java:56)\n\t|_         Mono.error ⇢ at org.springframework.web.server.handler.ExceptionHandlingWebHandler$CheckpointInsertingHandler.handle(ExceptionHandlingWebHandler.java:98)\n\t|_         checkpoint ⇢ HTTP GET \"/user/error?completeStackTrace=true\" [ExceptionHandlingWebHandler]\n\t|_                    ⇢ at org.springframework.web.server.handler.ExceptionHandlingWebHandler.lambda$handle$0(ExceptionHandlingWebHandler.java:77)\n\t|_ Mono.onErrorResume ⇢ at org.springframework.web.server.handler.ExceptionHandlingWebHandler.handle(ExceptionHandlingWebHandler.java:77)\nStack trace:\r\n\t\tat com.mongo.api.core.exceptions.global.GlobalException.globalErrorException(GlobalException.java:21)\r\n\t\tat com.mongo.api.modules.user.UserResource.globalExceptionError(UserResource.java:118)\r\n\t\tat java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\r\n\t\tat java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\r\n\t\tat java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\r\n\t\tat java.base/java.lang.reflect.Method.invoke(Method.java:566)\r\n\t\tat org.springframework.web.reactive.result.method.InvocableHandlerMethod.lambda$invoke$0(InvocableHandlerMethod.java:146)\r\n\t\tat reactor.core.publisher.FluxFlatMap.trySubscribeScalarMap(FluxFlatMap.java:151)\r\n\t\tat reactor.core.publisher.MonoFlatMap.subscribeOrReturn(MonoFlatMap.java:53)\r\n\t\tat reactor.core.publisher.InternalMonoOperator.subscribe(InternalMonoOperator.java:57)\r\n\t\tat reactor.core.publisher.MonoDefer.subscribe(MonoDefer.java:52)\r\n\t\tat reactor.core.publisher.InternalMonoOperator.subscribe(InternalMonoOperator.java:64)\r\n\t\tat reactor.core.publisher.MonoIgnoreThen$ThenIgnoreMain.drain(MonoIgnoreThen.java:154)\r\n\t\tat reactor.core.publisher.MonoIgnoreThen.subscribe(MonoIgnoreThen.java:56)\r\n\t\tat reactor.core.publisher.InternalMonoOperator.subscribe(InternalMonoOperator.java:64)\r\n\t\tat reactor.core.publisher.MonoFlatMap$FlatMapMain.onNext(MonoFlatMap.java:157)\r\n\t\tat reactor.core.publisher.FluxSwitchIfEmpty$SwitchIfEmptySubscriber.onNext(FluxSwitchIfEmpty.java:73)\r\n\t\tat reactor.core.publisher.MonoNext$NextSubscriber.onNext(MonoNext.java:82)\r\n\t\tat reactor.core.publisher.FluxConcatMap$ConcatMapImmediate.innerNext(FluxConcatMap.java:281)\r\n\t\tat reactor.core.publisher.FluxConcatMap$ConcatMapInner.onNext(FluxConcatMap.java:860)\r\n\t\tat reactor.core.publisher.FluxMapFuseable$MapFuseableSubscriber.onNext(FluxMapFuseable.java:127)\r\n\t\tat reactor.core.publisher.MonoPeekTerminal$MonoTerminalPeekSubscriber.onNext(MonoPeekTerminal.java:180)\r\n\t\tat reactor.core.publisher.Operators$ScalarSubscription.request(Operators.java:2346)\r\n\t\tat reactor.core.publisher.MonoPeekTerminal$MonoTerminalPeekSubscriber.request(MonoPeekTerminal.java:139)\r\n\t\tat reactor.core.publisher.FluxMapFuseable$MapFuseableSubscriber.request(FluxMapFuseable.java:169)\r\n\t\tat reactor.core.publisher.Operators$MultiSubscriptionSubscriber.set(Operators.java:2154)\r\n\t\tat reactor.core.publisher.Operators$MultiSubscriptionSubscriber.onSubscribe(Operators.java:2028)\r\n\t\tat reactor.core.publisher.FluxMapFuseable$MapFuseableSubscriber.onSubscribe(FluxMapFuseable.java:96)\r\n\t\tat reactor.core.publisher.MonoPeekTerminal$MonoTerminalPeekSubscriber.onSubscribe(MonoPeekTerminal.java:152)\r\n\t\tat reactor.core.publisher.MonoJust.subscribe(MonoJust.java:54)\r\n\t\tat reactor.core.publisher.Mono.subscribe(Mono.java:3987)\r\n\t\tat reactor.core.publisher.FluxConcatMap$ConcatMapImmediate.drain(FluxConcatMap.java:448)\r\n\t\tat reactor.core.publisher.FluxConcatMap$ConcatMapImmediate.onSubscribe(FluxConcatMap.java:218)\r\n\t\tat reactor.core.publisher.FluxIterable.subscribe(FluxIterable.java:164)\r\n\t\tat reactor.core.publisher.FluxIterable.subscribe(FluxIterable.java:86)\r\n\t\tat reactor.core.publisher.InternalMonoOperator.subscribe(InternalMonoOperator.java:64)\r\n\t\tat reactor.core.publisher.MonoDefer.subscribe(MonoDefer.java:52)\r\n\t\tat reactor.core.publisher.Mono.subscribe(Mono.java:3987)\r\n\t\tat reactor.core.publisher.MonoIgnoreThen$ThenIgnoreMain.drain(MonoIgnoreThen.java:173)\r\n\t\tat reactor.core.publisher.MonoIgnoreThen.subscribe(MonoIgnoreThen.java:56)\r\n\t\tat reactor.core.publisher.Mono.subscribe(Mono.java:3987)\r\n\t\tat reactor.core.publisher.Mono.subscribeWith(Mono.java:4102)\r\n\t\tat reactor.core.publisher.Mono.subscribe(Mono.java:3958)\r\n\t\tat reactor.core.publisher.Mono.subscribe(Mono.java:3894)\r\n\t\tat org.springframework.test.web.reactive.server.HttpHandlerConnector.lambda$doConnect$2(HttpHandlerConnector.java:98)\r\n\t\tat org.springframework.mock.http.client.reactive.MockClientHttpRequest.lambda$null$2(MockClientHttpRequest.java:125)\r\n\t\tat reactor.core.publisher.MonoDefer.subscribe(MonoDefer.java:44)\r\n\t\tat reactor.core.publisher.Mono.subscribe(Mono.java:3987)\r\n\t\tat reactor.core.publisher.FluxConcatIterable$ConcatIterableSubscriber.onComplete(FluxConcatIterable.java:147)\r\n\t\tat reactor.core.publisher.FluxConcatIterable.subscribe(FluxConcatIterable.java:60)\r\n\t\tat reactor.core.publisher.Mono.subscribe(Mono.java:3987)\r\n\t\tat reactor.core.publisher.Mono.subscribeWith(Mono.java:4102)\r\n\t\tat reactor.core.publisher.Mono.subscribe(Mono.java:3958)\r\n\t\tat reactor.core.publisher.Mono.subscribe(Mono.java:3894)\r\n\t\tat org.springframework.test.web.reactive.server.HttpHandlerConnector.doConnect(HttpHandlerConnector.java:112)\r\n\t\tat org.springframework.test.web.reactive.server.HttpHandlerConnector.lambda$connect$0(HttpHandlerConnector.java:79)\r\n\t\tat reactor.core.publisher.MonoDefer.subscribe(MonoDefer.java:44)\r\n\t\tat reactor.core.publisher.Mono.subscribe(Mono.java:3987)\r\n\t\tat reactor.core.publisher.MonoSubscribeOn$SubscribeOnSubscriber.run(MonoSubscribeOn.java:126)\r\n\t\tat reactor.core.scheduler.WorkerTask.call(WorkerTask.java:84)\r\n\t\tat reactor.core.scheduler.WorkerTask.call(WorkerTask.java:37)\r\n\t\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)\r\n\t\tat java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:304)\r\n\t\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)\r\n\t\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)\r\n\t\tat java.base/java.lang.Thread.run(Thread.java:834)\r\n",
+      "Global-General-Atribute": "404 NOT_FOUND \"Global-General-Message\"",
+      "Global-Dev-Atribbute": "Global-Dev-Message"
+    }
+  ],
+  "required": [
+    "timestamp",
+    "path",
+    "status",
+    "error",
+    "message",
+    "requestId",
+    "trace",
+    "Global-General-Atribute",
+    "Global-Dev-Atribbute"
+  ],
+  "properties": {
+    "timestamp": {
+      "$id": "#/properties/timestamp",
+      "type": "string",
+      "title": "The timestamp schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "2022-01-06T17:34:03.780+00:00"
+      ]
+    },
+    "path": {
+      "$id": "#/properties/path",
+      "type": "string",
+      "title": "The path schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "/user/error"
+      ]
+    },
+    "status": {
+      "$id": "#/properties/status",
+      "type": "integer",
+      "title": "The status schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": 0,
+      "examples": [
+        404
+      ]
+    },
+    "error": {
+      "$id": "#/properties/error",
+      "type": "string",
+      "title": "The error schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "Not Found"
+      ]
+    },
+    "message": {
+      "$id": "#/properties/message",
+      "type": "string",
+      "title": "The message schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        ""
+      ]
+    },
+    "requestId": {
+      "$id": "#/properties/requestId",
+      "type": "string",
+      "title": "The requestId schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "3c4d5d18"
+      ]
+    },
+    "trace": {
+      "$id": "#/properties/trace",
+      "type": "string",
+      "title": "The trace schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "org.springframework.web.server.ResponseStatusException: 404 NOT_FOUND \"Global-General-Message\"\r\n\tat com.mongo.api.core.exceptions.global.GlobalException.globalErrorException(GlobalException.java:21)\r\n\tSuppressed: reactor.core.publisher.FluxOnAssembly$OnAssemblyException: \nAssembly trace from producer [reactor.core.publisher.MonoError] :\n\treactor.core.publisher.Mono.error\n\tcom.mongo.api.core.exceptions.global.GlobalException.globalErrorException(GlobalException.java:21)\nError has been observed at the following site(s):\n\t|_         Mono.error ⇢ at com.mongo.api.core.exceptions.global.GlobalException.globalErrorException(GlobalException.java:21)\n\t|_    Flux.concatWith ⇢ at com.mongo.api.modules.user.UserResource.globalExceptionError(UserResource.java:118)\n\t|_          Flux.from ⇢ at org.springframework.http.codec.json.AbstractJackson2Encoder.encode(AbstractJackson2Encoder.java:178)\n\t|_   Flux.collectList ⇢ at org.springframework.http.codec.json.AbstractJackson2Encoder.encode(AbstractJackson2Encoder.java:179)\n\t|_           Mono.map ⇢ at org.springframework.http.codec.json.AbstractJackson2Encoder.encode(AbstractJackson2Encoder.java:180)\n\t|_          Mono.flux ⇢ at org.springframework.http.codec.json.AbstractJackson2Encoder.encode(AbstractJackson2Encoder.java:181)\n\t|_          Flux.from ⇢ at org.springframework.http.server.reactive.ChannelSendOperator.<init>(ChannelSendOperator.java:57)\n\t|_                    ⇢ at org.springframework.http.codec.EncoderHttpMessageWriter.write(EncoderHttpMessageWriter.java:203)\n\t|_                    ⇢ at org.springframework.web.reactive.result.method.annotation.AbstractMessageWriterResultHandler.writeBody(AbstractMessageWriterResultHandler.java:104)\n\t|_                    ⇢ at org.springframework.web.reactive.result.method.annotation.ResponseBodyResultHandler.handleResult(ResponseBodyResultHandler.java:86)\n\t|_         checkpoint ⇢ Handler com.mongo.api.modules.user.UserResource#globalExceptionError() [DispatcherHandler]\n\t|_                    ⇢ at org.springframework.web.server.handler.DefaultWebFilterChain.lambda$filter$0(DefaultWebFilterChain.java:120)\n\t|_         Mono.defer ⇢ at org.springframework.web.server.handler.DefaultWebFilterChain.filter(DefaultWebFilterChain.java:119)\n\t|_                    ⇢ at org.springframework.web.server.handler.FilteringWebHandler.handle(FilteringWebHandler.java:59)\n\t|_                    ⇢ at org.springframework.web.server.handler.WebHandlerDecorator.handle(WebHandlerDecorator.java:56)\n\t|_         Mono.error ⇢ at org.springframework.web.server.handler.ExceptionHandlingWebHandler$CheckpointInsertingHandler.handle(ExceptionHandlingWebHandler.java:98)\n\t|_         checkpoint ⇢ HTTP GET \"/user/error?completeStackTrace=true\" [ExceptionHandlingWebHandler]\n\t|_                    ⇢ at org.springframework.web.server.handler.ExceptionHandlingWebHandler.lambda$handle$0(ExceptionHandlingWebHandler.java:77)\n\t|_ Mono.onErrorResume ⇢ at org.springframework.web.server.handler.ExceptionHandlingWebHandler.handle(ExceptionHandlingWebHandler.java:77)\nStack trace:\r\n\t\tat com.mongo.api.core.exceptions.global.GlobalException.globalErrorException(GlobalException.java:21)\r\n\t\tat com.mongo.api.modules.user.UserResource.globalExceptionError(UserResource.java:118)\r\n\t\tat java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\r\n\t\tat java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\r\n\t\tat java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\r\n\t\tat java.base/java.lang.reflect.Method.invoke(Method.java:566)\r\n\t\tat org.springframework.web.reactive.result.method.InvocableHandlerMethod.lambda$invoke$0(InvocableHandlerMethod.java:146)\r\n\t\tat reactor.core.publisher.FluxFlatMap.trySubscribeScalarMap(FluxFlatMap.java:151)\r\n\t\tat reactor.core.publisher.MonoFlatMap.subscribeOrReturn(MonoFlatMap.java:53)\r\n\t\tat reactor.core.publisher.InternalMonoOperator.subscribe(InternalMonoOperator.java:57)\r\n\t\tat reactor.core.publisher.MonoDefer.subscribe(MonoDefer.java:52)\r\n\t\tat reactor.core.publisher.InternalMonoOperator.subscribe(InternalMonoOperator.java:64)\r\n\t\tat reactor.core.publisher.MonoIgnoreThen$ThenIgnoreMain.drain(MonoIgnoreThen.java:154)\r\n\t\tat reactor.core.publisher.MonoIgnoreThen.subscribe(MonoIgnoreThen.java:56)\r\n\t\tat reactor.core.publisher.InternalMonoOperator.subscribe(InternalMonoOperator.java:64)\r\n\t\tat reactor.core.publisher.MonoFlatMap$FlatMapMain.onNext(MonoFlatMap.java:157)\r\n\t\tat reactor.core.publisher.FluxSwitchIfEmpty$SwitchIfEmptySubscriber.onNext(FluxSwitchIfEmpty.java:73)\r\n\t\tat reactor.core.publisher.MonoNext$NextSubscriber.onNext(MonoNext.java:82)\r\n\t\tat reactor.core.publisher.FluxConcatMap$ConcatMapImmediate.innerNext(FluxConcatMap.java:281)\r\n\t\tat reactor.core.publisher.FluxConcatMap$ConcatMapInner.onNext(FluxConcatMap.java:860)\r\n\t\tat reactor.core.publisher.FluxMapFuseable$MapFuseableSubscriber.onNext(FluxMapFuseable.java:127)\r\n\t\tat reactor.core.publisher.MonoPeekTerminal$MonoTerminalPeekSubscriber.onNext(MonoPeekTerminal.java:180)\r\n\t\tat reactor.core.publisher.Operators$ScalarSubscription.request(Operators.java:2346)\r\n\t\tat reactor.core.publisher.MonoPeekTerminal$MonoTerminalPeekSubscriber.request(MonoPeekTerminal.java:139)\r\n\t\tat reactor.core.publisher.FluxMapFuseable$MapFuseableSubscriber.request(FluxMapFuseable.java:169)\r\n\t\tat reactor.core.publisher.Operators$MultiSubscriptionSubscriber.set(Operators.java:2154)\r\n\t\tat reactor.core.publisher.Operators$MultiSubscriptionSubscriber.onSubscribe(Operators.java:2028)\r\n\t\tat reactor.core.publisher.FluxMapFuseable$MapFuseableSubscriber.onSubscribe(FluxMapFuseable.java:96)\r\n\t\tat reactor.core.publisher.MonoPeekTerminal$MonoTerminalPeekSubscriber.onSubscribe(MonoPeekTerminal.java:152)\r\n\t\tat reactor.core.publisher.MonoJust.subscribe(MonoJust.java:54)\r\n\t\tat reactor.core.publisher.Mono.subscribe(Mono.java:3987)\r\n\t\tat reactor.core.publisher.FluxConcatMap$ConcatMapImmediate.drain(FluxConcatMap.java:448)\r\n\t\tat reactor.core.publisher.FluxConcatMap$ConcatMapImmediate.onSubscribe(FluxConcatMap.java:218)\r\n\t\tat reactor.core.publisher.FluxIterable.subscribe(FluxIterable.java:164)\r\n\t\tat reactor.core.publisher.FluxIterable.subscribe(FluxIterable.java:86)\r\n\t\tat reactor.core.publisher.InternalMonoOperator.subscribe(InternalMonoOperator.java:64)\r\n\t\tat reactor.core.publisher.MonoDefer.subscribe(MonoDefer.java:52)\r\n\t\tat reactor.core.publisher.Mono.subscribe(Mono.java:3987)\r\n\t\tat reactor.core.publisher.MonoIgnoreThen$ThenIgnoreMain.drain(MonoIgnoreThen.java:173)\r\n\t\tat reactor.core.publisher.MonoIgnoreThen.subscribe(MonoIgnoreThen.java:56)\r\n\t\tat reactor.core.publisher.Mono.subscribe(Mono.java:3987)\r\n\t\tat reactor.core.publisher.Mono.subscribeWith(Mono.java:4102)\r\n\t\tat reactor.core.publisher.Mono.subscribe(Mono.java:3958)\r\n\t\tat reactor.core.publisher.Mono.subscribe(Mono.java:3894)\r\n\t\tat org.springframework.test.web.reactive.server.HttpHandlerConnector.lambda$doConnect$2(HttpHandlerConnector.java:98)\r\n\t\tat org.springframework.mock.http.client.reactive.MockClientHttpRequest.lambda$null$2(MockClientHttpRequest.java:125)\r\n\t\tat reactor.core.publisher.MonoDefer.subscribe(MonoDefer.java:44)\r\n\t\tat reactor.core.publisher.Mono.subscribe(Mono.java:3987)\r\n\t\tat reactor.core.publisher.FluxConcatIterable$ConcatIterableSubscriber.onComplete(FluxConcatIterable.java:147)\r\n\t\tat reactor.core.publisher.FluxConcatIterable.subscribe(FluxConcatIterable.java:60)\r\n\t\tat reactor.core.publisher.Mono.subscribe(Mono.java:3987)\r\n\t\tat reactor.core.publisher.Mono.subscribeWith(Mono.java:4102)\r\n\t\tat reactor.core.publisher.Mono.subscribe(Mono.java:3958)\r\n\t\tat reactor.core.publisher.Mono.subscribe(Mono.java:3894)\r\n\t\tat org.springframework.test.web.reactive.server.HttpHandlerConnector.doConnect(HttpHandlerConnector.java:112)\r\n\t\tat org.springframework.test.web.reactive.server.HttpHandlerConnector.lambda$connect$0(HttpHandlerConnector.java:79)\r\n\t\tat reactor.core.publisher.MonoDefer.subscribe(MonoDefer.java:44)\r\n\t\tat reactor.core.publisher.Mono.subscribe(Mono.java:3987)\r\n\t\tat reactor.core.publisher.MonoSubscribeOn$SubscribeOnSubscriber.run(MonoSubscribeOn.java:126)\r\n\t\tat reactor.core.scheduler.WorkerTask.call(WorkerTask.java:84)\r\n\t\tat reactor.core.scheduler.WorkerTask.call(WorkerTask.java:37)\r\n\t\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)\r\n\t\tat java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:304)\r\n\t\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)\r\n\t\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)\r\n\t\tat java.base/java.lang.Thread.run(Thread.java:834)\r\n"
+      ]
+    },
+    "Global-General-Atribute": {
+      "$id": "#/properties/Global-General-Atribute",
+      "type": "string",
+      "title": "The Global-General-Atribute schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "404 NOT_FOUND \"Global-General-Message\""
+      ]
+    },
+    "Global-Dev-Atribbute": {
+      "$id": "#/properties/Global-Dev-Atribbute",
+      "type": "string",
+      "title": "The Global-Dev-Atribbute schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "Global-Dev-Message"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,7 +1,7 @@
 package com.mongo.api.modules.comment;
 
 import com.mongo.api.core.dto.CommentAllDtoFull;
-import com.mongo.api.core.exceptions.customExceptions.CustomExceptions;
+import com.mongo.api.core.exceptions.custom.CustomExceptionsThrower;
 import com.mongo.api.modules.post.IPostService;
 import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.user.IUserService;
@@ -15,6 +15,12 @@ import reactor.core.publisher.Mono;
 import static com.mongo.api.core.routes.RoutesComment.*;
 import static org.springframework.http.HttpStatus.*;
 
+// ==> EXCEPTIONS IN CONTROLLER:
+// *** REASON: IN WEBFLUX, EXCEPTIONS MUST BE IN CONTROLLER - WHY?
+//     - "Como stream pode ser manipulado por diferentes grupos de thread,
+//     - caso um erro aconteça em uma thread que não é a que operou a controller,
+//     - o ControllerAdvice não vai ser notificado "
+//     - https://medium.com/nstech/programa%C3%A7%C3%A3o-reativa-com-spring-boot-webflux-e-mongodb-chega-de-sofrer-f92fb64517c3
 @Slf4j
 @RestController
 @AllArgsConstructor
@@ -27,7 +33,7 @@ public class CommentResource {
 
   private final ICommentService commentService;
 
-  private final CustomExceptions customExceptions;
+  private final CustomExceptionsThrower customExceptionsThrower;
 
 
   @GetMapping(FIND_ALL_COMMENTS)
@@ -49,7 +55,7 @@ public class CommentResource {
   public Mono<Comment> findById(@PathVariable String id) {
     return commentService
          .findById(id)
-         .switchIfEmpty(customExceptions.commentNotFoundException());
+         .switchIfEmpty(customExceptionsThrower.commentNotFoundException());
   }
 
 
@@ -58,7 +64,7 @@ public class CommentResource {
   public Mono<User> findUserByCommentId(@PathVariable String id) {
     return commentService
          .findUserByCommentId(id)
-         .switchIfEmpty(customExceptions.commentNotFoundException());
+         .switchIfEmpty(customExceptionsThrower.commentNotFoundException());
   }
 
 
@@ -67,7 +73,7 @@ public class CommentResource {
   public Flux<Comment> findCommentsByAuthorIdV1(@PathVariable String id) {
     return userService
          .findById(id)
-         .switchIfEmpty(customExceptions.userNotFoundException())
+         .switchIfEmpty(customExceptionsThrower.userNotFoundException())
          .flatMapMany(user1 -> commentService.findCommentsByAuthorIdV1(user1.getId()));
   }
 
@@ -76,7 +82,7 @@ public class CommentResource {
   public Flux<Comment> findCommentsByAuthor_IdV2(@PathVariable String id) {
     return userService
          .findById(id)
-         .switchIfEmpty(customExceptions.userNotFoundException())
+         .switchIfEmpty(customExceptionsThrower.userNotFoundException())
          .flatMapMany(user1 -> commentService.findCommentsByAuthor_IdV2(user1.getId()));
   }
 
@@ -86,7 +92,7 @@ public class CommentResource {
   public Flux<Comment> findCommentsByPostId(@PathVariable String id) {
     return postService
          .findById(id)
-         .switchIfEmpty(customExceptions.postNotFoundException())
+         .switchIfEmpty(customExceptionsThrower.postNotFoundException())
          .flatMapMany(postFound -> {
            return commentService.findCommentsByPostId(postFound.getPostId());
          });
@@ -99,11 +105,11 @@ public class CommentResource {
     return userService
          .findById(comment.getAuthor()
                           .getId())
-         .switchIfEmpty(customExceptions.userNotFoundException())
+         .switchIfEmpty(customExceptionsThrower.userNotFoundException())
 
          .then(postService
                     .findById(comment.getPostId())
-                    .switchIfEmpty(customExceptions.postNotFoundException()))
+                    .switchIfEmpty(customExceptionsThrower.postNotFoundException()))
 
          .then(commentService.saveLinked(comment));
   }
@@ -116,10 +122,10 @@ public class CommentResource {
 
          .findById(comment.getAuthor()
                           .getId())
-         .switchIfEmpty(customExceptions.userNotFoundException())
+         .switchIfEmpty(customExceptionsThrower.userNotFoundException())
 
          .then(postService.findById(comment.getPostId()))
-         .switchIfEmpty(customExceptions.postNotFoundException())
+         .switchIfEmpty(customExceptionsThrower.postNotFoundException())
 
          .then(commentService.saveEmbedSubst(comment));
   }
@@ -131,10 +137,10 @@ public class CommentResource {
     return userService
          .findById(comment.getAuthor()
                           .getId())
-         .switchIfEmpty(customExceptions.userNotFoundException())
+         .switchIfEmpty(customExceptionsThrower.userNotFoundException())
 
          .then(postService.findById(comment.getPostId())
-                       .switchIfEmpty(customExceptions.postNotFoundException()))
+                       .switchIfEmpty(customExceptionsThrower.postNotFoundException()))
 
          .then(commentService.saveEmbedList(comment));
   }
@@ -145,7 +151,7 @@ public class CommentResource {
   public Mono<Void> delete(@RequestBody Comment comment) {
     return commentService
          .findById(comment.getCommentId())
-         .switchIfEmpty(customExceptions.commentNotFoundException())
+         .switchIfEmpty(customExceptionsThrower.commentNotFoundException())
          .then(commentService.delete(comment));
   }
 
@@ -155,7 +161,7 @@ public class CommentResource {
   public Mono<Comment> update(@RequestBody Comment comment) {
     return commentService
          .findById(comment.getCommentId())
-         .switchIfEmpty(customExceptions.commentNotFoundException())
+         .switchIfEmpty(customExceptionsThrower.commentNotFoundException())
          .then(commentService.update(comment));
   }
 

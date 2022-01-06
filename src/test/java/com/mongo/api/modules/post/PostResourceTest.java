@@ -267,7 +267,7 @@ class PostResourceTest {
   @Test
   @EnabledIf(expression = enabledTest, loadContext = true)
   public void delete() {
-    RestAssuredWebTestClient.responseSpecification = responseSpecNoContentType();
+    RestAssuredWebTestClient.responseSpecification = noContentTypeAndVoidResponses();
 
     RestAssuredWebTestClient
 

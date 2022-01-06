@@ -2,12 +2,13 @@ package com.mongo.api.modules.user;
 
 import com.mongo.api.core.dto.UserAllDto;
 import com.mongo.api.core.dto.UserDto;
-import com.mongo.api.core.exceptions.customExceptions.CustomExceptions;
-import com.mongo.api.core.exceptions.globalException.GlobalException;
+import com.mongo.api.core.exceptions.custom.CustomExceptionsThrower;
+import com.mongo.api.core.exceptions.global.GlobalExceptionCustomAttributes;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -19,8 +20,9 @@ import static org.springframework.http.HttpStatus.*;
 
 // ==> EXCEPTIONS IN CONTROLLER:
 // *** REASON: IN WEBFLUX, EXCEPTIONS MUST BE IN CONTROLLER - WHY?
-//     - "Como stream pode ser manipulado por diferentes grupos de thread, caso um erro aconteça em
-// uma thread que não é a que operou a controller, o ControllerAdvice não vai ser notificado "
+//     - "Como stream pode ser manipulado por diferentes grupos de thread,
+//     - caso um erro aconteça em uma thread que não é a que operou a controller,
+//     - o ControllerAdvice não vai ser notificado "
 //     - https://medium.com/nstech/programa%C3%A7%C3%A3o-reativa-com-spring-boot-webflux-e-mongodb-chega-de-sofrer-f92fb64517c3
 @Slf4j
 @RestController
@@ -32,17 +34,18 @@ public class UserResource {
 
   private final ModelMapper modelMapper;
 
-  private final CustomExceptions customExceptions;
+  private final CustomExceptionsThrower customException;
 
-  private final GlobalException globalException;
+  private final GlobalExceptionCustomAttributes globalException;
 
 
   @GetMapping(FIND_ALL_USERS)
   @ResponseStatus(OK)
   public Flux<User> findAll() {
+
     return service
          .findAll()
-         .switchIfEmpty(customExceptions.usersNotFoundException());
+         .switchIfEmpty(customException.usersNotFoundException());
   }
 
 
@@ -52,28 +55,30 @@ public class UserResource {
 
     return service
          .findById(id)
-         .switchIfEmpty(customExceptions.userNotFoundException())
-         .map(userFound -> modelMapper.map(userFound,UserDto.class));
+         .switchIfEmpty(customException.userNotFoundException())
+         .map(userFound -> modelMapper.map(userFound, UserDto.class));
   }
 
 
   @GetMapping(FIND_ALL_SHOW_ALL_DTO)
   @ResponseStatus(OK)
   public Flux<UserAllDto> findAllShowAllDto() {
+
     return service
          .findAllShowAllDto()
-         .switchIfEmpty(customExceptions.usersNotFoundException());
+         .switchIfEmpty(customException.usersNotFoundException());
   }
 
 
   @GetMapping(FIND_ALL_USERS_DTO)
   @ResponseStatus(OK)
   public Flux<UserDto> findAllDto() {
+
     return service
          .findAll()
-         .switchIfEmpty(customExceptions.usersNotFoundException())
+         .switchIfEmpty(customException.usersNotFoundException())
          .map(user -> {
-           return modelMapper.map(user,UserDto.class);
+           return modelMapper.map(user, UserDto.class);
          });
   }
 
@@ -82,20 +87,21 @@ public class UserResource {
   @ResponseStatus(CREATED)
   public Mono<UserDto> save(@Valid @RequestBody UserDto userDto) {
     // Criar dtoSanitizado (procedimento OWASP de sanitizacao/filter/clean) com excecao
-    User user = modelMapper.map(userDto,User.class);
+    User user = modelMapper.map(userDto, User.class);
 
     return service
          .save(user)
-         .map(item -> modelMapper.map(item,UserDto.class));
+         .map(item -> modelMapper.map(item, UserDto.class));
   }
 
 
   @DeleteMapping
   @ResponseStatus(NO_CONTENT)
   public Mono<Void> delete(@Valid @RequestBody UserDto userDto) {
+
     return service
          .findById(userDto.getId())
-         .switchIfEmpty(customExceptions.userNotFoundException())
+         .switchIfEmpty(customException.userNotFoundException())
          .flatMap(item -> service.delete(item.getId()));
   }
 
@@ -103,23 +109,22 @@ public class UserResource {
   @PutMapping
   @ResponseStatus(OK)
   public Mono<User> update(@Valid @RequestBody UserDto userDto) {
-    User user = modelMapper.map(userDto,User.class);
+
+    User user = modelMapper.map(userDto, User.class);
     return service
          .findById(user.getId())
-         .switchIfEmpty(customExceptions.userNotFoundException())
+         .switchIfEmpty(customException.userNotFoundException())
          .flatMap(userDB -> service.update(user));
   }
 
 
   @GetMapping(ERROR_PATH)
   public Flux<User> globalExceptionError() {
+
     return service
          .findAll()
-         .concatWith(globalException.globalErrorException());
+         .concatWith(
+              Mono.error(
+                   new ResponseStatusException(NOT_FOUND, globalException.getGlobalMessage())));
   }
 }
-
-
-
-
-

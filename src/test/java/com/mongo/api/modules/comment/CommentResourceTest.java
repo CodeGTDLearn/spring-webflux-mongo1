@@ -1,8 +1,8 @@
-package com.mongo.api.modules.comment;//package com.mongo.api.modules.comment;
+package com.mongo.api.modules.comment;
 
 import com.github.javafaker.Faker;
 import com.mongo.api.core.config.TestDbConfig;
-import com.mongo.api.core.exceptions.customExceptions.CustomExceptionsProperties;
+import com.mongo.api.core.exceptions.custom.CustomExceptionsCustomAttributes;
 import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.user.User;
 import config.annotations.MergedResource;
@@ -25,6 +25,7 @@ import static config.databuilders.UserBuilder.userWithID_IdPostsEmpty;
 import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE;
 import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE_PORT;
 import static config.utils.RestAssureSpecs.*;
+import static config.utils.RestAssureSpecs.noContentTypeAndVoidResponses;
 import static config.utils.TestUtils.*;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static java.util.Arrays.asList;
@@ -32,6 +33,7 @@ import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.http.HttpStatus.*;
+
 
 @Import({
      TestDbConfig.class,
@@ -69,7 +71,7 @@ class CommentResourceTest {
                                         .valid();
 
   @Autowired
-  CustomExceptionsProperties customExceptions;
+  CustomExceptionsCustomAttributes customExceptions;
 
   @Autowired
   TestDbUtils dbUtils;
@@ -396,7 +398,7 @@ class CommentResourceTest {
   @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("delete")
   void delete() {
-    RestAssuredWebTestClient.responseSpecification = responseSpecNoContentType();
+    RestAssuredWebTestClient.responseSpecification = noContentTypeAndVoidResponses();
 
     RestAssuredWebTestClient
 

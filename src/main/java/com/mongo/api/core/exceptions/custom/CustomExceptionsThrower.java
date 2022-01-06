@@ -1,6 +1,6 @@
-package com.mongo.api.core.exceptions.customExceptions;
+package com.mongo.api.core.exceptions.custom;
 
-import com.mongo.api.core.exceptions.customExceptions.customExceptionTypes.*;
+import com.mongo.api.core.exceptions.custom.types.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,41 +12,38 @@ import reactor.core.publisher.Mono;
 @Getter
 @Setter
 @AllArgsConstructor
-public class CustomExceptions {
+public class CustomExceptionsThrower {
 
-    private CustomExceptionsProperties customExceptionsProperties;
+    private CustomExceptionsCustomAttributes customExceptionsMessages;
 
 
     public <T> Mono<T> userNotFoundException() {
         return Mono.error(new UserNotFoundException(
-             customExceptionsProperties.getUserNotFoundMessage()));
+             customExceptionsMessages.getUserNotFoundMessage()));
     }
 
     public <T> Mono<T> usersNotFoundException() {
         return Mono.error(new UsersNotFoundException(
-             customExceptionsProperties.getUsersNotFoundMessage()));
+             customExceptionsMessages.getUsersNotFoundMessage()));
     }
 
 
     public <T> Mono<T> postNotFoundException() {
         return Mono.error(new PostNotFoundException(
-             customExceptionsProperties.getPostNotFoundMessage()));
+             customExceptionsMessages.getPostNotFoundMessage()));
     }
 
 
     public <T> Mono<T> authorNotFoundException() {
         return Mono.error(
                 new PostAuthorNotFoundException(
-                     customExceptionsProperties.getAuthorNotFoundMessage()));
+                     customExceptionsMessages.getAuthorNotFoundMessage()));
     }
 
 
     public <T> Mono<T> commentNotFoundException() {
         return Mono.error(new CommentNotFoundException(
-             customExceptionsProperties.getCommentNotFoundMessage()));
+             customExceptionsMessages.getCommentNotFoundMessage()));
     }
 
 }
-
-
-

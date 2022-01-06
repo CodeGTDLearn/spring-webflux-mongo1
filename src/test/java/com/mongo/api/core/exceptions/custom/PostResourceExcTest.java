@@ -1,8 +1,7 @@
-package com.mongo.api.core.exceptions;
+package com.mongo.api.core.exceptions.custom;
 
 import com.github.javafaker.Faker;
 import com.mongo.api.core.config.TestDbConfig;
-import com.mongo.api.core.exceptions.customExceptions.CustomExceptionsProperties;
 import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.user.User;
 import config.annotations.MergedResource;
@@ -35,6 +34,12 @@ import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
+// ==> EXCEPTIONS IN CONTROLLER:
+// *** REASON: IN WEBFLUX, EXCEPTIONS MUST BE IN CONTROLLER - WHY?
+//     - "Como stream pode ser manipulado por diferentes grupos de thread,
+//     - caso um erro aconteça em uma thread que não é a que operou a controller,
+//     - o ControllerAdvice não vai ser notificado "
+//     - https://medium.com/nstech/programa%C3%A7%C3%A3o-reativa-com-spring-boot-webflux-e-mongodb-chega-de-sofrer-f92fb64517c3
 @Import(TestDbConfig.class)
 @DisplayName("PostResourceExcTest")
 @MergedResource
@@ -49,7 +54,7 @@ class PostResourceExcTest {
   final String enabledTest = "true";
 
   @Autowired
-  CustomExceptionsProperties customExceptions;
+  CustomExceptionsCustomAttributes customExceptions;
 
   // MOCKED-SERVER: WEB-TEST-CLIENT(non-blocking client)'
   // SHOULD BE USED WITH 'TEST-CONTAINERS'
@@ -148,7 +153,7 @@ class PostResourceExcTest {
 
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getPostNotFoundMessage()))
-         .body(matchesJsonSchemaInClasspath("contracts/exceptions/postNotFound.json"))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/custom/postNotFound.json"))
     ;
   }
 
@@ -171,7 +176,7 @@ class PostResourceExcTest {
 
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getAuthorNotFoundMessage()))
-         .body(matchesJsonSchemaInClasspath("contracts/exceptions/authorNotFound.json"))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/custom/authorNotFound.json"))
     ;
   }
 
@@ -193,7 +198,7 @@ class PostResourceExcTest {
 
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getPostNotFoundMessage()))
-         .body(matchesJsonSchemaInClasspath("contracts/exceptions/postNotFound.json"))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/custom/postNotFound.json"))
     ;
   }
 
@@ -218,7 +223,7 @@ class PostResourceExcTest {
 
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getAuthorNotFoundMessage()))
-         .body(matchesJsonSchemaInClasspath("contracts/exceptions/authorNotFound.json"))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/custom/authorNotFound.json"))
     ;
   }
 
@@ -228,7 +233,7 @@ class PostResourceExcTest {
   @DisplayName("Delete")
   void Delete() {
 
-    RestAssuredWebTestClient.responseSpecification = responseSpecNoContentType();
+    RestAssuredWebTestClient.responseSpecification = noContentTypeAndVoidResponses();
 
     RestAssuredWebTestClient
 
@@ -245,7 +250,7 @@ class PostResourceExcTest {
 
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getPostNotFoundMessage()))
-         .body(matchesJsonSchemaInClasspath("contracts/exceptions/postNotFound.json"))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/custom/postNotFound.json"))
     ;
 
   }
@@ -271,7 +276,7 @@ class PostResourceExcTest {
 
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getPostNotFoundMessage()))
-         .body(matchesJsonSchemaInClasspath("contracts/exceptions/postNotFound.json"))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/custom/postNotFound.json"))
     ;
   }
 
@@ -294,7 +299,7 @@ class PostResourceExcTest {
 
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getPostNotFoundMessage()))
-         .body(matchesJsonSchemaInClasspath("contracts/exceptions/postNotFound.json"))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/custom/postNotFound.json"))
     ;
   }
 }

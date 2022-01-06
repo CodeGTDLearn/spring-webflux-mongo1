@@ -63,7 +63,7 @@ public class RestAssureSpecs {
   }
 
 
-  public static ResponseSpecification responseSpecNoContentType() {
+  public static ResponseSpecification noContentTypeAndVoidResponses() {
 
     return new ResponseSpecBuilder()
          .expectResponseTime(lessThanOrEqualTo(MAX_TIMEOUT))

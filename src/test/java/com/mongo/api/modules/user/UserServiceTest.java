@@ -3,8 +3,8 @@ package com.mongo.api.modules.user;
 import com.github.javafaker.Faker;
 import com.mongo.api.core.config.TestDbConfig;
 import com.mongo.api.core.dto.UserAllDto;
-import com.mongo.api.core.exceptions.customExceptions.CustomExceptions;
-import com.mongo.api.core.exceptions.customExceptions.CustomExceptionsProperties;
+import com.mongo.api.core.exceptions.custom.CustomExceptionsThrower;
+import com.mongo.api.core.exceptions.custom.CustomExceptionsCustomAttributes;
 import com.mongo.api.modules.comment.Comment;
 import com.mongo.api.modules.comment.CommentService;
 import com.mongo.api.modules.post.IPostService;
@@ -48,8 +48,8 @@ import static config.utils.TestUtils.*;
      UserService.class,
      PostService.class,
      CommentService.class,
-     CustomExceptions.class,
-     CustomExceptionsProperties.class,
+     CustomExceptionsThrower.class,
+     CustomExceptionsCustomAttributes.class,
      ModelMapper.class,
 })
 @DisplayName("UserServiceTest")

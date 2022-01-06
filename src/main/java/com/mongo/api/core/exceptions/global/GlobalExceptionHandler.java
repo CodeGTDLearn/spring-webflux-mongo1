@@ -1,4 +1,4 @@
-package com.mongo.api.core.exceptions.globalException;
+package com.mongo.api.core.exceptions.global;
 
 import org.springframework.boot.autoconfigure.web.WebProperties;
 import org.springframework.boot.autoconfigure.web.reactive.error.AbstractErrorWebExceptionHandler;
@@ -19,6 +19,17 @@ import java.util.Optional;
 
 import static org.springframework.boot.web.error.ErrorAttributeOptions.*;
 
+/*
+    ╔═══════════════════════════════════════════════════════════╗
+    ║              GLOBAL-EXCEPTIONS EXPLANATIONS               ║
+    ╠═══════════════════════════════════════════════════════════╣
+    ║             There is no Thrower in Global-Exceptions      ║
+    ║             Because Global-Exceptions are throwed         ║
+    ║                  for "the system by itself",              ║
+    ║           not programmatically in a specific method       ║
+    ║(meaning threw inside a method according the coder defined)║
+    ╚═══════════════════════════════════════════════════════════╝
+*/
 @Component
 @Order(-2)
 //CustomGlobalExceptionHandler COMES BEFORE the SpringWebFluxGlobalExceptionHandlerDefault

@@ -2,7 +2,7 @@ package com.mongo.api.modules.post;
 
 import com.mongo.api.core.dto.PostDto;
 import com.mongo.api.core.dto.PostDtoComments;
-import com.mongo.api.core.exceptions.customExceptions.CustomExceptions;
+import com.mongo.api.core.exceptions.custom.CustomExceptionsThrower;
 import com.mongo.api.modules.user.IUserService;
 import com.mongo.api.modules.user.User;
 import lombok.AllArgsConstructor;
@@ -15,6 +15,12 @@ import reactor.core.publisher.Mono;
 import static com.mongo.api.core.routes.RoutesPost.*;
 import static org.springframework.http.HttpStatus.*;
 
+// ==> EXCEPTIONS IN CONTROLLER:
+// *** REASON: IN WEBFLUX, EXCEPTIONS MUST BE IN CONTROLLER - WHY?
+//     - "Como stream pode ser manipulado por diferentes grupos de thread,
+//     - caso um erro aconteça em uma thread que não é a que operou a controller,
+//     - o ControllerAdvice não vai ser notificado "
+//     - https://medium.com/nstech/programa%C3%A7%C3%A3o-reativa-com-spring-boot-webflux-e-mongodb-chega-de-sofrer-f92fb64517c3
 @Slf4j
 @RestController
 @AllArgsConstructor
@@ -27,7 +33,7 @@ public class PostResource {
 
   private final ModelMapper modelMapper;
 
-  private final CustomExceptions customExceptions;
+  private final CustomExceptionsThrower customExceptionsThrower;
 
 
   @GetMapping(FIND_ALL_POSTS)
@@ -42,7 +48,7 @@ public class PostResource {
   public Mono<PostDto> findById(@PathVariable String id) {
     return postService
          .findById(id)
-         .switchIfEmpty(customExceptions.postNotFoundException())
+         .switchIfEmpty(customExceptionsThrower.postNotFoundException())
          .map(post -> modelMapper.map(post,PostDto.class));
   }
 
@@ -52,7 +58,7 @@ public class PostResource {
   public Flux<PostDto> findPostsByAuthor_Id(@PathVariable String id) {
     return userService
          .findById(id)
-         .switchIfEmpty(customExceptions.authorNotFoundException())
+         .switchIfEmpty(customExceptionsThrower.authorNotFoundException())
          .flatMapMany((userFound) ->
                            postService
                                 .findPostsByAuthor_Id(userFound.getId())
@@ -65,7 +71,7 @@ public class PostResource {
   public Mono<PostDtoComments> findPostByIdShowComments(@PathVariable String id) {
         return postService
              .findPostByIdShowComments(id)
-             .switchIfEmpty(customExceptions.postNotFoundException())
+             .switchIfEmpty(customExceptionsThrower.postNotFoundException())
              .map(item -> modelMapper.map(item,PostDtoComments.class));
   }
 
@@ -77,7 +83,7 @@ public class PostResource {
          .findById(post.getAuthor()
                        .getId())
 
-         .switchIfEmpty(customExceptions.authorNotFoundException())
+         .switchIfEmpty(customExceptionsThrower.authorNotFoundException())
 
          .then(postService.save(post));
   }
@@ -89,7 +95,7 @@ public class PostResource {
 
     return postService
          .findById(post.getPostId())
-         .switchIfEmpty(customExceptions.postNotFoundException())
+         .switchIfEmpty(customExceptionsThrower.postNotFoundException())
          .then(postService.delete(post));
   }
 
@@ -99,7 +105,7 @@ public class PostResource {
   public Mono<Post> update(@RequestBody Post newPost) {
     return postService
          .findById(newPost.getPostId())
-         .switchIfEmpty(customExceptions.postNotFoundException())
+         .switchIfEmpty(customExceptionsThrower.postNotFoundException())
          .then(postService.update(newPost));
   }
 
@@ -109,11 +115,11 @@ public class PostResource {
   public Mono<User> findUserByPostId(@PathVariable String id) {
     return postService
          .findById(id)
-         .switchIfEmpty(customExceptions.postNotFoundException())
+         .switchIfEmpty(customExceptionsThrower.postNotFoundException())
          .flatMap(item -> {
            return postService
                 .findUserByPostId(item.getPostId())
-                .switchIfEmpty(customExceptions.userNotFoundException());
+                .switchIfEmpty(customExceptionsThrower.userNotFoundException());
          });
   }
 }

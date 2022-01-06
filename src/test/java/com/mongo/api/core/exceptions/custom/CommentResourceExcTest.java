@@ -1,8 +1,7 @@
-package com.mongo.api.core.exceptions;//package com.mongo.api.modules.comment;
+package com.mongo.api.core.exceptions.custom;//package com.mongo.api.modules.comment;
 
 import com.github.javafaker.Faker;
 import com.mongo.api.core.config.TestDbConfig;
-import com.mongo.api.core.exceptions.customExceptions.CustomExceptionsProperties;
 import com.mongo.api.modules.comment.Comment;
 import com.mongo.api.modules.comment.ICommentService;
 import com.mongo.api.modules.post.Post;
@@ -34,6 +33,12 @@ import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
+// ==> EXCEPTIONS IN CONTROLLER:
+// *** REASON: IN WEBFLUX, EXCEPTIONS MUST BE IN CONTROLLER - WHY?
+//     - "Como stream pode ser manipulado por diferentes grupos de thread,
+//     - caso um erro aconteça em uma thread que não é a que operou a controller,
+//     - o ControllerAdvice não vai ser notificado "
+//     - https://medium.com/nstech/programa%C3%A7%C3%A3o-reativa-com-spring-boot-webflux-e-mongodb-chega-de-sofrer-f92fb64517c3
 @Import({
      TestDbConfig.class,
      //     PostService.class,
@@ -70,7 +75,7 @@ class CommentResourceExcTest {
                                         .valid();
 
   @Autowired
-  CustomExceptionsProperties customExceptions;
+  CustomExceptionsCustomAttributes customExceptions;
 
   @Autowired
   TestDbUtils dbUtils;
@@ -150,7 +155,7 @@ class CommentResourceExcTest {
 
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getCommentNotFoundMessage()))
-         .body(matchesJsonSchemaInClasspath("contracts/exceptions/commentNotFound.json"))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/custom/commentNotFound.json"))
     ;
   }
 
@@ -173,7 +178,7 @@ class CommentResourceExcTest {
 
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getCommentNotFoundMessage()))
-         .body(matchesJsonSchemaInClasspath("contracts/exceptions/commentNotFound.json"))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/custom/commentNotFound.json"))
     ;
   }
 
@@ -196,7 +201,7 @@ class CommentResourceExcTest {
 
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getUserNotFoundMessage()))
-         .body(matchesJsonSchemaInClasspath("contracts/exceptions/userNotFound.json"))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/custom/userNotFound.json"))
     ;
   }
 
@@ -219,7 +224,7 @@ class CommentResourceExcTest {
 
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getPostNotFoundMessage()))
-         .body(matchesJsonSchemaInClasspath("contracts/exceptions/postNotFound.json"))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/custom/postNotFound.json"))
     ;
   }
 
@@ -247,7 +252,7 @@ class CommentResourceExcTest {
 
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getUserNotFoundMessage()))
-         .body(matchesJsonSchemaInClasspath("contracts/exceptions/userNotFound.json"))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/custom/userNotFound.json"))
     ;
   }
 
@@ -275,7 +280,7 @@ class CommentResourceExcTest {
 
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getPostNotFoundMessage()))
-         .body(matchesJsonSchemaInClasspath("contracts/exceptions/postNotFound.json"))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/custom/postNotFound.json"))
     ;
   }
 
@@ -303,7 +308,7 @@ class CommentResourceExcTest {
 
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getUserNotFoundMessage()))
-         .body(matchesJsonSchemaInClasspath("contracts/exceptions/userNotFound.json"))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/custom/userNotFound.json"))
     ;
   }
 
@@ -331,7 +336,7 @@ class CommentResourceExcTest {
 
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getPostNotFoundMessage()))
-         .body(matchesJsonSchemaInClasspath("contracts/exceptions/postNotFound.json"))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/custom/postNotFound.json"))
     ;
   }
 
@@ -359,7 +364,7 @@ class CommentResourceExcTest {
 
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getUserNotFoundMessage()))
-         .body(matchesJsonSchemaInClasspath("contracts/exceptions/userNotFound.json"))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/custom/userNotFound.json"))
     ;
   }
 
@@ -387,7 +392,7 @@ class CommentResourceExcTest {
 
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getPostNotFoundMessage()))
-         .body(matchesJsonSchemaInClasspath("contracts/exceptions/postNotFound.json"))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/custom/postNotFound.json"))
     ;
   }
 
@@ -396,7 +401,7 @@ class CommentResourceExcTest {
   @EnabledIf(expression = enabledTest, loadContext = true)
   @DisplayName("deleteExc")
   void deleteExc() {
-    RestAssuredWebTestClient.responseSpecification = responseSpecNoContentType();
+    RestAssuredWebTestClient.responseSpecification = noContentTypeAndVoidResponses();
 
     comment1.setCommentId(invalidId);
 
@@ -415,7 +420,7 @@ class CommentResourceExcTest {
 
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getCommentNotFoundMessage()))
-         .body(matchesJsonSchemaInClasspath("contracts/exceptions/commentNotFound.json"))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/custom/commentNotFound.json"))
     ;
 
     dbUtils.countAndExecuteCommentFlux(commentService.findAll(),1);
@@ -443,7 +448,7 @@ class CommentResourceExcTest {
 
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getCommentNotFoundMessage()))
-         .body(matchesJsonSchemaInClasspath("contracts/exceptions/commentNotFound.json"))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/custom/commentNotFound.json"))
     ;
   }
 }

@@ -2,7 +2,7 @@ package com.mongo.api.modules.comment;//package com.mongo.api.modules.comment;
 
 import com.github.javafaker.Faker;
 import com.mongo.api.core.config.TestDbConfig;
-import com.mongo.api.core.exceptions.customExceptions.CustomExceptionsProperties;
+import com.mongo.api.core.exceptions.custom.CustomExceptionsCustomAttributes;
 import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.user.User;
 import config.annotations.MergedResource;
@@ -53,7 +53,7 @@ class CommentServiceTest {
 
 
   @Autowired
-  CustomExceptionsProperties customExceptions;
+  CustomExceptionsCustomAttributes customExceptions;
 
   @Autowired
   TestDbUtils dbUtils;

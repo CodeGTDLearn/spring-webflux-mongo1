@@ -1,9 +1,8 @@
-package com.mongo.api.core.exceptions;
+package com.mongo.api.core.exceptions.custom;
 
 import com.github.javafaker.Faker;
 import com.mongo.api.core.config.TestDbConfig;
-import com.mongo.api.core.exceptions.customExceptions.CustomExceptionsProperties;
-import com.mongo.api.core.exceptions.globalException.GlobalExceptionProperties;
+import com.mongo.api.core.exceptions.global.GlobalExceptionCustomAttributes;
 import com.mongo.api.modules.user.User;
 import config.annotations.MergedResource;
 import config.testcontainer.TcComposeConfig;
@@ -22,7 +21,6 @@ import reactor.test.StepVerifier;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.mongo.api.core.routes.RoutesError.ERROR_PATH;
 import static com.mongo.api.core.routes.RoutesUser.*;
 import static config.databuilders.UserBuilder.userWithID_IdPostsEmpty;
 import static config.testcontainer.TcComposeConfig.TC_COMPOSE_SERVICE;
@@ -35,6 +33,12 @@ import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInC
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
+// ==> EXCEPTIONS IN CONTROLLER:
+// *** REASON: IN WEBFLUX, EXCEPTIONS MUST BE IN CONTROLLER - WHY?
+//     - "Como stream pode ser manipulado por diferentes grupos de thread,
+//     - caso um erro aconteça em uma thread que não é a que operou a controller,
+//     - o ControllerAdvice não vai ser notificado "
+//     - https://medium.com/nstech/programa%C3%A7%C3%A3o-reativa-com-spring-boot-webflux-e-mongodb-chega-de-sofrer-f92fb64517c3
 @Import({TestDbConfig.class})
 @DisplayName("UserResourceExcTest")
 @MergedResource
@@ -60,10 +64,10 @@ class UserResourceExcTest {
   TestDbUtils dbUtils;
 
   @Autowired
-  CustomExceptionsProperties customExceptions;
+  CustomExceptionsCustomAttributes customExceptions;
 
   @Autowired
-  GlobalExceptionProperties globalException;
+  GlobalExceptionCustomAttributes globalException;
 
 
   @BeforeAll
@@ -114,7 +118,7 @@ class UserResourceExcTest {
 
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getUserNotFoundMessage()))
-         .body(matchesJsonSchemaInClasspath("contracts/exceptions/userNotFound.json"))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/custom/userNotFound.json"))
     ;
   }
 
@@ -147,7 +151,7 @@ class UserResourceExcTest {
 
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getUsersNotFoundMessage()))
-         .body(matchesJsonSchemaInClasspath("contracts/exceptions/userNotFound.json"))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/custom/userNotFound.json"))
     ;
   }
 
@@ -180,7 +184,7 @@ class UserResourceExcTest {
 
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getUsersNotFoundMessage()))
-         .body(matchesJsonSchemaInClasspath("contracts/exceptions/userNotFound.json"))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/custom/userNotFound.json"))
     ;
   }
 
@@ -213,7 +217,7 @@ class UserResourceExcTest {
 
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getUsersNotFoundMessage()))
-         .body(matchesJsonSchemaInClasspath("contracts/exceptions/userNotFound.json"))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/custom/userNotFound.json"))
     ;
   }
 
@@ -237,7 +241,7 @@ class UserResourceExcTest {
          .everything()
 
          .body("detail",equalTo(customExceptions.getUserNotFoundMessage()))
-         .body(matchesJsonSchemaInClasspath("contracts/exceptions/userNotFound.json"))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/custom/userNotFound.json"))
     ;
   }
 
@@ -261,36 +265,7 @@ class UserResourceExcTest {
 
          .statusCode(NOT_FOUND.value())
          .body("detail",equalTo(customExceptions.getUserNotFoundMessage()))
-         .body(matchesJsonSchemaInClasspath("contracts/exceptions/userNotFound.json"))
-    ;
-  }
-
-
-  @Test
-  @DisplayName("Global-Exception Error")
-  @EnabledIf(expression = enabledTest, loadContext = true)
-  public void globalExceptionError() {
-    RestAssuredWebTestClient
-         .given()
-         .webTestClient(mockedWebClient)
-
-         .when()
-         .get(ERROR_PATH)
-
-         .then()
-         .statusCode(NOT_FOUND.value())
-         .log()
-         .everything()
-
-         .body(
-              globalException.getGlobalAttribute(),
-              equalTo("404 NOT_FOUND \"" + globalException.getGlobalMessage() + "\"")
-              )
-         .body(
-              globalException.getDeveloperAttribute(),
-              equalTo(globalException.getDeveloperMessage())
-              )
-         .body(matchesJsonSchemaInClasspath("contracts/exceptions/globalException.json"))
+         .body(matchesJsonSchemaInClasspath("contracts/exceptions/custom/userNotFound.json"))
     ;
   }
 

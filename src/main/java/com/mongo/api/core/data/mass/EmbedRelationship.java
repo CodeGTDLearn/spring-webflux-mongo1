@@ -1,9 +1,9 @@
 package com.mongo.api.core.data.mass;
 
-import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.post.IPostRepo;
-import com.mongo.api.modules.user.User;
+import com.mongo.api.modules.post.Post;
 import com.mongo.api.modules.user.IUserRepo;
+import com.mongo.api.modules.user.User;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;

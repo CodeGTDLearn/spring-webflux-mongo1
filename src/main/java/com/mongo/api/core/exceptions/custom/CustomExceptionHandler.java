@@ -1,6 +1,6 @@
-package com.mongo.api.core.exceptions.customExceptions;
+package com.mongo.api.core.exceptions.custom;
 
-import com.mongo.api.core.exceptions.customExceptions.customExceptionTypes.*;
+import com.mongo.api.core.exceptions.custom.types.*;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -89,4 +89,3 @@ public class CustomExceptionHandler {
         return new ResponseEntity<>(customExceptionAttributes,NOT_FOUND);
     }
 }
-
